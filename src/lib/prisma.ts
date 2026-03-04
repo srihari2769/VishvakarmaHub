@@ -2,6 +2,12 @@ import { PrismaClient } from '@/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
+// Required for AWS RDS SSL: the PrismaPg adapter opens its own TLS connection
+// that rejects self-signed certificates unless this is set globally.
+if (process.env.DATABASE_URL?.includes('rds.amazonaws.com')) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };

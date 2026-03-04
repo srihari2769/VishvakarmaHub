@@ -15,14 +15,14 @@ export default function CategoriesPage() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Explore by <span className="gradient-text">Category</span>
+            Innovation <span className="gradient-text">Categories</span>
           </h1>
           <p className="text-lg text-muted max-w-2xl mx-auto">
-            Discover innovative startups across various industries and sectors.
+            Explore startups across diverse sectors transforming the future.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {CATEGORIES.map((category, index) => (
             <motion.div
               key={category.name}
