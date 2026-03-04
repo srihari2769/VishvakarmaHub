@@ -2,8 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
-// Strip any accidental quotes from env var (e.g. "7d" → 7d)
-const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '7d').replace(/^"|"$/g, '');
+const JWT_EXPIRES_IN = '7d';
 
 export interface JWTPayload {
   userId: string;

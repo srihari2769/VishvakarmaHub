@@ -48,6 +48,6 @@ export async function POST(request: NextRequest) {
     return successResponse({ user: userData, token });
   } catch (error: any) {
     console.error('Login error:', error?.message || error);
-    return errorResponse(error?.message || 'Internal server error', 500);
+    return errorResponse('Internal server error', 500);
   }
 }
