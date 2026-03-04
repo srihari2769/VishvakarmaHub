@@ -2,6 +2,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
 import bcrypt from 'bcryptjs';
 import { config } from 'dotenv';
+import pg from 'pg';
 
 config();
 
@@ -11,7 +12,13 @@ async function main() {
     throw new Error('DATABASE_URL environment variable is not set');
   }
 
-  const adapter = new PrismaPg({ connectionString });
+  const pool = new pg.Pool({
+    connectionString,
+    ssl: connectionString.includes('rds.amazonaws.com')
+      ? { rejectUnauthorized: false }
+      : undefined,
+  });
+  const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter } as any);
 
   console.log('🌱 Seeding database...');
