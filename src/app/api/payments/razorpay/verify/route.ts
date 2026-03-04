@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import crypto from 'crypto';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/lib/utils';
 
 // POST /api/payments/razorpay/verify — Verify Razorpay payment via webhook signature
