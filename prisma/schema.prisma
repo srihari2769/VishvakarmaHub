@@ -1,0 +1,306 @@
+// Vishvakarma Hub - Database Schema
+// Full-scale startup creation and public funding platform
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  USER
+  FOUNDER
+  ADMIN
+}
+
+enum StartupStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  COMPLETED
+  SUSPENDED
+}
+
+enum ProductStage {
+  IDEA
+  PROTOTYPE
+  MVP
+  LAUNCHED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  FAILED
+}
+
+enum ContributionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  UPI
+  CREDIT_CARD
+  DEBIT_CARD
+  RAZORPAY
+  STRIPE
+}
+
+enum DocumentType {
+  INCORPORATION_CERTIFICATE
+  FOUNDER_ID
+  BANK_PROOF
+  COMPANY_REGISTRATION
+}
+
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  CAMPAIGN_UPDATE
+  MILESTONE_COMPLETION
+  FUNDING_SUCCESS
+  NEW_STARTUP
+  CONTRIBUTION_RECEIVED
+  SYSTEM
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  password        String
+  firstName       String
+  lastName        String
+  avatar          String?
+  bio             String?
+  linkedIn        String?
+  phone           String?
+  role            Role      @default(USER)
+  emailVerified   Boolean   @default(false)
+  verifyToken     String?
+  resetToken      String?
+  resetTokenExpiry DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  startups        Startup[]
+  contributions   Contribution[]
+  comments        Comment[]
+  notifications   Notification[]
+  savedStartups   SavedStartup[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Startup {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique
+  shortDescription String
+  problemDescription String     @db.Text
+  targetAudience  String
+  solutionExplanation String    @db.Text
+  innovationUniqueness String   @db.Text
+  category        String
+  location        String
+  productStage    ProductStage  @default(IDEA)
+  status          StartupStatus @default(DRAFT)
+  logo            String?
+  pitchDeck       String?
+  demoVideo       String?
+  screenshots     String[]
+  aiScore         Int?
+  marketPotential String?
+  executionRisk   String?
+  startupPotential Int?
+  
+  founderId       String
+  founder         User          @relation(fields: [founderId], references: [id])
+  
+  campaign        Campaign?
+  documents       Document[]
+  milestones      Milestone[]
+  comments        Comment[]
+  savedBy         SavedStartup[]
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([slug])
+  @@index([category])
+  @@index([status])
+  @@index([founderId])
+  @@map("startups")
+}
+
+model Campaign {
+  id              String         @id @default(cuid())
+  fundingGoal     Float
+  raisedAmount    Float          @default(0)
+  supporterCount  Int            @default(0)
+  startDate       DateTime       @default(now())
+  endDate         DateTime
+  status          CampaignStatus @default(DRAFT)
+  
+  startupId       String         @unique
+  startup         Startup        @relation(fields: [startupId], references: [id])
+  
+  rewardTiers     RewardTier[]
+  contributions   Contribution[]
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([status])
+  @@map("campaigns")
+}
+
+model RewardTier {
+  id              String    @id @default(cuid())
+  name            String
+  amount          Float
+  description     String
+  maxClaims       Int?
+  claimedCount    Int       @default(0)
+  
+  campaignId      String
+  campaign        Campaign  @relation(fields: [campaignId], references: [id])
+  
+  contributions   Contribution[]
+  
+  @@map("reward_tiers")
+}
+
+model Contribution {
+  id              String             @id @default(cuid())
+  amount          Float
+  paymentMethod   PaymentMethod
+  transactionId   String?
+  status          ContributionStatus @default(PENDING)
+  
+  userId          String
+  user            User               @relation(fields: [userId], references: [id])
+  
+  campaignId      String
+  campaign        Campaign           @relation(fields: [campaignId], references: [id])
+  
+  rewardTierId    String?
+  rewardTier      RewardTier?        @relation(fields: [rewardTierId], references: [id])
+  
+  createdAt       DateTime           @default(now())
+
+  @@index([userId])
+  @@index([campaignId])
+  @@map("contributions")
+}
+
+model Document {
+  id              String         @id @default(cuid())
+  type            DocumentType
+  fileUrl         String
+  status          DocumentStatus @default(PENDING)
+  reviewNote      String?
+  
+  startupId       String
+  startup         Startup        @relation(fields: [startupId], references: [id])
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("documents")
+}
+
+model Milestone {
+  id              String          @id @default(cuid())
+  title           String
+  description     String
+  status          MilestoneStatus @default(PENDING)
+  targetDate      DateTime?
+  completedDate   DateTime?
+  
+  startupId       String
+  startup         Startup         @relation(fields: [startupId], references: [id])
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("milestones")
+}
+
+model Comment {
+  id              String    @id @default(cuid())
+  content         String    @db.Text
+  
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  
+  startupId       String
+  startup         Startup   @relation(fields: [startupId], references: [id])
+  
+  parentId        String?
+  parent          Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies         Comment[] @relation("CommentReplies")
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([startupId])
+  @@map("comments")
+}
+
+model Notification {
+  id              String           @id @default(cuid())
+  type            NotificationType
+  title           String
+  message         String
+  read            Boolean          @default(false)
+  link            String?
+  
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  
+  createdAt       DateTime         @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
+}
+
+model SavedStartup {
+  id              String    @id @default(cuid())
+  
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  
+  startupId       String
+  startup         Startup   @relation(fields: [startupId], references: [id])
+  
+  createdAt       DateTime  @default(now())
+
+  @@unique([userId, startupId])
+  @@map("saved_startups")
+}
