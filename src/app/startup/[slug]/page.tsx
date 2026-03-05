@@ -374,11 +374,11 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                 {aiEvaluating ? (
                   <p className="text-sm text-muted flex items-center gap-2 mt-1">
                     <SparklesIcon className="w-4 h-4 text-purple animate-pulse" />
-                    AI is evaluating your startup... This may take a few seconds.
+                    Evaluating your startup... This may take a few seconds.
                   </p>
                 ) : startup?.aiScore ? (
                   <p className="text-sm text-muted mt-1">
-                    AI evaluation complete — scroll down to see your scores.
+                    Evaluation complete — scroll down to see your scores.
                   </p>
                 ) : null}
               </div>
@@ -551,8 +551,8 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                     <div className="flex items-center gap-3">
                       <SparklesIcon className="w-6 h-6 text-purple animate-pulse" />
                       <div>
-                        <h2 className="text-xl font-semibold text-foreground">AI Evaluation in Progress</h2>
-                        <p className="text-sm text-muted mt-1">Our AI is analyzing your startup idea across innovation, market potential, execution risk, and overall viability...</p>
+                        <h2 className="text-xl font-semibold text-foreground">Manual Evaluation in Progress</h2>
+                        <p className="text-sm text-muted mt-1">Our team is evaluating your startup idea across innovation, market potential, execution risk, and overall viability...</p>
                       </div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -569,7 +569,7 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                   <Card className="p-6 bg-gradient-to-br from-blue/5 to-purple/5">
                     <div className="flex items-center gap-2 mb-4">
                       <SparklesIcon className="w-5 h-5 text-purple" />
-                      <h2 className="text-xl font-semibold text-foreground">AI Evaluation</h2>
+                      <h2 className="text-xl font-semibold text-foreground">Manual Evaluation</h2>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center">

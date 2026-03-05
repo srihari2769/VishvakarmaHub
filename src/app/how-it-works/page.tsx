@@ -28,11 +28,11 @@ const STEPS = [
   },
   {
     icon: CpuChipIcon,
-    title: 'AI Evaluation',
+    title: 'Manual Evaluation',
     description:
-      'Our AI engine analyzes your idea across innovation score, market potential, execution risk, and startup potential to give supporters confidence in backing your project.',
+      'Our expert team evaluates your idea across innovation score, market potential, execution risk, and startup potential to give supporters confidence in backing your project.',
     details: [
-      'Innovation scoring algorithm',
+      'Innovation scoring review',
       'Market potential assessment',
       'Execution risk analysis',
       'Competitive landscape evaluation',

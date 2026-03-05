@@ -43,8 +43,8 @@ const howItWorks = [
   },
   {
     step: '02',
-    title: 'AI Evaluation',
-    description: 'Our AI system analyzes market potential, competition, feasibility, and innovation to give your idea a score.',
+    title: 'Manual Evaluation',
+    description: 'Our expert team evaluates market potential, competition, feasibility, and innovation to give your idea a score.',
     icon: ChartBarIcon,
   },
   {
