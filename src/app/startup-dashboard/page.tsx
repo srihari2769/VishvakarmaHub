@@ -362,9 +362,11 @@ export default function StartupDashboardPage() {
                             <EyeIcon className="w-4 h-4 mr-1" /> View
                           </Button>
                         </Link>
-                        <Button variant="outline" size="sm">
-                          <PencilSquareIcon className="w-4 h-4 mr-1" /> Edit
-                        </Button>
+                        <Link href={`/edit-startup/${startup.slug}`}>
+                          <Button variant="outline" size="sm">
+                            <PencilSquareIcon className="w-4 h-4 mr-1" /> Edit
+                          </Button>
+                        </Link>
                       </div>
                     </div>
 

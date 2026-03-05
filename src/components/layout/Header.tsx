@@ -80,10 +80,13 @@ export default function Header() {
                 <Link href="/notifications" className="relative p-2 text-muted hover:text-foreground transition-colors">
                   <BellIcon className="w-5 h-5" />
                 </Link>
-                <Link href={getDashboardLink()}>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white text-sm font-semibold">
+                <Link href="/profile" title="Profile Settings">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white text-sm font-semibold cursor-pointer hover:ring-2 hover:ring-blue/50 transition-all">
                     {user?.firstName?.[0]?.toUpperCase() || 'U'}
                   </div>
+                </Link>
+                <Link href={getDashboardLink()} className="text-sm text-muted hover:text-foreground transition-colors">
+                  Dashboard
                 </Link>
                 <button onClick={logout} className="text-sm text-muted hover:text-danger transition-colors">
                   Logout
@@ -133,6 +136,9 @@ export default function Header() {
                   <>
                     <Link href="/submit-idea" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button className="w-full" size="sm">Submit Idea</Button>
+                    </Link>
+                    <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full" size="sm">Profile</Button>
                     </Link>
                     <Link href={getDashboardLink()} onClick={() => setIsMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full" size="sm">Dashboard</Button>
