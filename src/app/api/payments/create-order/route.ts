@@ -1,7 +1,10 @@
 import { NextRequest } from 'next/server';
+import Razorpay from 'razorpay';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 import { verifyToken } from '@/lib/auth';
+
+export const maxDuration = 30;
 
 // POST /api/payments/create-order — Create a Razorpay order for a contribution
 export async function POST(request: NextRequest) {
@@ -32,6 +35,12 @@ export async function POST(request: NextRequest) {
       return errorResponse('Campaign is not active', 400);
     }
 
+    // Get user for prefill
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { firstName: true, lastName: true, email: true, phone: true },
+    });
+
     // Create contribution record with PENDING status
     const contribution = await prisma.contribution.create({
       data: {
@@ -44,29 +53,29 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // In production, create actual Razorpay order:
-    // const Razorpay = require('razorpay');
-    // const razorpay = new Razorpay({
-    //   key_id: process.env.RAZORPAY_KEY_ID,
-    //   key_secret: process.env.RAZORPAY_SECRET,
-    // });
-    // const order = await razorpay.orders.create({
-    //   amount: amount * 100, // Razorpay uses paise
-    //   currency: 'INR',
-    //   receipt: contribution.id,
-    //   notes: { contribution_id: contribution.id, startup_id: startupId },
-    // });
+    // Create real Razorpay order
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID!,
+      key_secret: process.env.RAZORPAY_KEY_SECRET!,
+    });
 
-    const orderId = `order_${contribution.id.slice(0, 16)}`;
+    const order = await razorpay.orders.create({
+      amount: Math.round(amount * 100), // Razorpay uses paise
+      currency: 'INR',
+      receipt: contribution.id,
+      notes: { contribution_id: contribution.id, startup_id: startupId },
+    });
 
     return successResponse({
-      orderId,
+      orderId: order.id,
       contributionId: contribution.id,
       amount,
       currency: 'INR',
-      keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+      keyId: process.env.RAZORPAY_KEY_ID,
       prefill: {
-        name: `${decoded.userId}`,
+        name: user ? `${user.firstName} ${user.lastName}` : '',
+        email: user?.email || '',
+        contact: user?.phone || '',
       },
       notes: {
         contribution_id: contribution.id,

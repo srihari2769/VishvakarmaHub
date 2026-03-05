@@ -195,9 +195,9 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
           description: `Support ${startup.title}`,
           order_id: data.data.orderId,
           handler: async (response: any) => {
-            // Verify payment
+            // Verify payment on server
             try {
-              await fetch('/api/payments/verify', {
+              const verifyRes = await fetch('/api/payments/verify', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -224,8 +224,8 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
         };
 
         const rzp = new (window as any).Razorpay(options);
-        rzp.on('payment.failed', () => {
-          setPaymentError('Payment was cancelled or failed. Please try again.');
+        rzp.on('payment.failed', (response: any) => {
+          setPaymentError(response?.error?.description || 'Payment was cancelled or failed. Please try again.');
         });
         rzp.open();
         setPaymentLoading(false);
