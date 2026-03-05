@@ -120,7 +120,7 @@ export default function MultiSelect({
       {/* Dropdown */}
       {isOpen && (
         <div className="relative z-50">
-          <div className="absolute top-1 left-0 right-0 bg-card border border-border rounded-xl shadow-2xl shadow-black/30 overflow-hidden">
+          <div className="absolute bottom-full mb-1 left-0 right-0 bg-card border border-border rounded-xl shadow-2xl shadow-black/30 overflow-hidden">
             {/* Search */}
             <div className="p-2 border-b border-border">
               <div className="relative">
@@ -147,7 +147,7 @@ export default function MultiSelect({
             </div>
 
             {/* Options list */}
-            <div className="max-h-56 overflow-y-auto scrollbar-thin">
+            <div className="max-h-64 overflow-y-auto scrollbar-thin">
               {filteredOptions.length === 0 ? (
                 <div className="px-4 py-3 text-sm text-muted text-center">
                   No categories found

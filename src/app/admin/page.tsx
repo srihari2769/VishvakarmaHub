@@ -16,12 +16,15 @@ import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
   ChartBarIcon,
+  EyeIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
   id: string;
   title: string;
+  slug: string;
   category: string;
+  description?: string;
   createdAt: string;
   founder: { firstName: string; lastName: string; email: string };
 }
@@ -215,6 +218,13 @@ export default function AdminPage() {
                       </div>
                       <div className="flex gap-1">
                         <button
+                          onClick={() => router.push(`/startup/${s.slug}`)}
+                          className="p-1.5 rounded-lg hover:bg-blue/10 text-blue"
+                          title="View startup"
+                        >
+                          <EyeIcon className="w-5 h-5" />
+                        </button>
+                        <button
                           onClick={() => handleStartupAction(s.id, 'approve-startup')}
                           disabled={actionLoading === s.id}
                           className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-emerald-400"
@@ -287,6 +297,13 @@ export default function AdminPage() {
                         </p>
                       </div>
                       <div className="flex gap-2 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => router.push(`/startup/${s.slug}`)}
+                        >
+                          <EyeIcon className="w-4 h-4 mr-1" /> View
+                        </Button>
                         <Button
                           size="sm"
                           onClick={() => handleStartupAction(s.id, 'approve-startup')}
