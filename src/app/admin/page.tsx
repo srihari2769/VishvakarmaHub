@@ -17,6 +17,8 @@ import {
   MagnifyingGlassIcon,
   ChartBarIcon,
   EyeIcon,
+  BanknotesIcon,
+  ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -39,7 +41,34 @@ interface PlatformUser {
   createdAt: string;
 }
 
-type Tab = 'overview' | 'pending' | 'users' | 'reports';
+interface WithdrawalRequest {
+  id: string;
+  amount: number;
+  status: string;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  accountHolder: string;
+  note?: string;
+  adminNote?: string;
+  createdAt: string;
+  user: { firstName: string; lastName: string; email: string };
+  campaign: { startup: { title: string; slug: string } };
+}
+
+interface ReportData {
+  totalUsers: number;
+  totalStartups: number;
+  totalCampaigns: number;
+  totalFunding: number;
+  avgFunding: number;
+  totalContributions: number;
+  startupsByStatus: { status: string; count: number }[];
+  campaignsByStatus: { status: string; count: number }[];
+  withdrawalStats: { status: string; count: number; amount: number }[];
+}
+
+type Tab = 'overview' | 'pending' | 'users' | 'withdrawals' | 'reports';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -47,9 +76,12 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('overview');
   const [pendingStartups, setPendingStartups] = useState<PendingStartup[]>([]);
   const [users, setUsers] = useState<PlatformUser[]>([]);
-  const [stats, setStats] = useState({ totalUsers: 0, totalStartups: 0, totalFunding: 0, pendingReview: 0 });
+  const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
+  const [reports, setReports] = useState<ReportData | null>(null);
+  const [stats, setStats] = useState({ totalUsers: 0, totalStartups: 0, totalFunding: 0, pendingReview: 0, pendingWithdrawals: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [withdrawalNote, setWithdrawalNote] = useState('');
 
   useEffect(() => {
     checkAuth();
@@ -69,6 +101,8 @@ export default function AdminPage() {
       fetchAdmin('stats');
       fetchAdmin('pending-startups');
       fetchAdmin('users');
+      fetchAdmin('withdrawals');
+      fetchAdmin('reports');
     }
   }, [isAuthenticated, user]);
 
@@ -83,6 +117,8 @@ export default function AdminPage() {
         if (action === 'stats') setStats(data.data);
         if (action === 'pending-startups') setPendingStartups(data.data);
         if (action === 'users') setUsers(data.data);
+        if (action === 'withdrawals') setWithdrawals(data.data);
+        if (action === 'reports') setReports(data.data);
       }
     } catch (error) {
       console.error(`Failed to fetch ${action}:`, error);
@@ -114,14 +150,41 @@ export default function AdminPage() {
     setActionLoading(userId);
     try {
       const token = localStorage.getItem('token');
-      await fetch('/api/admin', {
+      const res = await fetch('/api/admin', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ action: 'suspend-user', userId }),
       });
-      fetchAdmin('users');
+      const data = await res.json();
+      if (data.success) {
+        setUsers((prev) =>
+          prev.map((u) => u.id === userId ? { ...u, isActive: data.data.isActive } : u)
+        );
+      }
     } catch (error) {
       console.error('Suspend failed:', error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleWithdrawalAction = async (withdrawalId: string, action: 'approve-withdrawal' | 'reject-withdrawal') => {
+    setActionLoading(withdrawalId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action, withdrawalId, adminNote: withdrawalNote }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchAdmin('withdrawals');
+        fetchAdmin('stats');
+        setWithdrawalNote('');
+      }
+    } catch (error) {
+      console.error('Withdrawal action failed:', error);
     } finally {
       setActionLoading(null);
     }
@@ -185,6 +248,7 @@ export default function AdminPage() {
             { id: 'overview' as Tab, label: 'Overview' },
             { id: 'pending' as Tab, label: `Pending (${pendingStartups.length})` },
             { id: 'users' as Tab, label: 'Users' },
+            { id: 'withdrawals' as Tab, label: `Withdrawals (${withdrawals.filter(w => w.status === 'PENDING').length})` },
             { id: 'reports' as Tab, label: 'Reports' },
           ]).map((t) => (
             <button
@@ -399,14 +463,208 @@ export default function AdminPage() {
           </motion.div>
         )}
 
+        {/* Withdrawals */}
+        {tab === 'withdrawals' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {withdrawals.length === 0 ? (
+              <Card className="p-12 text-center">
+                <BanknotesIcon className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+                <p className="text-foreground font-medium">No withdrawal requests</p>
+                <p className="text-muted text-sm">Withdrawal requests from founders will appear here</p>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {withdrawals.map((w) => (
+                  <Card key={w.id} className="p-5">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-foreground">
+                            {formatCurrency(w.amount)}
+                          </h3>
+                          <Badge
+                            variant={
+                              w.status === 'APPROVED' ? 'success' :
+                              w.status === 'REJECTED' ? 'danger' :
+                              w.status === 'COMPLETED' ? 'info' : 'warning'
+                            }
+                          >
+                            {w.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted mb-1">
+                          <span className="text-foreground font-medium">{w.user.firstName} {w.user.lastName}</span>
+                          {' '}&bull; {w.user.email}
+                        </p>
+                        <p className="text-sm text-muted mb-2">
+                          Campaign: <span className="text-foreground">{w.campaign.startup.title}</span>
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-muted bg-card-hover rounded-lg p-3">
+                          <div><span className="font-medium text-foreground">Bank:</span> {w.bankName}</div>
+                          <div><span className="font-medium text-foreground">A/C:</span> {w.accountNumber}</div>
+                          <div><span className="font-medium text-foreground">IFSC:</span> {w.ifscCode}</div>
+                          <div><span className="font-medium text-foreground">Holder:</span> {w.accountHolder}</div>
+                        </div>
+                        {w.note && <p className="text-xs text-muted mt-2">Note: {w.note}</p>}
+                        <p className="text-xs text-muted mt-1">
+                          Requested: {new Date(w.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      {w.status === 'PENDING' && (
+                        <div className="flex flex-col gap-2 shrink-0 min-w-[200px]">
+                          <input
+                            type="text"
+                            placeholder="Admin note (optional)"
+                            value={withdrawalNote}
+                            onChange={(e) => setWithdrawalNote(e.target.value)}
+                            className="w-full px-3 py-2 bg-input border border-border rounded-lg text-sm text-foreground placeholder-muted focus:outline-none focus:border-blue"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleWithdrawalAction(w.id, 'approve-withdrawal')}
+                              isLoading={actionLoading === w.id}
+                              className="flex-1"
+                            >
+                              <CheckCircleIcon className="w-4 h-4 mr-1" /> Approve
+                            </Button>
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              onClick={() => handleWithdrawalAction(w.id, 'reject-withdrawal')}
+                              isLoading={actionLoading === w.id}
+                              className="flex-1"
+                            >
+                              <XCircleIcon className="w-4 h-4 mr-1" /> Reject
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      {w.adminNote && (
+                        <p className="text-xs text-muted italic">Admin: {w.adminNote}</p>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* Reports */}
         {tab === 'reports' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <Card className="p-12 text-center">
-              <ChartBarIcon className="w-16 h-16 text-muted mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-foreground mb-2">Reports Coming Soon</h2>
-              <p className="text-muted">Financial reports, platform analytics, and moderation logs.</p>
-            </Card>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            {reports ? (
+              <>
+                {/* Key Metrics */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    { label: 'Total Users', value: reports.totalUsers, icon: UsersIcon, color: 'text-blue' },
+                    { label: 'Total Startups', value: reports.totalStartups, icon: RocketLaunchIcon, color: 'text-purple' },
+                    { label: 'Total Campaigns', value: reports.totalCampaigns, icon: ArrowTrendingUpIcon, color: 'text-orange' },
+                    { label: 'Total Funding', value: formatCurrency(reports.totalFunding), icon: CurrencyRupeeIcon, color: 'text-emerald-400' },
+                    { label: 'Avg per Campaign', value: formatCurrency(reports.avgFunding), icon: ChartBarIcon, color: 'text-cyan-400' },
+                    { label: 'Total Contributions', value: reports.totalContributions, icon: BanknotesIcon, color: 'text-yellow-400' },
+                  ].map((m) => {
+                    const Icon = m.icon;
+                    return (
+                      <Card key={m.label} className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 rounded-lg bg-card-hover flex items-center justify-center ${m.color}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-lg font-bold text-foreground">{m.value}</p>
+                            <p className="text-xs text-muted">{m.label}</p>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                {/* Startups by Status */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="p-6">
+                    <h3 className="font-semibold text-foreground mb-4">Startups by Status</h3>
+                    {reports.startupsByStatus.length === 0 ? (
+                      <p className="text-muted text-sm">No startup data yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {reports.startupsByStatus.map((s) => (
+                          <div key={s.status} className="flex items-center justify-between p-3 rounded-lg bg-card-hover">
+                            <Badge
+                              variant={
+                                s.status === 'APPROVED' ? 'success' :
+                                s.status === 'REJECTED' ? 'danger' :
+                                s.status === 'PENDING' ? 'warning' : 'default'
+                              }
+                            >
+                              {s.status}
+                            </Badge>
+                            <span className="font-bold text-foreground">{s.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Card>
+
+                  <Card className="p-6">
+                    <h3 className="font-semibold text-foreground mb-4">Campaigns by Status</h3>
+                    {reports.campaignsByStatus.length === 0 ? (
+                      <p className="text-muted text-sm">No campaign data yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {reports.campaignsByStatus.map((c) => (
+                          <div key={c.status} className="flex items-center justify-between p-3 rounded-lg bg-card-hover">
+                            <Badge
+                              variant={
+                                c.status === 'ACTIVE' ? 'success' :
+                                c.status === 'COMPLETED' ? 'info' :
+                                c.status === 'FAILED' ? 'danger' : 'default'
+                              }
+                            >
+                              {c.status}
+                            </Badge>
+                            <span className="font-bold text-foreground">{c.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Card>
+                </div>
+
+                {/* Withdrawal Summary */}
+                <Card className="p-6">
+                  <h3 className="font-semibold text-foreground mb-4">Withdrawal Summary</h3>
+                  {reports.withdrawalStats.length === 0 ? (
+                    <p className="text-muted text-sm">No withdrawals yet</p>
+                  ) : (
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {reports.withdrawalStats.map((w) => (
+                        <div key={w.status} className="p-4 rounded-xl bg-card-hover text-center">
+                          <Badge
+                            variant={
+                              w.status === 'APPROVED' || w.status === 'COMPLETED' ? 'success' :
+                              w.status === 'REJECTED' ? 'danger' : 'warning'
+                            }
+                          >
+                            {w.status}
+                          </Badge>
+                          <p className="text-lg font-bold text-foreground mt-2">{w.count}</p>
+                          <p className="text-xs text-muted">{formatCurrency(w.amount)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              </>
+            ) : (
+              <Card className="p-12 text-center">
+                <div className="animate-spin w-8 h-8 border-2 border-blue border-t-transparent rounded-full mx-auto" />
+                <p className="text-muted mt-4">Loading reports...</p>
+              </Card>
+            )}
           </motion.div>
         )}
       </div>

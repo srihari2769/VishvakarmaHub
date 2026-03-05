@@ -77,12 +77,20 @@ enum NotificationType {
   FUNDING_SUCCESS
   NEW_STARTUP
   CONTRIBUTION_RECEIVED
+  WITHDRAWAL
   SYSTEM
 }
 
 enum MilestoneStatus {
   PENDING
   IN_PROGRESS
+  COMPLETED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
   COMPLETED
 }
 
@@ -100,6 +108,7 @@ model User {
   phone           String?
   role            Role      @default(USER)
   emailVerified   Boolean   @default(false)
+  isActive        Boolean   @default(true)
   verifyToken     String?
   resetToken      String?
   resetTokenExpiry DateTime?
@@ -111,6 +120,7 @@ model User {
   comments        Comment[]
   notifications   Notification[]
   savedStartups   SavedStartup[]
+  withdrawals     Withdrawal[]
 
   @@index([email])
   @@map("users")
@@ -171,6 +181,7 @@ model Campaign {
   
   rewardTiers     RewardTier[]
   contributions   Contribution[]
+  withdrawals     Withdrawal[]
   
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -303,4 +314,30 @@ model SavedStartup {
 
   @@unique([userId, startupId])
   @@map("saved_startups")
+}
+
+model Withdrawal {
+  id              String           @id @default(cuid())
+  amount          Float
+  status          WithdrawalStatus @default(PENDING)
+  bankName        String
+  accountNumber   String
+  ifscCode        String
+  accountHolder   String
+  note            String?
+  adminNote       String?
+  processedAt     DateTime?
+  
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  
+  campaignId      String
+  campaign        Campaign         @relation(fields: [campaignId], references: [id])
+  
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("withdrawals")
 }
