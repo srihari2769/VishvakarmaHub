@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Input, Textarea, Select, MultiSelect, Card } from '@/components/ui';
+import { Button, Input, Textarea, Select, MultiSelect, FileUpload, Card } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
 import { CATEGORIES } from '@/lib/utils';
 import {
@@ -37,6 +37,13 @@ const PRODUCT_STAGES = [
   { value: 'GROWTH', label: 'Growth Stage' },
 ];
 
+interface UploadedFile {
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
 interface FormData {
   title: string;
   shortDescription: string;
@@ -48,6 +55,9 @@ interface FormData {
   innovationUniqueness: string;
   productStage: string;
   demoVideo: string;
+  logo: UploadedFile[];
+  pitchDeck: UploadedFile[];
+  screenshots: UploadedFile[];
   fundingGoal: string;
   endDate: string;
   rewardTiers: { name: string; amount: string; description: string; maxClaims: string }[];
@@ -72,6 +82,9 @@ export default function SubmitIdeaPage() {
     innovationUniqueness: '',
     productStage: 'IDEA',
     demoVideo: '',
+    logo: [],
+    pitchDeck: [],
+    screenshots: [],
     fundingGoal: '',
     endDate: '',
     rewardTiers: [{ name: 'Early Supporter', amount: '500', description: 'Thank you for your early support!', maxClaims: '' }],
@@ -164,6 +177,9 @@ export default function SubmitIdeaPage() {
         innovationUniqueness: form.innovationUniqueness,
         productStage: form.productStage,
         demoVideo: form.demoVideo || undefined,
+        logo: form.logo[0]?.url || undefined,
+        pitchDeck: form.pitchDeck[0]?.url || undefined,
+        screenshots: form.screenshots.map((f) => f.url),
         fundingGoal: Number(form.fundingGoal),
         endDate: form.endDate,
         rewardTiers: form.rewardTiers
@@ -377,11 +393,36 @@ export default function SubmitIdeaPage() {
                     onChange={(e) => updateField('demoVideo', e.target.value)}
                     placeholder="https://youtube.com/watch?v=..."
                   />
-                  <div className="border-2 border-dashed border-border rounded-xl p-8 text-center">
-                    <PhotoIcon className="w-12 h-12 text-muted mx-auto mb-3" />
-                    <p className="text-muted text-sm">File upload coming soon (requires S3 configuration)</p>
-                    <p className="text-xs text-muted mt-1">Logo, pitch deck, product screenshots</p>
-                  </div>
+                  <FileUpload
+                    label="Startup Logo"
+                    accept="image/*"
+                    multiple={false}
+                    maxFiles={1}
+                    maxSizeMB={5}
+                    files={form.logo}
+                    onChange={(files) => setForm((f) => ({ ...f, logo: files }))}
+                    hint="Square image recommended (PNG, JPG, WebP)"
+                  />
+                  <FileUpload
+                    label="Pitch Deck (optional)"
+                    accept=".pdf"
+                    multiple={false}
+                    maxFiles={1}
+                    maxSizeMB={10}
+                    files={form.pitchDeck}
+                    onChange={(files) => setForm((f) => ({ ...f, pitchDeck: files }))}
+                    hint="PDF format, max 10MB"
+                  />
+                  <FileUpload
+                    label="Product Screenshots (optional)"
+                    accept="image/*"
+                    multiple={true}
+                    maxFiles={5}
+                    maxSizeMB={5}
+                    files={form.screenshots}
+                    onChange={(files) => setForm((f) => ({ ...f, screenshots: files }))}
+                    hint="Upload up to 5 product images"
+                  />
                 </div>
               )}
 

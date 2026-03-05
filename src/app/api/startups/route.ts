@@ -110,6 +110,11 @@ export async function POST(request: NextRequest) {
       fundingGoal,
       campaignDuration,
       rewardTiers,
+      logo,
+      pitchDeck,
+      screenshots,
+      demoVideo,
+      endDate,
     } = body;
 
     // Validate required fields
@@ -133,12 +138,16 @@ export async function POST(request: NextRequest) {
         location,
         productStage: productStage || 'IDEA',
         status: 'PENDING',
+        logo: logo || null,
+        pitchDeck: pitchDeck || null,
+        demoVideo: demoVideo || null,
+        screenshots: screenshots || [],
         founderId: payload.userId,
         campaign: fundingGoal
           ? {
               create: {
                 fundingGoal: parseFloat(fundingGoal),
-                endDate: new Date(Date.now() + (parseInt(campaignDuration || '30') * 24 * 60 * 60 * 1000)),
+                endDate: endDate ? new Date(endDate) : new Date(Date.now() + (parseInt(campaignDuration || '30') * 24 * 60 * 60 * 1000)),
                 status: 'DRAFT',
                 rewardTiers: rewardTiers?.length
                   ? {
