@@ -125,7 +125,10 @@ export async function POST(request: NextRequest) {
       return errorResponse('All required fields must be filled', 400);
     }
 
-    const slug = slugify(title);
+    const baseSlug = slugify(title);
+    // Ensure slug uniqueness
+    const existing = await prisma.startup.findUnique({ where: { slug: baseSlug } });
+    const slug = existing ? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}` : baseSlug;
 
     // Create startup with campaign
     const startup = await prisma.startup.create({

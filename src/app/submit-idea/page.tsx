@@ -207,7 +207,15 @@ export default function SubmitIdeaPage() {
 
       clearTimeout(timeout);
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error('Non-JSON response:', text.substring(0, 200));
+        setSubmitError(res.status === 504 ? 'Server timed out. Please try again.' : `Server error (${res.status}). Please try again.`);
+        return;
+      }
       if (data.success) {
         router.push(`/startup/${data.data.slug}?submitted=true`);
       } else {
