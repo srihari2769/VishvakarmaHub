@@ -8,13 +8,12 @@ export const maxDuration = 30;
 // Use lightweight REST API calls instead of heavy googleapis package
 // This avoids cold-start timeouts on Vercel serverless functions
 
-async function getGoogleAccessToken(): Promise<string | null> {
+async function getGoogleAccessToken(): Promise<{ token: string | null; error?: string }> {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   let privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
   if (!email || !privateKey) {
-    console.error('Google Drive credentials missing:', { email: !!email, key: !!privateKey });
-    return null;
+    return { token: null, error: `Credentials missing: email=${!!email}, key=${!!privateKey}` };
   }
 
   // Handle both escaped \\n and literal \n in private key
@@ -49,14 +48,13 @@ async function getGoogleAccessToken(): Promise<string | null> {
     const tokenData = await tokenRes.json();
 
     if (!tokenData.access_token) {
-      console.error('Google OAuth token exchange failed:', tokenData);
-      return null;
+      return { token: null, error: `OAuth exchange failed: ${tokenData.error || tokenData.error_description || JSON.stringify(tokenData)}` };
     }
 
-    return tokenData.access_token;
+    return { token: tokenData.access_token };
   } catch (err) {
-    console.error('Google auth error:', err);
-    return null;
+    const msg = err instanceof Error ? err.message : String(err);
+    return { token: null, error: `JWT sign error: ${msg}` };
   }
 }
 
@@ -157,16 +155,18 @@ export async function POST(request: NextRequest) {
 
     // Try Google Drive upload
     const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    const accessToken = await getGoogleAccessToken();
+    const authResult = await getGoogleAccessToken();
 
     if (!folderId) {
       console.error('GOOGLE_DRIVE_FOLDER_ID not set');
       return errorResponse('File storage is not configured (missing folder ID).', 503);
     }
 
-    if (!accessToken) {
-      return errorResponse('File storage authentication failed. Please contact support.', 503);
+    if (!authResult.token) {
+      return errorResponse(`File storage auth failed: ${authResult.error}`, 503);
     }
+
+    const accessToken = authResult.token;
 
     {
       const timestamp = Date.now();
