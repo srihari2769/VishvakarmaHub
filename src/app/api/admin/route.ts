@@ -45,6 +45,18 @@ export async function GET(request: NextRequest) {
         return successResponse(pendingStartups);
       }
 
+      case 'all-startups': {
+        const allStartups = await prisma.startup.findMany({
+          include: {
+            founder: { select: { firstName: true, lastName: true, email: true } },
+            campaign: { select: { fundingGoal: true, raisedAmount: true, supporterCount: true, status: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 100,
+        });
+        return successResponse(allStartups);
+      }
+
       case 'users': {
         const users = await prisma.user.findMany({
           select: {

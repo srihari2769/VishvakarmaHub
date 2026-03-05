@@ -56,6 +56,17 @@ interface WithdrawalRequest {
   campaign: { startup: { title: string; slug: string } };
 }
 
+interface AllStartup {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  status: string;
+  createdAt: string;
+  founder: { firstName: string; lastName: string; email: string };
+  campaign: { fundingGoal: number; raisedAmount: number; supporterCount: number; status: string } | null;
+}
+
 interface ReportData {
   totalUsers: number;
   totalStartups: number;
@@ -68,13 +79,14 @@ interface ReportData {
   withdrawalStats: { status: string; count: number; amount: number }[];
 }
 
-type Tab = 'overview' | 'pending' | 'users' | 'withdrawals' | 'reports';
+type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'reports';
 
 export default function AdminPage() {
   const router = useRouter();
   const { user, isAuthenticated, checkAuth, isLoading } = useAuthStore();
   const [tab, setTab] = useState<Tab>('overview');
   const [pendingStartups, setPendingStartups] = useState<PendingStartup[]>([]);
+  const [allStartups, setAllStartups] = useState<AllStartup[]>([]);
   const [users, setUsers] = useState<PlatformUser[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [reports, setReports] = useState<ReportData | null>(null);
@@ -100,6 +112,7 @@ export default function AdminPage() {
     if (isAuthenticated && user?.role === 'ADMIN') {
       fetchAdmin('stats');
       fetchAdmin('pending-startups');
+      fetchAdmin('all-startups');
       fetchAdmin('users');
       fetchAdmin('withdrawals');
       fetchAdmin('reports');
@@ -116,6 +129,7 @@ export default function AdminPage() {
       if (data.success) {
         if (action === 'stats') setStats(data.data);
         if (action === 'pending-startups') setPendingStartups(data.data);
+        if (action === 'all-startups') setAllStartups(data.data);
         if (action === 'users') setUsers(data.data);
         if (action === 'withdrawals') setWithdrawals(data.data);
         if (action === 'reports') setReports(data.data);
@@ -138,6 +152,7 @@ export default function AdminPage() {
       if (data.success) {
         setPendingStartups((prev) => prev.filter((s) => s.id !== startupId));
         fetchAdmin('stats');
+        fetchAdmin('all-startups');
       }
     } catch (error) {
       console.error('Action failed:', error);
@@ -247,6 +262,7 @@ export default function AdminPage() {
           {([
             { id: 'overview' as Tab, label: 'Overview' },
             { id: 'pending' as Tab, label: `Pending (${pendingStartups.length})` },
+            { id: 'startups' as Tab, label: `All Startups (${allStartups.length})` },
             { id: 'users' as Tab, label: 'Users' },
             { id: 'withdrawals' as Tab, label: `Withdrawals (${withdrawals.filter(w => w.status === 'PENDING').length})` },
             { id: 'reports' as Tab, label: 'Reports' },
@@ -388,6 +404,92 @@ export default function AdminPage() {
                   </Card>
                 ))}
               </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* All Startups */}
+        {tab === 'startups' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {allStartups.length === 0 ? (
+              <Card className="p-12 text-center">
+                <RocketLaunchIcon className="w-12 h-12 text-muted mx-auto mb-3" />
+                <p className="text-foreground font-medium">No startups on the platform</p>
+                <p className="text-muted text-sm">Startups will appear here once founders submit ideas.</p>
+              </Card>
+            ) : (
+              <Card className="overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-card">
+                        <th className="px-4 py-3 text-left text-muted font-medium">Startup</th>
+                        <th className="px-4 py-3 text-left text-muted font-medium">Founder</th>
+                        <th className="px-4 py-3 text-left text-muted font-medium">Category</th>
+                        <th className="px-4 py-3 text-left text-muted font-medium">Status</th>
+                        <th className="px-4 py-3 text-left text-muted font-medium">Funding</th>
+                        <th className="px-4 py-3 text-left text-muted font-medium">Submitted</th>
+                        <th className="px-4 py-3 text-left text-muted font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allStartups.map((s) => (
+                        <tr key={s.id} className="border-b border-border/50 hover:bg-card-hover transition-colors">
+                          <td className="px-4 py-3 font-medium text-foreground">{s.title}</td>
+                          <td className="px-4 py-3 text-muted">{s.founder.firstName} {s.founder.lastName}</td>
+                          <td className="px-4 py-3 text-muted">{s.category}</td>
+                          <td className="px-4 py-3">
+                            <Badge variant={
+                              s.status === 'APPROVED' ? 'success' :
+                              s.status === 'PENDING' ? 'warning' :
+                              s.status === 'REJECTED' ? 'danger' : 'default'
+                            }>
+                              {s.status}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 text-foreground">
+                            {s.campaign
+                              ? `${formatCurrency(s.campaign.raisedAmount)} / ${formatCurrency(s.campaign.fundingGoal)}`
+                              : 'No campaign'}
+                          </td>
+                          <td className="px-4 py-3 text-muted">{new Date(s.createdAt).toLocaleDateString()}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => router.push(`/startup/${s.slug}`)}
+                                className="p-1.5 rounded-lg hover:bg-blue/10 text-blue"
+                                title="View"
+                              >
+                                <EyeIcon className="w-4 h-4" />
+                              </button>
+                              {s.status === 'PENDING' && (
+                                <>
+                                  <button
+                                    onClick={() => handleStartupAction(s.id, 'approve-startup')}
+                                    disabled={actionLoading === s.id}
+                                    className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-emerald-400"
+                                    title="Approve"
+                                  >
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleStartupAction(s.id, 'reject-startup')}
+                                    disabled={actionLoading === s.id}
+                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400"
+                                    title="Reject"
+                                  >
+                                    <XCircleIcon className="w-4 h-4" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
             )}
           </motion.div>
         )}

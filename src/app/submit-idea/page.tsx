@@ -205,7 +205,7 @@ export default function SubmitIdeaPage() {
       if (data.success) {
         router.push(`/startup/${data.data.slug}?submitted=true`);
       } else {
-        setSubmitError(data.message || 'Failed to submit');
+        setSubmitError(data.error || data.message || 'Failed to submit');
       }
     } catch {
       setSubmitError('Something went wrong. Please try again.');

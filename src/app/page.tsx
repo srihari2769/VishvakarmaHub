@@ -1,9 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui';
+import StartupCard from '@/components/startup/StartupCard';
 import { CATEGORIES } from '@/lib/utils';
 import {
   RocketLaunchIcon,
@@ -346,22 +348,66 @@ export default function HomePage() {
 }
 
 function FeaturedStartups() {
+  const [startups, setStartups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/startups?limit=6')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setStartups(data.data.startups || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="animate-pulse">
+            <div className="h-48 bg-border/30" />
+            <div className="p-5 space-y-3">
+              <div className="h-5 bg-border/30 rounded w-3/4" />
+              <div className="h-4 bg-border/30 rounded w-full" />
+              <div className="h-4 bg-border/30 rounded w-1/2" />
+              <div className="h-2.5 bg-border/30 rounded-full w-full" />
+              <div className="flex justify-between">
+                <div className="h-3 bg-border/30 rounded w-20" />
+                <div className="h-3 bg-border/30 rounded w-16" />
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (startups.length === 0) {
+    return (
+      <div className="text-center py-12 bg-card/50 rounded-2xl border border-border/50">
+        <RocketLaunchIcon className="w-12 h-12 text-muted mx-auto mb-3" />
+        <h3 className="text-lg font-semibold text-foreground mb-1">No startups yet</h3>
+        <p className="text-muted text-sm mb-4">Be the first to launch your innovation on our platform.</p>
+        <Link href="/submit-idea">
+          <Button>Submit Your Idea</Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[1, 2, 3].map((i) => (
-        <Card key={i} className="animate-pulse">
-          <div className="h-48 bg-border/30" />
-          <div className="p-5 space-y-3">
-            <div className="h-5 bg-border/30 rounded w-3/4" />
-            <div className="h-4 bg-border/30 rounded w-full" />
-            <div className="h-4 bg-border/30 rounded w-1/2" />
-            <div className="h-2.5 bg-border/30 rounded-full w-full" />
-            <div className="flex justify-between">
-              <div className="h-3 bg-border/30 rounded w-20" />
-              <div className="h-3 bg-border/30 rounded w-16" />
-            </div>
-          </div>
-        </Card>
+      {startups.map((startup: any, i: number) => (
+        <motion.div
+          key={startup.id}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.1 }}
+        >
+          <StartupCard startup={startup} />
+        </motion.div>
       ))}
     </div>
   );
