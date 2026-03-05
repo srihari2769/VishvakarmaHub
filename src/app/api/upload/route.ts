@@ -10,11 +10,20 @@ export const maxDuration = 30;
 
 async function getGoogleAccessToken(): Promise<string | null> {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
   if (!email || !privateKey) {
     console.error('Google Drive credentials missing:', { email: !!email, key: !!privateKey });
     return null;
+  }
+
+  // Handle both escaped \\n and literal \n in private key
+  if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+  // Strip surrounding quotes if present
+  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1).replace(/\\n/g, '\n');
   }
 
   try {
@@ -150,7 +159,16 @@ export async function POST(request: NextRequest) {
     const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
     const accessToken = await getGoogleAccessToken();
 
-    if (accessToken && folderId) {
+    if (!folderId) {
+      console.error('GOOGLE_DRIVE_FOLDER_ID not set');
+      return errorResponse('File storage is not configured (missing folder ID).', 503);
+    }
+
+    if (!accessToken) {
+      return errorResponse('File storage authentication failed. Please contact support.', 503);
+    }
+
+    {
       const timestamp = Date.now();
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const fileName = `${timestamp}_${safeName}`;
@@ -182,9 +200,6 @@ export async function POST(request: NextRequest) {
         },
       });
     }
-
-    // No fallback — Google Drive is required for file storage
-    return errorResponse('File storage is not available. Please try again later.', 503);
   } catch (error) {
     console.error('Upload error:', error);
     const message = error instanceof Error ? error.message : 'Upload failed';
