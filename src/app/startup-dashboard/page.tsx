@@ -20,6 +20,8 @@ import {
   CheckCircleIcon,
   ClockIcon,
   XCircleIcon,
+  DocumentTextIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
 
 interface StartupSummary {
@@ -76,6 +78,31 @@ export default function StartupDashboardPage() {
   const [withdrawError, setWithdrawError] = useState('');
   const [withdrawSuccess, setWithdrawSuccess] = useState('');
   const [withdrawLoading, setWithdrawLoading] = useState(false);
+  const [draft, setDraft] = useState<{ title: string; step: number; categories: string[] } | null>(null);
+
+  // Check for saved draft in localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('vishvakarma_submit_idea_draft');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.form?.title) {
+          setDraft({
+            title: parsed.form.title,
+            step: parsed.step || 0,
+            categories: parsed.form.categories || [],
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const deleteDraft = () => {
+    localStorage.removeItem('vishvakarma_submit_idea_draft');
+    setDraft(null);
+  };
 
   useEffect(() => {
     checkAuth();
@@ -265,7 +292,40 @@ export default function StartupDashboardPage() {
 
         {tab === 'overview' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            {startups.length === 0 ? (
+            {/* Saved Draft Card */}
+            {draft && (
+              <Card className="p-6 border-2 border-dashed border-yellow-500/40 bg-yellow-500/5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                      <DocumentTextIcon className="w-5 h-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-foreground">{draft.title}</h3>
+                        <Badge variant="warning">Draft</Badge>
+                      </div>
+                      <p className="text-sm text-muted">
+                        {draft.categories.length > 0 ? draft.categories.join(', ') + ' • ' : ''}
+                        Step {draft.step + 1} of 6 completed
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link href="/submit-idea">
+                      <Button size="sm">
+                        <PencilSquareIcon className="w-4 h-4 mr-1" /> Continue Editing
+                      </Button>
+                    </Link>
+                    <Button variant="outline" size="sm" onClick={deleteDraft} className="text-red-400 border-red-400/30 hover:bg-red-400/10">
+                      <TrashIcon className="w-4 h-4 mr-1" /> Delete Draft
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {startups.length === 0 && !draft ? (
               <Card className="p-12 text-center">
                 <RocketLaunchIcon className="w-16 h-16 text-muted mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-foreground mb-2">No startups yet</h2>
@@ -276,7 +336,7 @@ export default function StartupDashboardPage() {
                   </Button>
                 </Link>
               </Card>
-            ) : (
+            ) : startups.length === 0 ? null : (
               startups.map((startup) => {
                 const progress = startup.campaign
                   ? calculateProgress(startup.campaign.raisedAmount, startup.campaign.fundingGoal)
@@ -338,14 +398,33 @@ export default function StartupDashboardPage() {
 
         {tab === 'startups' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-            {startups.length === 0 ? (
+            {/* Saved Draft Card in startups tab */}
+            {draft && (
+              <Card className="p-5 border-2 border-dashed border-yellow-500/40 bg-yellow-500/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <DocumentTextIcon className="w-5 h-5 text-yellow-400" />
+                    <div>
+                      <span className="font-medium text-foreground">{draft.title}</span>
+                      <Badge variant="warning" className="ml-2">Draft</Badge>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link href="/submit-idea" className="text-blue text-sm hover:underline">Continue</Link>
+                    <button onClick={deleteDraft} className="text-red-400 text-sm hover:underline">Delete</button>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {startups.length === 0 && !draft ? (
               <Card className="p-12 text-center">
                 <p className="text-muted">No startups created yet</p>
                 <Link href="/submit-idea">
                   <Button className="mt-4">Create Your First Startup</Button>
                 </Link>
               </Card>
-            ) : (
+            ) : startups.length === 0 ? null : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
