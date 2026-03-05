@@ -814,7 +814,7 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                 </div>
 
                 <Button className="w-full mt-4" size="lg" onClick={handleBackStartup}>
-                  Back This Startup
+                  Fund This Startup
                 </Button>
               </Card>
             )}
@@ -850,7 +850,7 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                 <>
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold text-foreground">
-                      {selectedTier ? `Support: ${selectedTier.name}` : 'Back This Startup'}
+                      {selectedTier ? `Support: ${selectedTier.name}` : 'Fund This Startup'}
                     </h3>
                     <button
                       onClick={() => setShowPaymentModal(false)}
