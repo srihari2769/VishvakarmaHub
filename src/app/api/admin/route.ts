@@ -246,3 +246,115 @@ export async function PATCH(request: NextRequest) {
     return errorResponse('Internal server error', 500);
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const token = getTokenFromRequest(request);
+    if (!token) return errorResponse('Unauthorized', 401);
+
+    const payload = verifyToken(token);
+    if (payload.role !== 'ADMIN') return errorResponse('Forbidden', 403);
+
+    const body = await request.json();
+    const { action, startupId, userId } = body;
+
+    switch (action) {
+      case 'delete-startup': {
+        if (!startupId) return errorResponse('Startup ID required', 400);
+
+        const startup = await prisma.startup.findUnique({
+          where: { id: startupId },
+          include: { campaign: { select: { id: true } } },
+        });
+        if (!startup) return errorResponse('Startup not found', 404);
+
+        // Delete in correct order to respect foreign keys
+        // 1. Delete comments (self-referencing: delete replies first)
+        await prisma.comment.deleteMany({ where: { startupId, parentId: { not: null } } });
+        await prisma.comment.deleteMany({ where: { startupId } });
+
+        // 2. Delete saved startups
+        await prisma.savedStartup.deleteMany({ where: { startupId } });
+
+        // 3. Delete documents
+        await prisma.document.deleteMany({ where: { startupId } });
+
+        // 4. Delete milestones
+        await prisma.milestone.deleteMany({ where: { startupId } });
+
+        // 5. If campaign exists, delete its children then the campaign
+        if (startup.campaign) {
+          const campaignId = startup.campaign.id;
+          await prisma.withdrawal.deleteMany({ where: { campaignId } });
+          await prisma.contribution.deleteMany({ where: { campaignId } });
+          await prisma.rewardTier.deleteMany({ where: { campaignId } });
+          await prisma.campaign.delete({ where: { id: campaignId } });
+        }
+
+        // 6. Delete the startup itself
+        await prisma.startup.delete({ where: { id: startupId } });
+
+        return successResponse({ message: 'Startup deleted successfully' });
+      }
+
+      case 'delete-user': {
+        if (!userId) return errorResponse('User ID required', 400);
+
+        const targetUser = await prisma.user.findUnique({
+          where: { id: userId },
+          include: {
+            startups: { include: { campaign: { select: { id: true } } } },
+          },
+        });
+        if (!targetUser) return errorResponse('User not found', 404);
+        if (targetUser.role === 'ADMIN') return errorResponse('Cannot delete admin users', 403);
+
+        // 1. Delete all user's startups and their children
+        for (const startup of targetUser.startups) {
+          await prisma.comment.deleteMany({ where: { startupId: startup.id, parentId: { not: null } } });
+          await prisma.comment.deleteMany({ where: { startupId: startup.id } });
+          await prisma.savedStartup.deleteMany({ where: { startupId: startup.id } });
+          await prisma.document.deleteMany({ where: { startupId: startup.id } });
+          await prisma.milestone.deleteMany({ where: { startupId: startup.id } });
+
+          if (startup.campaign) {
+            const campaignId = startup.campaign.id;
+            await prisma.withdrawal.deleteMany({ where: { campaignId } });
+            await prisma.contribution.deleteMany({ where: { campaignId } });
+            await prisma.rewardTier.deleteMany({ where: { campaignId } });
+            await prisma.campaign.delete({ where: { id: campaignId } });
+          }
+
+          await prisma.startup.delete({ where: { id: startup.id } });
+        }
+
+        // 2. Delete user's comments on other startups
+        await prisma.comment.deleteMany({ where: { userId, parentId: { not: null } } });
+        await prisma.comment.deleteMany({ where: { userId } });
+
+        // 3. Delete user's contributions to other campaigns
+        await prisma.contribution.deleteMany({ where: { userId } });
+
+        // 4. Delete user's saved startups
+        await prisma.savedStartup.deleteMany({ where: { userId } });
+
+        // 5. Delete user's notifications
+        await prisma.notification.deleteMany({ where: { userId } });
+
+        // 6. Delete user's withdrawals (any remaining)
+        await prisma.withdrawal.deleteMany({ where: { userId } });
+
+        // 7. Delete the user
+        await prisma.user.delete({ where: { id: userId } });
+
+        return successResponse({ message: 'User deleted successfully' });
+      }
+
+      default:
+        return errorResponse('Invalid action', 400);
+    }
+  } catch (error) {
+    console.error('Admin delete error:', error);
+    return errorResponse('Internal server error', 500);
+  }
+}

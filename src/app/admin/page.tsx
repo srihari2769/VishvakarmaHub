@@ -19,6 +19,8 @@ import {
   EyeIcon,
   BanknotesIcon,
   ArrowTrendingUpIcon,
+  TrashIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -39,6 +41,7 @@ interface PlatformUser {
   role: string;
   isActive: boolean;
   createdAt: string;
+  _count?: { startups: number; contributions: number };
 }
 
 interface WithdrawalRequest {
@@ -94,6 +97,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [withdrawalNote, setWithdrawalNote] = useState('');
+  const [viewUser, setViewUser] = useState<PlatformUser | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'startup' | 'user'; id: string; name: string } | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -178,6 +183,59 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Suspend failed:', error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteStartup = async (startupId: string) => {
+    setActionLoading(startupId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'delete-startup', startupId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPendingStartups((prev) => prev.filter((s) => s.id !== startupId));
+        setAllStartups((prev) => prev.filter((s) => s.id !== startupId));
+        fetchAdmin('stats');
+        setDeleteConfirm(null);
+      } else {
+        alert(data.error || 'Failed to delete startup');
+      }
+    } catch (error) {
+      console.error('Delete startup failed:', error);
+      alert('Failed to delete startup');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    setActionLoading(userId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'delete-user', userId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+        fetchAdmin('stats');
+        fetchAdmin('all-startups');
+        fetchAdmin('pending-startups');
+        setDeleteConfirm(null);
+      } else {
+        alert(data.error || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Delete user failed:', error);
+      alert('Failed to delete user');
     } finally {
       setActionLoading(null);
     }
@@ -399,6 +457,14 @@ export default function AdminPage() {
                         >
                           <XCircleIcon className="w-4 h-4 mr-1" /> Reject
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeleteConfirm({ type: 'startup', id: s.id, name: s.title })}
+                          className="!text-red-400 hover:!bg-red-500/10"
+                        >
+                          <TrashIcon className="w-4 h-4 mr-1" /> Delete
+                        </Button>
                       </div>
                     </div>
                   </Card>
@@ -482,6 +548,13 @@ export default function AdminPage() {
                                   </button>
                                 </>
                               )}
+                              <button
+                                onClick={() => setDeleteConfirm({ type: 'startup', id: s.id, name: s.title })}
+                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400"
+                                title="Delete"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -546,15 +619,33 @@ export default function AdminPage() {
                         </td>
                         <td className="px-4 py-3 text-muted">{new Date(u.createdAt).toLocaleDateString()}</td>
                         <td className="px-4 py-3">
-                          {u.role !== 'ADMIN' && (
+                          <div className="flex gap-1 items-center">
                             <button
-                              onClick={() => handleSuspendUser(u.id)}
-                              disabled={actionLoading === u.id}
-                              className="text-xs text-red-400 hover:text-red-300"
+                              onClick={() => setViewUser(u)}
+                              className="p-1.5 rounded-lg hover:bg-blue/10 text-blue"
+                              title="View user"
                             >
-                              {u.isActive ? 'Suspend' : 'Reactivate'}
+                              <EyeIcon className="w-4 h-4" />
                             </button>
-                          )}
+                            {u.role !== 'ADMIN' && (
+                              <>
+                                <button
+                                  onClick={() => handleSuspendUser(u.id)}
+                                  disabled={actionLoading === u.id}
+                                  className={`text-xs px-2 py-1 rounded-lg ${u.isActive ? 'text-orange hover:bg-orange/10' : 'text-emerald-400 hover:bg-emerald-500/10'}`}
+                                >
+                                  {u.isActive ? 'Suspend' : 'Reactivate'}
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm({ type: 'user', id: u.id, name: `${u.firstName} ${u.lastName}` })}
+                                  className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400"
+                                  title="Delete user"
+                                >
+                                  <TrashIcon className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -770,6 +861,132 @@ export default function AdminPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                <ExclamationTriangleIcon className="w-5 h-5 text-red-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Confirm Delete</h3>
+            </div>
+            <p className="text-muted text-sm mb-1">
+              Are you sure you want to permanently delete this {deleteConfirm.type}?
+            </p>
+            <p className="text-foreground font-medium mb-4">&quot;{deleteConfirm.name}&quot;</p>
+            {deleteConfirm.type === 'user' && (
+              <p className="text-xs text-red-400 mb-4">
+                This will also delete all their startups, campaigns, contributions, and related data.
+              </p>
+            )}
+            {deleteConfirm.type === 'startup' && (
+              <p className="text-xs text-red-400 mb-4">
+                This will also delete the campaign, contributions, milestones, comments, and all related data.
+              </p>
+            )}
+            <div className="flex gap-3 justify-end">
+              <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                isLoading={actionLoading === deleteConfirm.id}
+                onClick={() => {
+                  if (deleteConfirm.type === 'startup') handleDeleteStartup(deleteConfirm.id);
+                  else handleDeleteUser(deleteConfirm.id);
+                }}
+              >
+                <TrashIcon className="w-4 h-4 mr-1" /> Delete
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* User View Modal */}
+      {viewUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setViewUser(null)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-foreground">User Details</h3>
+              <button onClick={() => setViewUser(null)} className="p-1.5 rounded-lg hover:bg-card-hover text-muted">
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white text-xl font-bold">
+                {viewUser.firstName[0]}
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-foreground">{viewUser.firstName} {viewUser.lastName}</p>
+                <p className="text-sm text-muted">{viewUser.email}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="p-3 rounded-xl bg-card-hover">
+                <p className="text-xs text-muted mb-1">Role</p>
+                <Badge variant={viewUser.role === 'ADMIN' ? 'info' : viewUser.role === 'FOUNDER' ? 'success' : 'default'}>
+                  {viewUser.role}
+                </Badge>
+              </div>
+              <div className="p-3 rounded-xl bg-card-hover">
+                <p className="text-xs text-muted mb-1">Status</p>
+                <Badge variant={viewUser.isActive ? 'success' : 'danger'}>
+                  {viewUser.isActive ? 'Active' : 'Suspended'}
+                </Badge>
+              </div>
+              <div className="p-3 rounded-xl bg-card-hover">
+                <p className="text-xs text-muted mb-1">Startups</p>
+                <p className="text-foreground font-semibold">{viewUser._count?.startups ?? 0}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-card-hover">
+                <p className="text-xs text-muted mb-1">Contributions</p>
+                <p className="text-foreground font-semibold">{viewUser._count?.contributions ?? 0}</p>
+              </div>
+            </div>
+            <div className="p-3 rounded-xl bg-card-hover mb-6">
+              <p className="text-xs text-muted mb-1">Joined</p>
+              <p className="text-foreground text-sm">{new Date(viewUser.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            </div>
+            <div className="flex gap-3 justify-end">
+              {viewUser.role !== 'ADMIN' && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { handleSuspendUser(viewUser.id); setViewUser(null); }}
+                  >
+                    {viewUser.isActive ? 'Suspend' : 'Reactivate'}
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => { setViewUser(null); setDeleteConfirm({ type: 'user', id: viewUser.id, name: `${viewUser.firstName} ${viewUser.lastName}` }); }}
+                  >
+                    <TrashIcon className="w-4 h-4 mr-1" /> Delete
+                  </Button>
+                </>
+              )}
+              <Button variant="ghost" size="sm" onClick={() => setViewUser(null)}>
+                Close
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
