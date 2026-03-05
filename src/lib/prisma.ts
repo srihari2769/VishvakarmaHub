@@ -20,6 +20,9 @@ function createPrismaClient() {
     // Force SSL with rejectUnauthorized: false for RDS self-signed certs
     ssl: isRDS ? { rejectUnauthorized: false } : undefined,
     max: 5,
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 20000,
+    statement_timeout: 15000,
   });
 
   const adapter = new PrismaPg(pool);

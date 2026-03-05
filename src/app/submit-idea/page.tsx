@@ -192,6 +192,9 @@ export default function SubmitIdeaPage() {
           })),
       };
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25000);
+
       const res = await fetch('/api/startups', {
         method: 'POST',
         headers: {
@@ -199,7 +202,10 @@ export default function SubmitIdeaPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeout);
 
       const data = await res.json();
       if (data.success) {
@@ -209,7 +215,11 @@ export default function SubmitIdeaPage() {
       }
     } catch (err) {
       console.error('Submit error:', err);
-      setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setSubmitError('Request timed out. Please try again — the server may be starting up.');
+      } else {
+        setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
