@@ -100,7 +100,7 @@ export async function PATCH(
     const {
       title, shortDescription, problemDescription, targetAudience,
       solutionExplanation, innovationUniqueness, category, location,
-      productStage, logo, pitchDeck, demoVideo, screenshots,
+      productStage, logo, thumbnail, pitchDeck, demoVideo, screenshots,
     } = body;
 
     const updateData: Record<string, unknown> = {};
@@ -114,6 +114,7 @@ export async function PATCH(
     if (location !== undefined) updateData.location = location;
     if (productStage !== undefined) updateData.productStage = productStage;
     if (logo !== undefined) updateData.logo = logo;
+    if (thumbnail !== undefined) updateData.thumbnail = thumbnail;
     if (pitchDeck !== undefined) updateData.pitchDeck = pitchDeck;
     if (demoVideo !== undefined) updateData.demoVideo = demoVideo;
     if (screenshots !== undefined) updateData.screenshots = screenshots;

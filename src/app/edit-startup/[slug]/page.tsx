@@ -39,6 +39,7 @@ interface FormData {
   innovationUniqueness: string;
   productStage: string;
   logo: UploadedFile[];
+  thumbnail: UploadedFile[];
   pitchDeck: UploadedFile[];
   screenshots: UploadedFile[];
   demoVideo: string;
@@ -64,6 +65,7 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
     innovationUniqueness: '',
     productStage: 'IDEA',
     logo: [],
+    thumbnail: [],
     pitchDeck: [],
     screenshots: [],
     demoVideo: '',
@@ -96,6 +98,7 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
           innovationUniqueness: s.innovationUniqueness || '',
           productStage: s.productStage || 'IDEA',
           logo: s.logo ? [{ url: s.logo, name: 'logo', size: 0, type: 'image/png' }] : [],
+          thumbnail: s.thumbnail ? [{ url: s.thumbnail, name: 'thumbnail', size: 0, type: 'image/png' }] : [],
           pitchDeck: s.pitchDeck ? [{ url: s.pitchDeck, name: 'pitch-deck', size: 0, type: 'application/pdf' }] : [],
           screenshots: (s.screenshots || []).map((url: string, i: number) => ({
             url, name: `screenshot-${i + 1}`, size: 0, type: 'image/png',
@@ -145,6 +148,7 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
           location: form.location,
           productStage: form.productStage,
           logo: form.logo[0]?.url || null,
+          thumbnail: form.thumbnail[0]?.url || null,
           pitchDeck: form.pitchDeck[0]?.url || null,
           demoVideo: form.demoVideo || null,
           screenshots: form.screenshots.map((f) => f.url),
@@ -285,6 +289,14 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
                   files={form.logo}
                   onChange={(files) => updateField('logo', files)}
                   hint="Square image recommended (PNG, JPG)"
+                />
+                <FileUpload
+                  label="Card Thumbnail"
+                  accept="image/*"
+                  maxFiles={1}
+                  files={form.thumbnail}
+                  onChange={(files) => updateField('thumbnail', files)}
+                  hint="Recommended size: 480 × 270 pixels — landscape (PNG, JPG, WebP)"
                 />
                 <FileUpload
                   label="Pitch Deck"
