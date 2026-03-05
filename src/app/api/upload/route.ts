@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import { verifyToken } from '@/lib/auth';
 import { errorResponse, getTokenFromRequest } from '@/lib/utils';
 
+export const maxDuration = 30;
+
 // Use lightweight REST API calls instead of heavy googleapis package
 // This avoids cold-start timeouts on Vercel serverless functions
 

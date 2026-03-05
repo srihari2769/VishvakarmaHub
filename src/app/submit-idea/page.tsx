@@ -207,8 +207,9 @@ export default function SubmitIdeaPage() {
       } else {
         setSubmitError(data.error || data.message || 'Failed to submit');
       }
-    } catch {
-      setSubmitError('Something went wrong. Please try again.');
+    } catch (err) {
+      console.error('Submit error:', err);
+      setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

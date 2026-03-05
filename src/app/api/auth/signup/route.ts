@@ -4,6 +4,8 @@ import { hashPassword, generateToken, generateVerificationToken } from '@/lib/au
 import { successResponse, errorResponse } from '@/lib/utils';
 import { validateEmail, validatePassword } from '@/lib/validations';
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

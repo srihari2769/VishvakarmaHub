@@ -3,6 +3,9 @@ import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { successResponse, errorResponse, getTokenFromRequest, slugify } from '@/lib/utils';
 
+// Allow up to 30s for cold starts + distant DB
+export const maxDuration = 30;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -188,6 +191,7 @@ export async function POST(request: NextRequest) {
     return successResponse(startup, 201);
   } catch (error) {
     console.error('Create startup error:', error);
-    return errorResponse('Internal server error', 500);
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    return errorResponse(message, 500);
   }
 }

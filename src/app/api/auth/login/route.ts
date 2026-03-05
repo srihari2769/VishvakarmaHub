@@ -4,6 +4,8 @@ import { comparePassword, generateToken } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/lib/utils';
 import { validateEmail } from '@/lib/validations';
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

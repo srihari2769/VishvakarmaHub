@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 
+export const maxDuration = 30;
+
 // GET - Fetch user's withdrawal requests
 export async function GET(request: NextRequest) {
   try {

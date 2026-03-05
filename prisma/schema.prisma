@@ -30,9 +30,12 @@ enum StartupStatus {
 
 enum ProductStage {
   IDEA
+  CONCEPT
   PROTOTYPE
   MVP
+  BETA
   LAUNCHED
+  GROWTH
 }
 
 enum CampaignStatus {
