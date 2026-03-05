@@ -21,6 +21,8 @@ import {
   XMarkIcon,
   CurrencyRupeeIcon,
   SparklesIcon,
+  DocumentTextIcon,
+  PhotoIcon,
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
@@ -545,7 +547,43 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                   <p className="text-muted leading-relaxed">{startup.innovationUniqueness}</p>
                 </Card>
 
-                {/* AI Score */}
+                {/* Pitch Deck & Screenshots */}
+                {(startup.pitchDeck || startup.screenshots.length > 0) && (
+                  <Card className="p-6">
+                    <h2 className="text-xl font-semibold text-foreground mb-4">Project Files</h2>
+                    {startup.pitchDeck && (
+                      <div className="mb-4">
+                        <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                          <DocumentTextIcon className="w-5 h-5 text-blue" /> Pitch Deck
+                        </h3>
+                        <a
+                          href={startup.pitchDeck}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue/10 text-blue hover:bg-blue/20 transition-colors text-sm font-medium"
+                        >
+                          <DocumentTextIcon className="w-4 h-4" /> View Pitch Deck
+                        </a>
+                      </div>
+                    )}
+                    {startup.screenshots.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                          <PhotoIcon className="w-5 h-5 text-purple" /> Screenshots
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          {startup.screenshots.map((url, i) => (
+                            <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-border hover:border-blue transition-colors">
+                              <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-40 object-cover" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                )}
+
+                {/* Manual Evaluation Score */}
                 {aiEvaluating && !startup.aiScore && (
                   <Card className="p-6 bg-gradient-to-br from-blue/5 to-purple/5 border-blue/20">
                     <div className="flex items-center gap-3">
