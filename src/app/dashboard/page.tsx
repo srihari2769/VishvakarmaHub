@@ -30,7 +30,7 @@ interface Notification {
   title: string;
   message: string;
   type: string;
-  isRead: boolean;
+  read: boolean;
   createdAt: string;
 }
 
@@ -52,6 +52,26 @@ export default function DashboardPage() {
       router.push('/login?redirect=/dashboard');
     }
   }, [isLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const token = localStorage.getItem('token');
+      // Fetch contributions
+      fetch('/api/contributions?mine=true', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => { if (data.success) setContributions(data.data || []); })
+        .catch(console.error);
+      // Fetch notifications
+      fetch('/api/notifications', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => { if (data.success) setNotifications(data.data || []); })
+        .catch(console.error);
+    }
+  }, [isAuthenticated, user]);
 
   if (isLoading || !user) {
     return (
@@ -273,7 +293,7 @@ export default function DashboardPage() {
                     <div
                       key={n.id}
                       className={`p-4 rounded-xl border ${
-                        n.isRead ? 'border-border bg-card' : 'border-blue/20 bg-blue/5'
+                        n.read ? 'border-border bg-card' : 'border-blue/20 bg-blue/5'
                       }`}
                     >
                       <div className="flex items-start justify-between">

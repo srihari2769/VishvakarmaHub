@@ -12,10 +12,19 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'newest';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
+    const founderMode = searchParams.get('founder');
 
-    const where: Record<string, unknown> = {
-      status: status || 'APPROVED',
-    };
+    const where: Record<string, unknown> = {};
+
+    // If founder=me, fetch only the current user's startups (any status)
+    if (founderMode === 'me') {
+      const token = getTokenFromRequest(request);
+      if (!token) return errorResponse('Unauthorized', 401);
+      const payload = verifyToken(token);
+      where.founderId = payload.userId;
+    } else {
+      where.status = status || 'APPROVED';
+    }
 
     if (category) {
       where.category = category;

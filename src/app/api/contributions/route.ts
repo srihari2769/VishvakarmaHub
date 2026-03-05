@@ -3,6 +3,45 @@ import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 
+export async function GET(request: NextRequest) {
+  try {
+    const token = getTokenFromRequest(request);
+    if (!token) return errorResponse('Unauthorized', 401);
+
+    const payload = verifyToken(token);
+    const contributions = await prisma.contribution.findMany({
+      where: { userId: payload.userId },
+      include: {
+        campaign: {
+          include: {
+            startup: { select: { title: true, slug: true, logo: true } },
+          },
+        },
+        rewardTier: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Map to frontend expected shape
+    const mapped = contributions.map((c) => ({
+      id: c.id,
+      amount: c.amount,
+      createdAt: c.createdAt,
+      startup: {
+        title: c.campaign.startup.title,
+        slug: c.campaign.startup.slug,
+        logo: c.campaign.startup.logo,
+      },
+      rewardTier: c.rewardTier,
+    }));
+
+    return successResponse(mapped);
+  } catch (error) {
+    console.error('Get contributions error:', error);
+    return errorResponse('Internal server error', 500);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);

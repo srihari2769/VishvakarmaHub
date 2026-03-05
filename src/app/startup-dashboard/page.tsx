@@ -53,9 +53,26 @@ export default function StartupDashboardPage() {
   }, [isLoading, isAuthenticated, router]);
 
   useEffect(() => {
-    // In production, fetch from /api/founder/startups
-    setDataLoading(false);
-  }, []);
+    if (isAuthenticated && user) {
+      const fetchStartups = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch('/api/startups?founder=me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data.success) {
+            setStartups(data.data.startups || []);
+          }
+        } catch (error) {
+          console.error('Failed to fetch startups:', error);
+        } finally {
+          setDataLoading(false);
+        }
+      };
+      fetchStartups();
+    }
+  }, [isAuthenticated, user]);
 
   if (isLoading || !user) {
     return (

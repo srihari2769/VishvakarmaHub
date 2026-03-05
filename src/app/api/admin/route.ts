@@ -12,22 +12,22 @@ export async function GET(request: NextRequest) {
     if (payload.role !== 'ADMIN') return errorResponse('Forbidden', 403);
 
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
+    const action = searchParams.get('action');
 
-    switch (type) {
+    switch (action) {
       case 'stats': {
-        const [userCount, startupCount, totalFunding, campaignCount] = await Promise.all([
+        const [userCount, startupCount, totalFunding, pendingCount] = await Promise.all([
           prisma.user.count(),
           prisma.startup.count(),
           prisma.campaign.aggregate({ _sum: { raisedAmount: true } }),
-          prisma.campaign.count({ where: { status: 'ACTIVE' } }),
+          prisma.startup.count({ where: { status: 'PENDING' } }),
         ]);
 
         return successResponse({
-          users: userCount,
-          startups: startupCount,
+          totalUsers: userCount,
+          totalStartups: startupCount,
           totalFunding: totalFunding._sum.raisedAmount || 0,
-          activeCampaigns: campaignCount,
+          pendingReview: pendingCount,
         });
       }
 
@@ -58,7 +58,9 @@ export async function GET(request: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 50,
         });
-        return successResponse(users);
+        // Map emailVerified to isActive for frontend
+        const mappedUsers = users.map((u) => ({ ...u, isActive: u.emailVerified }));
+        return successResponse(mappedUsers);
       }
 
       case 'campaigns': {
@@ -73,7 +75,7 @@ export async function GET(request: NextRequest) {
       }
 
       default:
-        return errorResponse('Invalid type parameter', 400);
+        return errorResponse('Invalid action parameter', 400);
     }
   } catch (error) {
     console.error('Admin API error:', error);
