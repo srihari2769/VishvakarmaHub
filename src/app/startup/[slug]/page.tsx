@@ -22,6 +22,7 @@ import {
   CurrencyRupeeIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 interface RewardTier {
   id: string;
@@ -115,6 +116,11 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
   const [paymentError, setPaymentError] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
+  // Save state
+  const [isSaved, setIsSaved] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
+
   // Comment state
   const [commentText, setCommentText] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
@@ -163,7 +169,17 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
     }
 
     fetchStartup();
-  }, [slug, justSubmitted]);
+
+    // Check if user has saved this startup
+    if (isAuthenticated && token) {
+      fetch(`/api/startups/${slug}/save`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((r) => r.json())
+        .then((d) => { if (d.success) setIsSaved(d.data.saved); })
+        .catch(() => {});
+    }
+  }, [slug, justSubmitted, isAuthenticated, token]);
 
   const handleSelectTier = (tier: RewardTier) => {
     if (!isAuthenticated) {
@@ -422,11 +438,65 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
 
             {/* Action Buttons */}
             <div className="flex gap-3 shrink-0 self-start">
-              <Button variant="outline" size="sm">
-                <ShareIcon className="w-4 h-4 mr-1" /> Share
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const url = window.location.href;
+                  if (navigator.share) {
+                    try {
+                      await navigator.share({ title: startup.title, url });
+                    } catch {}
+                  } else {
+                    await navigator.clipboard.writeText(url);
+                    setShareSuccess(true);
+                    setTimeout(() => setShareSuccess(false), 2000);
+                  }
+                }}
+              >
+                {shareSuccess ? (
+                  <><CheckCircleIcon className="w-4 h-4 mr-1 text-green-400" /> Copied!</>
+                ) : (
+                  <><ShareIcon className="w-4 h-4 mr-1" /> Share</>
+                )}
               </Button>
-              <Button variant="outline" size="sm">
-                <HeartIcon className="w-4 h-4 mr-1" /> Save
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={saveLoading}
+                onClick={async () => {
+                  if (!isAuthenticated) {
+                    router.push('/login');
+                    return;
+                  }
+                  setSaveLoading(true);
+                  try {
+                    const res = await fetch(`/api/startups/${slug}/save`, {
+                      method: 'POST',
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      setIsSaved(data.data.saved);
+                      if (startup) {
+                        setStartup({
+                          ...startup,
+                          _count: {
+                            ...startup._count,
+                            savedBy: startup._count.savedBy + (data.data.saved ? 1 : -1),
+                          },
+                        });
+                      }
+                    }
+                  } catch {}
+                  setSaveLoading(false);
+                }}
+              >
+                {isSaved ? (
+                  <><HeartSolidIcon className="w-4 h-4 mr-1 text-red-500" /> Saved</>
+                ) : (
+                  <><HeartIcon className="w-4 h-4 mr-1" /> Save</>
+                )}
               </Button>
             </div>
           </motion.div>
