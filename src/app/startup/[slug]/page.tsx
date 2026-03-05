@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Card, ProgressBar, Badge } from '@/components/ui';
 import { formatCurrency, calculateProgress, calculateDaysLeft } from '@/lib/utils';
@@ -20,6 +20,7 @@ import {
   ExclamationCircleIcon,
   XMarkIcon,
   CurrencyRupeeIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 
 interface RewardTier {
@@ -95,10 +96,16 @@ interface StartupDetail {
 export default function StartupPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const justSubmitted = searchParams.get('submitted') === 'true';
   const { isAuthenticated, token } = useAuthStore();
   const [startup, setStartup] = useState<StartupDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'milestones' | 'comments'>('overview');
+
+  // AI evaluation state
+  const [aiEvaluating, setAiEvaluating] = useState(false);
+  const [aiSummary, setAiSummary] = useState('');
 
   // Funding state
   const [selectedTier, setSelectedTier] = useState<RewardTier | null>(null);
@@ -119,6 +126,11 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
         const data = await res.json();
         if (data.success) {
           setStartup(data.data);
+          // If just submitted and no AI score yet, poll for it
+          if (justSubmitted && !data.data.aiScore) {
+            setAiEvaluating(true);
+            pollForAiScore();
+          }
         }
       } catch (error) {
         console.error('Error fetching startup:', error);
@@ -126,8 +138,32 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
         setIsLoading(false);
       }
     }
+
+    let pollCount = 0;
+    async function pollForAiScore() {
+      pollCount++;
+      if (pollCount > 12) {
+        // Stop after ~60 seconds
+        setAiEvaluating(false);
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 5000));
+      try {
+        const res = await fetch(`/api/startups/${slug}`);
+        const data = await res.json();
+        if (data.success && data.data.aiScore) {
+          setStartup(data.data);
+          setAiEvaluating(false);
+        } else {
+          pollForAiScore();
+        }
+      } catch {
+        setAiEvaluating(false);
+      }
+    }
+
     fetchStartup();
-  }, [slug]);
+  }, [slug, justSubmitted]);
 
   const handleSelectTier = (tier: RewardTier) => {
     if (!isAuthenticated) {
@@ -315,6 +351,30 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
 
   return (
     <div className="min-h-screen pt-20 pb-16">
+      {/* Submission Success + AI Evaluation Banner */}
+      {justSubmitted && (
+        <div className="bg-gradient-to-r from-emerald-500/10 via-blue/10 to-purple/10 border-b border-emerald-500/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center gap-3">
+              <CheckCircleIcon className="w-6 h-6 text-emerald-400 shrink-0" />
+              <div className="flex-1">
+                <p className="text-foreground font-medium">Startup submitted successfully!</p>
+                {aiEvaluating ? (
+                  <p className="text-sm text-muted flex items-center gap-2 mt-1">
+                    <SparklesIcon className="w-4 h-4 text-purple animate-pulse" />
+                    AI is evaluating your startup... This may take a few seconds.
+                  </p>
+                ) : startup?.aiScore ? (
+                  <p className="text-sm text-muted mt-1">
+                    AI evaluation complete — scroll down to see your scores.
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-b from-blue/5 to-transparent border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -420,9 +480,31 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                 </Card>
 
                 {/* AI Score */}
+                {aiEvaluating && !startup.aiScore && (
+                  <Card className="p-6 bg-gradient-to-br from-blue/5 to-purple/5 border-blue/20">
+                    <div className="flex items-center gap-3">
+                      <SparklesIcon className="w-6 h-6 text-purple animate-pulse" />
+                      <div>
+                        <h2 className="text-xl font-semibold text-foreground">AI Evaluation in Progress</h2>
+                        <p className="text-sm text-muted mt-1">Our AI is analyzing your startup idea across innovation, market potential, execution risk, and overall viability...</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {['Innovation Score', 'Market Potential', 'Execution Risk', 'Startup Score'].map((label) => (
+                        <div key={label} className="text-center">
+                          <div className="h-8 w-16 mx-auto bg-border/50 rounded animate-pulse" />
+                          <p className="text-xs text-muted mt-2">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )}
                 {startup.aiScore && (
                   <Card className="p-6 bg-gradient-to-br from-blue/5 to-purple/5">
-                    <h2 className="text-xl font-semibold text-foreground mb-4">AI Evaluation</h2>
+                    <div className="flex items-center gap-2 mb-4">
+                      <SparklesIcon className="w-5 h-5 text-purple" />
+                      <h2 className="text-xl font-semibold text-foreground">AI Evaluation</h2>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center">
                         <p className="text-3xl font-bold gradient-text">{startup.aiScore}</p>
