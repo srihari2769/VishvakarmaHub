@@ -1,27 +1,112 @@
 import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
 import { verifyToken } from '@/lib/auth';
 import { errorResponse, getTokenFromRequest } from '@/lib/utils';
-import { google } from 'googleapis';
-import { Readable } from 'stream';
 
-function getGoogleAuth() {
+// Use lightweight REST API calls instead of heavy googleapis package
+// This avoids cold-start timeouts on Vercel serverless functions
+
+async function getGoogleAccessToken(): Promise<string | null> {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const key = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-  if (!email || !key) return null;
+  if (!email || !privateKey) {
+    console.error('Google Drive credentials missing:', { email: !!email, key: !!privateKey });
+    return null;
+  }
 
-  return new google.auth.JWT({
-    email,
-    key,
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
-  });
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const jwtToken = jwt.sign(
+      {
+        iss: email,
+        scope: 'https://www.googleapis.com/auth/drive.file',
+        aud: 'https://oauth2.googleapis.com/token',
+        iat: now,
+        exp: now + 3600,
+      },
+      privateKey,
+      { algorithm: 'RS256' }
+    );
+
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwtToken}`,
+    });
+
+    const tokenData = await tokenRes.json();
+
+    if (!tokenData.access_token) {
+      console.error('Google OAuth token exchange failed:', tokenData);
+      return null;
+    }
+
+    return tokenData.access_token;
+  } catch (err) {
+    console.error('Google auth error:', err);
+    return null;
+  }
 }
 
-function bufferToStream(buffer: Buffer): Readable {
-  const stream = new Readable();
-  stream.push(buffer);
-  stream.push(null);
-  return stream;
+async function uploadToGoogleDrive(
+  buffer: Buffer,
+  fileName: string,
+  mimeType: string,
+  folderId: string,
+  accessToken: string
+) {
+  const metadata = { name: fileName, parents: [folderId] };
+  const boundary = '----VishvakarmaUploadBoundary';
+
+  const metaPart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`;
+  const mediaPart = `--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: base64\r\n\r\n`;
+  const closePart = `\r\n--${boundary}--`;
+
+  const body = Buffer.concat([
+    Buffer.from(metaPart),
+    Buffer.from(mediaPart),
+    Buffer.from(buffer.toString('base64')),
+    Buffer.from(closePart),
+  ]);
+
+  const res = await fetch(
+    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink,webContentLink',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': `multipart/related; boundary=${boundary}`,
+      },
+      body,
+    }
+  );
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error('Google Drive upload HTTP error:', res.status, errBody);
+    return null;
+  }
+
+  return res.json();
+}
+
+async function setFilePublic(fileId: string, accessToken: string) {
+  const res = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${fileId}/permissions`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ role: 'reader', type: 'anyone' }),
+    }
+  );
+
+  if (!res.ok) {
+    console.error('Failed to set file public:', res.status, await res.text());
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -29,7 +114,11 @@ export async function POST(request: NextRequest) {
     const token = getTokenFromRequest(request);
     if (!token) return errorResponse('Unauthorized', 401);
 
-    verifyToken(token);
+    try {
+      verifyToken(token);
+    } catch {
+      return errorResponse('Session expired. Please log in again.', 401);
+    }
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -52,59 +141,40 @@ export async function POST(request: NextRequest) {
       return errorResponse('File type not allowed. Use images (JPEG, PNG, GIF, WebP, SVG) or PDF.', 400);
     }
 
-    const auth = getGoogleAuth();
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Try Google Drive upload
     const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+    const accessToken = await getGoogleAccessToken();
 
-    if (auth && folderId) {
-      // Upload to Google Drive
-      const drive = google.drive({ version: 'v3', auth });
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
+    if (accessToken && folderId) {
       const timestamp = Date.now();
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const fileName = `${timestamp}_${safeName}`;
 
-      // Upload file
-      const driveResponse = await drive.files.create({
-        requestBody: {
-          name: fileName,
-          parents: [folderId],
-        },
-        media: {
-          mimeType: file.type,
-          body: bufferToStream(buffer),
-        },
-        fields: 'id, name, webViewLink, webContentLink',
-      });
+      const driveFile = await uploadToGoogleDrive(buffer, fileName, file.type, folderId, accessToken);
 
-      const fileId = driveResponse.data.id;
-
-      if (!fileId) {
-        return errorResponse('Google Drive upload failed', 500);
+      if (!driveFile?.id) {
+        console.error('Drive upload returned no file ID:', driveFile);
+        return errorResponse('File upload to storage failed. Please try again.', 500);
       }
 
       // Make file publicly readable
-      await drive.permissions.create({
-        fileId,
-        requestBody: {
-          role: 'reader',
-          type: 'anyone',
-        },
-      });
+      await setFilePublic(driveFile.id, accessToken);
 
-      // Get the direct link for images / download link for PDFs
+      // Build public URL
       const isImage = file.type.startsWith('image/');
       const publicUrl = isImage
-        ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`
-        : `https://drive.google.com/uc?export=download&id=${fileId}`;
+        ? `https://drive.google.com/thumbnail?id=${driveFile.id}&sz=w1000`
+        : `https://drive.google.com/uc?export=download&id=${driveFile.id}`;
 
       return NextResponse.json({
         success: true,
         data: {
           url: publicUrl,
-          driveFileId: fileId,
-          viewLink: driveResponse.data.webViewLink,
+          driveFileId: driveFile.id,
+          viewLink: driveFile.webViewLink,
           format: file.type.split('/')[1],
           size: file.size,
         },
@@ -112,8 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback: Convert to base64 data URL (works without external services)
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    console.warn('Google Drive not configured, falling back to base64 data URL');
     const base64 = buffer.toString('base64');
     const dataUrl = `data:${file.type};base64,${base64}`;
 
@@ -127,6 +196,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return errorResponse('Upload failed', 500);
+    const message = error instanceof Error ? error.message : 'Upload failed';
+    return errorResponse(`Upload failed: ${message}`, 500);
   }
 }

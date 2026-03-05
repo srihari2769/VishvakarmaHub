@@ -68,11 +68,12 @@ export default function FileUpload({
           type: file.type,
         };
       } else {
-        setUploadError(data.message || 'Upload failed');
+        setUploadError(data.error || data.message || 'Upload failed');
         return null;
       }
-    } catch {
-      setUploadError('Upload failed. Please try again.');
+    } catch (err) {
+      console.error('Upload error:', err);
+      setUploadError('Upload failed. Please check your connection and try again.');
       return null;
     }
   };
