@@ -66,12 +66,9 @@ interface FormData {
 export default function SubmitIdeaPage() {
   const router = useRouter();
   const { isAuthenticated, checkAuth, isLoading } = useAuthStore();
-  const [step, setStep] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitError, setSubmitError] = useState('');
+  const STORAGE_KEY = 'vishvakarma_submit_idea_draft';
 
-  const [form, setForm] = useState<FormData>({
+  const defaultForm: FormData = {
     title: '',
     shortDescription: '',
     categories: [],
@@ -88,7 +85,36 @@ export default function SubmitIdeaPage() {
     fundingGoal: '',
     endDate: '',
     rewardTiers: [{ name: 'Early Supporter', amount: '500', description: 'Thank you for your early support!', maxClaims: '' }],
-  });
+  };
+
+  const [step, setStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState('');
+  const [form, setForm] = useState<FormData>(defaultForm);
+
+  // Load saved draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.form) setForm(parsed.form);
+        if (typeof parsed.step === 'number') setStep(parsed.step);
+      }
+    } catch {
+      // ignore corrupted data
+    }
+  }, []);
+
+  // Save draft on every form/step change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ form, step }));
+    } catch {
+      // storage full or unavailable
+    }
+  }, [form, step]);
 
   useEffect(() => {
     checkAuth();
@@ -217,6 +243,7 @@ export default function SubmitIdeaPage() {
         return;
       }
       if (data.success) {
+        localStorage.removeItem(STORAGE_KEY);
         router.push(`/startup/${data.data.slug}?submitted=true`);
       } else {
         setSubmitError(data.error || data.message || 'Failed to submit');
