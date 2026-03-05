@@ -1,73 +1,10 @@
 import { NextRequest } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { successResponse, errorResponse, getTokenFromRequest, slugify } from '@/lib/utils';
 
 // Allow up to 30s for cold starts + distant DB
 export const maxDuration = 30;
-
-async function triggerAIEvaluation(startupId: string) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return;
-
-  const startup = await prisma.startup.findUnique({
-    where: { id: startupId },
-    select: {
-      title: true,
-      shortDescription: true,
-      problemDescription: true,
-      targetAudience: true,
-      solutionExplanation: true,
-      innovationUniqueness: true,
-      category: true,
-      productStage: true,
-    },
-  });
-
-  if (!startup) return;
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
-  const prompt = `You are an expert startup evaluator. Analyze the following startup idea and provide a structured evaluation.
-
-Startup Details:
-- Title: ${startup.title}
-- Category: ${startup.category}
-- Product Stage: ${startup.productStage}
-- Short Description: ${startup.shortDescription}
-- Problem: ${startup.problemDescription}
-- Target Audience: ${startup.targetAudience}
-- Solution: ${startup.solutionExplanation}
-- What Makes It Unique: ${startup.innovationUniqueness}
-
-Evaluate this startup and respond ONLY with valid JSON (no markdown, no code blocks):
-
-{
-  "aiScore": <number 1-100, innovation score>,
-  "marketPotential": "<one of: Very High, High, Medium, Low, Very Low>",
-  "executionRisk": "<one of: Very Low, Low, Medium, High, Very High>",
-  "startupPotential": <number 1-100, overall viability score>
-}
-
-Be realistic but encouraging.`;
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim();
-  const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-  const parsed = JSON.parse(cleaned);
-
-  await prisma.startup.update({
-    where: { id: startupId },
-    data: {
-      aiScore: Math.min(100, Math.max(1, Math.round(parsed.aiScore))),
-      marketPotential: parsed.marketPotential || 'Medium',
-      executionRisk: parsed.executionRisk || 'Medium',
-      startupPotential: Math.min(100, Math.max(1, Math.round(parsed.startupPotential))),
-    },
-  });
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -252,15 +189,6 @@ export async function POST(request: NextRequest) {
         where: { id: payload.userId },
         data: { role: 'FOUNDER' },
       });
-    }
-
-    // Trigger AI evaluation (await so it completes within function lifetime)
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        await triggerAIEvaluation(startup.id);
-      } catch (err) {
-        console.error('AI evaluation failed:', err);
-      }
     }
 
     return successResponse(startup, 201);

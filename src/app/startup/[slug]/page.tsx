@@ -132,10 +132,10 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
         const data = await res.json();
         if (data.success) {
           setStartup(data.data);
-          // If just submitted and no AI score yet, poll for it
-          if (justSubmitted && !data.data.aiScore) {
+          // If just submitted and no AI score yet, trigger AI evaluation
+          if (justSubmitted && !data.data.aiScore && token) {
             setAiEvaluating(true);
-            pollForAiScore();
+            triggerAiEvaluation(data.data.id);
           }
         }
       } catch (error) {
@@ -145,25 +145,21 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
       }
     }
 
-    let pollCount = 0;
-    async function pollForAiScore() {
-      pollCount++;
-      if (pollCount > 12) {
-        // Stop after ~60 seconds
-        setAiEvaluating(false);
-        return;
-      }
-      await new Promise((r) => setTimeout(r, 5000));
+    async function triggerAiEvaluation(startupId: string) {
       try {
-        const res = await fetch(`/api/startups/${slug}`);
+        const res = await fetch('/api/ai-evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ startupId }),
+        });
         const data = await res.json();
-        if (data.success && data.data.aiScore) {
-          setStartup(data.data);
-          setAiEvaluating(false);
-        } else {
-          pollForAiScore();
+        if (data.success) {
+          // Scores returned directly - update startup state
+          setStartup(prev => prev ? { ...prev, ...data.data } : prev);
         }
-      } catch {
+      } catch (err) {
+        console.error('AI evaluation error:', err);
+      } finally {
         setAiEvaluating(false);
       }
     }
