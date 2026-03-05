@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Input, Textarea, Select, Card } from '@/components/ui';
+import { Button, Input, Textarea, Select, MultiSelect, Card } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
 import { CATEGORIES } from '@/lib/utils';
 import {
@@ -40,7 +40,7 @@ const PRODUCT_STAGES = [
 interface FormData {
   title: string;
   shortDescription: string;
-  category: string;
+  categories: string[];
   location: string;
   problemDescription: string;
   targetAudience: string;
@@ -64,7 +64,7 @@ export default function SubmitIdeaPage() {
   const [form, setForm] = useState<FormData>({
     title: '',
     shortDescription: '',
-    category: '',
+    categories: [],
     location: '',
     problemDescription: '',
     targetAudience: '',
@@ -98,7 +98,7 @@ export default function SubmitIdeaPage() {
       case 0:
         if (!form.title.trim()) newErrors.title = 'Title is required';
         if (!form.shortDescription.trim()) newErrors.shortDescription = 'Short description is required';
-        if (!form.category) newErrors.category = 'Select a category';
+        if (form.categories.length === 0) newErrors.categories = 'Select at least one category';
         if (!form.location.trim()) newErrors.location = 'Location is required';
         break;
       case 1:
@@ -156,7 +156,7 @@ export default function SubmitIdeaPage() {
       const payload = {
         title: form.title,
         shortDescription: form.shortDescription,
-        category: form.category,
+        category: form.categories.join(', '),
         location: form.location,
         problemDescription: form.problemDescription,
         targetAudience: form.targetAudience,
@@ -279,13 +279,17 @@ export default function SubmitIdeaPage() {
                     placeholder="A brief one-liner about your startup (max 200 characters)"
                     rows={3}
                   />
-                  <Select
-                    label="Category"
-                    value={form.category}
-                    onChange={(e) => updateField('category', e.target.value)}
-                    error={errors.category}
+                  <MultiSelect
+                    label="Categories"
+                    selected={form.categories}
+                    onChange={(selected) => {
+                      setForm((f) => ({ ...f, categories: selected }));
+                      setErrors((e) => ({ ...e, categories: '' }));
+                    }}
+                    error={errors.categories}
                     options={CATEGORIES.map((c) => ({ value: c.name, label: `${c.icon} ${c.name}` }))}
-                    placeholder="Select a category"
+                    placeholder="Select categories"
+                    maxSelections={5}
                   />
                   <Input
                     label="Location"
