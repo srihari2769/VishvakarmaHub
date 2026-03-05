@@ -183,19 +183,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Fallback: Convert to base64 data URL (works without external services)
-    console.warn('Google Drive not configured, falling back to base64 data URL');
-    const base64 = buffer.toString('base64');
-    const dataUrl = `data:${file.type};base64,${base64}`;
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        url: dataUrl,
-        format: file.type.split('/')[1],
-        size: file.size,
-      },
-    });
+    // No fallback — Google Drive is required for file storage
+    return errorResponse('File storage is not available. Please try again later.', 503);
   } catch (error) {
     console.error('Upload error:', error);
     const message = error instanceof Error ? error.message : 'Upload failed';

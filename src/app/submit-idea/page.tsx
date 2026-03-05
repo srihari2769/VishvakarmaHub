@@ -192,6 +192,18 @@ export default function SubmitIdeaPage() {
 
     try {
       const token = localStorage.getItem('token');
+      const logoUrl = form.logo[0]?.url;
+      const pitchDeckUrl = form.pitchDeck[0]?.url;
+      const screenshotUrls = form.screenshots.map((f) => f.url);
+
+      // Reject base64 data URLs — they bloat the payload and cause 413 errors
+      const allUrls = [logoUrl, pitchDeckUrl, ...screenshotUrls].filter(Boolean);
+      if (allUrls.some((u) => u?.startsWith('data:'))) {
+        setSubmitError('Some files failed to upload properly. Please re-upload your files and try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
       const payload = {
         title: form.title,
         shortDescription: form.shortDescription,
@@ -203,9 +215,9 @@ export default function SubmitIdeaPage() {
         innovationUniqueness: form.innovationUniqueness,
         productStage: form.productStage,
         demoVideo: form.demoVideo || undefined,
-        logo: form.logo[0]?.url || undefined,
-        pitchDeck: form.pitchDeck[0]?.url || undefined,
-        screenshots: form.screenshots.map((f) => f.url),
+        logo: logoUrl || undefined,
+        pitchDeck: pitchDeckUrl || undefined,
+        screenshots: screenshotUrls,
         fundingGoal: Number(form.fundingGoal),
         endDate: form.endDate,
         rewardTiers: form.rewardTiers
