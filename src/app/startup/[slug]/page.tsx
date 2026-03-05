@@ -101,7 +101,7 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
   const router = useRouter();
   const searchParams = useSearchParams();
   const justSubmitted = searchParams.get('submitted') === 'true';
-  const { isAuthenticated, token } = useAuthStore();
+  const { isAuthenticated, token, user } = useAuthStore();
   const [startup, setStartup] = useState<StartupDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'milestones' | 'comments'>('overview');
@@ -548,10 +548,10 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                 </Card>
 
                 {/* Pitch Deck & Screenshots */}
-                {(startup.pitchDeck || startup.screenshots.length > 0) && (
+                {((startup.pitchDeck && user?.role === 'ADMIN') || startup.screenshots.length > 0) && (
                   <Card className="p-6">
                     <h2 className="text-xl font-semibold text-foreground mb-4">Project Files</h2>
-                    {startup.pitchDeck && (
+                    {startup.pitchDeck && user?.role === 'ADMIN' && (
                       <div className="mb-4">
                         <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                           <DocumentTextIcon className="w-5 h-5 text-blue" /> Pitch Deck
@@ -666,7 +666,9 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
 
             {activeTab === 'milestones' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                {startup.milestones.map((milestone, index) => (
+                {startup.milestones.map((milestone) => {
+                  const isOwner = user?.id === startup.founder.id || user?.role === 'ADMIN';
+                  return (
                   <Card key={milestone.id} className="p-5">
                     <div className="flex items-start gap-4">
                       <div className="shrink-0 mt-0.5">
@@ -681,6 +683,37 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <h3 className="font-medium text-foreground">{milestone.title}</h3>
+                          {isOwner ? (
+                            <select
+                              value={milestone.status}
+                              onChange={async (e) => {
+                                const newStatus = e.target.value;
+                                try {
+                                  const res = await fetch(`/api/milestones/${milestone.id}`, {
+                                    method: 'PATCH',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      Authorization: `Bearer ${token}`,
+                                    },
+                                    body: JSON.stringify({ status: newStatus }),
+                                  });
+                                  if (res.ok) {
+                                    setStartup((prev) => prev ? {
+                                      ...prev,
+                                      milestones: prev.milestones.map((m) =>
+                                        m.id === milestone.id ? { ...m, status: newStatus, completedDate: newStatus === 'COMPLETED' ? new Date().toISOString() : null } : m
+                                      ),
+                                    } : prev);
+                                  }
+                                } catch {}
+                              }}
+                              className="text-xs font-medium px-3 py-1.5 rounded-full border border-border bg-card text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue"
+                            >
+                              <option value="PENDING">PENDING</option>
+                              <option value="IN_PROGRESS">IN PROGRESS</option>
+                              <option value="COMPLETED">COMPLETED</option>
+                            </select>
+                          ) : (
                           <Badge
                             variant={
                               milestone.status === 'COMPLETED'
@@ -692,12 +725,14 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
                           >
                             {milestone.status.replace('_', ' ')}
                           </Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted mt-1">{milestone.description}</p>
                       </div>
                     </div>
                   </Card>
-                ))}
+                  );
+                })}
               </motion.div>
             )}
 
