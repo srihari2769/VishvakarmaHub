@@ -143,6 +143,7 @@ model Startup {
   productStage    ProductStage  @default(IDEA)
   status          StartupStatus @default(DRAFT)
   logo            String?
+  thumbnail       String?
   pitchDeck       String?
   demoVideo       String?
   screenshots     String[]

@@ -12,6 +12,7 @@ interface StartupCardProps {
     shortDescription: string;
     category: string;
     logo?: string | null;
+    thumbnail?: string | null;
     productStage: string;
     founder: {
       firstName: string;
@@ -37,8 +38,8 @@ export default function StartupCard({ startup }: StartupCardProps) {
       <Card hover glow className="h-full">
         {/* Logo / Image */}
         <div className="h-48 bg-gradient-to-br from-blue/10 to-purple/10 flex items-center justify-center relative overflow-hidden">
-          {startup.logo ? (
-            <img src={startup.logo} alt={startup.title} className="w-full h-full object-cover" />
+          {(startup.thumbnail || startup.logo) ? (
+            <img src={(startup.thumbnail || startup.logo)!} alt={startup.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue to-purple flex items-center justify-center">
               <span className="text-2xl font-bold text-white">{startup.title[0]}</span>

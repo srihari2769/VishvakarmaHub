@@ -56,6 +56,7 @@ interface FormData {
   productStage: string;
   demoVideo: string;
   logo: UploadedFile[];
+  thumbnail: UploadedFile[];
   pitchDeck: UploadedFile[];
   screenshots: UploadedFile[];
   fundingGoal: string;
@@ -80,6 +81,7 @@ export default function SubmitIdeaPage() {
     productStage: 'IDEA',
     demoVideo: '',
     logo: [],
+    thumbnail: [],
     pitchDeck: [],
     screenshots: [],
     fundingGoal: '',
@@ -193,11 +195,12 @@ export default function SubmitIdeaPage() {
     try {
       const token = localStorage.getItem('token');
       const logoUrl = form.logo[0]?.url;
+      const thumbnailUrl = form.thumbnail[0]?.url;
       const pitchDeckUrl = form.pitchDeck[0]?.url;
       const screenshotUrls = form.screenshots.map((f) => f.url);
 
       // Reject base64 data URLs — they bloat the payload and cause 413 errors
-      const allUrls = [logoUrl, pitchDeckUrl, ...screenshotUrls].filter(Boolean);
+      const allUrls = [logoUrl, thumbnailUrl, pitchDeckUrl, ...screenshotUrls].filter(Boolean);
       if (allUrls.some((u) => u?.startsWith('data:'))) {
         setSubmitError('Some files failed to upload properly. Please re-upload your files and try again.');
         setIsSubmitting(false);
@@ -216,6 +219,7 @@ export default function SubmitIdeaPage() {
         productStage: form.productStage,
         demoVideo: form.demoVideo || undefined,
         logo: logoUrl || undefined,
+        thumbnail: thumbnailUrl || undefined,
         pitchDeck: pitchDeckUrl || undefined,
         screenshots: screenshotUrls,
         fundingGoal: Number(form.fundingGoal),
@@ -460,6 +464,16 @@ export default function SubmitIdeaPage() {
                     files={form.logo}
                     onChange={(files) => setForm((f) => ({ ...f, logo: files }))}
                     hint="Square image recommended (PNG, JPG, WebP)"
+                  />
+                  <FileUpload
+                    label="Card Thumbnail"
+                    accept="image/*"
+                    multiple={false}
+                    maxFiles={1}
+                    maxSizeMB={5}
+                    files={form.thumbnail}
+                    onChange={(files) => setForm((f) => ({ ...f, thumbnail: files }))}
+                    hint="Recommended size: 480 × 270 pixels — landscape (PNG, JPG, WebP)"
                   />
                   <FileUpload
                     label="Pitch Deck (optional)"

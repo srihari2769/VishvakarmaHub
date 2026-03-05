@@ -15,6 +15,7 @@ interface Startup {
   shortDescription: string;
   category: string;
   logo: string | null;
+  thumbnail: string | null;
   productStage: string;
   founder: { firstName: string; lastName: string };
   campaign: {
