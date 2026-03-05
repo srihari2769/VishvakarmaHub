@@ -344,3 +344,17 @@ model Withdrawal {
   @@index([status])
   @@map("withdrawals")
 }
+
+model ContactSubmission {
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  subject         String
+  message         String
+  isRead          Boolean  @default(false)
+  adminNote       String?
+  createdAt       DateTime @default(now())
+
+  @@index([isRead])
+  @@map("contact_submissions")
+}

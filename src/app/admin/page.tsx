@@ -82,7 +82,17 @@ interface ReportData {
   withdrawalStats: { status: string; count: number; amount: number }[];
 }
 
-type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'reports';
+type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'contacts' | 'reports';
+
+interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
 
 export default function AdminPage() {
   const router = useRouter();
@@ -92,6 +102,7 @@ export default function AdminPage() {
   const [allStartups, setAllStartups] = useState<AllStartup[]>([]);
   const [users, setUsers] = useState<PlatformUser[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
+  const [contacts, setContacts] = useState<ContactSubmission[]>([]);
   const [reports, setReports] = useState<ReportData | null>(null);
   const [stats, setStats] = useState({ totalUsers: 0, totalStartups: 0, totalFunding: 0, pendingReview: 0, pendingWithdrawals: 0 });
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,6 +131,7 @@ export default function AdminPage() {
       fetchAdmin('all-startups');
       fetchAdmin('users');
       fetchAdmin('withdrawals');
+      fetchAdmin('contacts');
       fetchAdmin('reports');
     }
   }, [isAuthenticated, user]);
@@ -137,6 +149,7 @@ export default function AdminPage() {
         if (action === 'all-startups') setAllStartups(data.data);
         if (action === 'users') setUsers(data.data);
         if (action === 'withdrawals') setWithdrawals(data.data);
+        if (action === 'contacts') setContacts(data.data);
         if (action === 'reports') setReports(data.data);
       }
     } catch (error) {
@@ -323,6 +336,7 @@ export default function AdminPage() {
             { id: 'startups' as Tab, label: `All Startups (${allStartups.length})` },
             { id: 'users' as Tab, label: 'Users' },
             { id: 'withdrawals' as Tab, label: `Withdrawals (${withdrawals.filter(w => w.status === 'PENDING').length})` },
+            { id: 'contacts' as Tab, label: `Contacts (${contacts.filter(c => !c.isRead).length})` },
             { id: 'reports' as Tab, label: 'Reports' },
           ]).map((t) => (
             <button
@@ -860,9 +874,78 @@ export default function AdminPage() {
             )}
           </motion.div>
         )}
-      </div>
 
-      {/* Delete Confirmation Modal */}
+        {/* Contacts */}
+        {tab === 'contacts' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+            {contacts.length === 0 ? (
+              <Card className="p-12 text-center">
+                <p className="text-muted">No contact submissions yet.</p>
+              </Card>
+            ) : (
+              contacts.map((c) => (
+                <Card key={c.id} className={`p-5 ${!c.isRead ? 'border-blue/30 bg-blue/5' : ''}`}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground">{c.subject}</h3>
+                        {!c.isRead && <span className="text-xs bg-blue/20 text-blue px-2 py-0.5 rounded-full">New</span>}
+                      </div>
+                      <p className="text-sm text-muted mb-2">From: {c.name} &lt;{c.email}&gt;</p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{c.message}</p>
+                      <p className="text-xs text-muted mt-2">{new Date(c.createdAt).toLocaleString('en-IN')}</p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      {!c.isRead && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={actionLoading === c.id}
+                          onClick={async () => {
+                            setActionLoading(c.id);
+                            try {
+                              const token = localStorage.getItem('token');
+                              await fetch('/api/admin', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({ action: 'mark-contact-read', contactId: c.id }),
+                              });
+                              setContacts(prev => prev.map(x => x.id === c.id ? { ...x, isRead: true } : x));
+                            } catch {}
+                            setActionLoading(null);
+                          }}
+                        >
+                          Mark Read
+                        </Button>
+                      )}
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        disabled={actionLoading === c.id}
+                        onClick={async () => {
+                          setActionLoading(c.id);
+                          try {
+                            const token = localStorage.getItem('token');
+                            await fetch('/api/admin', {
+                              method: 'DELETE',
+                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                              body: JSON.stringify({ action: 'delete-contact', contactId: c.id }),
+                            });
+                            setContacts(prev => prev.filter(x => x.id !== c.id));
+                          } catch {}
+                          setActionLoading(null);
+                        }}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </motion.div>
+        )}
+      </div>
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)}>
           <motion.div

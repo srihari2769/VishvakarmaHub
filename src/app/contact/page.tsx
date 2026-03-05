@@ -8,13 +8,27 @@ export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate submission
-    await new Promise(r => setTimeout(r, 1000));
-    setSubmitted(true);
+    setError('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSubmitted(true);
+      } else {
+        setError(data.error || 'Failed to send message');
+      }
+    } catch {
+      setError('Failed to send message. Please try again.');
+    }
     setLoading(false);
   };
 
@@ -98,6 +112,7 @@ export default function ContactPage() {
                   </div>
                   <Input label="Subject" placeholder="What is this about?" required value={form.subject} onChange={(e) => setForm(p => ({ ...p, subject: e.target.value }))} />
                   <Textarea label="Message" placeholder="Tell us more..." rows={6} required value={form.message} onChange={(e) => setForm(p => ({ ...p, message: e.target.value }))} />
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Sending...' : 'Send Message'}
                   </Button>

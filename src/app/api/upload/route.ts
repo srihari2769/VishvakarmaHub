@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { verifyToken } from '@/lib/auth';
 import { errorResponse, getTokenFromRequest } from '@/lib/utils';
@@ -50,38 +51,51 @@ export async function POST(request: NextRequest) {
       return errorResponse('File type not allowed. Use images (JPEG, PNG, GIF, WebP, SVG) or PDF.', 400);
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
+    // Try S3 first, fallback to Vercel Blob
     const s3 = getS3Client();
     const bucket = process.env.AWS_S3_BUCKET?.trim();
 
-    if (!s3 || !bucket) {
-      return errorResponse('File storage is not configured.', 503);
+    if (s3 && bucket) {
+      // Upload to S3
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const timestamp = Date.now();
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const key = `uploads/${timestamp}_${safeName}`;
+
+      await s3.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Body: buffer,
+        ContentType: file.type,
+      }));
+
+      const region = process.env.AWS_REGION?.trim() || 'ap-south-1';
+      const publicUrl = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+
+      return NextResponse.json({
+        success: true,
+        data: { url: publicUrl, key, format: file.type.split('/')[1], size: file.size },
+      });
+    }
+
+    // Fallback: Upload to Vercel Blob
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      return errorResponse('File storage is not configured. Please set up AWS S3 or Vercel Blob.', 503);
     }
 
     const timestamp = Date.now();
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const key = `uploads/${timestamp}_${safeName}`;
+    const pathname = `uploads/${timestamp}_${safeName}`;
 
-    await s3.send(new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: file.type,
-    }));
-
-    const region = process.env.AWS_REGION?.trim() || 'ap-south-1';
-    const publicUrl = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+    const blob = await put(pathname, file, {
+      access: 'public',
+      contentType: file.type,
+    });
 
     return NextResponse.json({
       success: true,
-      data: {
-        url: publicUrl,
-        key,
-        format: file.type.split('/')[1],
-        size: file.size,
-      },
+      data: { url: blob.url, key: pathname, format: file.type.split('/')[1], size: file.size },
     });
   } catch (error) {
     console.error('Upload error:', error);

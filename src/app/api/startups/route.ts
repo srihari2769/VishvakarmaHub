@@ -254,11 +254,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Trigger AI evaluation in the background (non-blocking)
+    // Trigger AI evaluation (await so it completes within function lifetime)
     if (process.env.GEMINI_API_KEY) {
-      triggerAIEvaluation(startup.id).catch((err) =>
-        console.error('Background AI evaluation failed:', err)
-      );
+      try {
+        await triggerAIEvaluation(startup.id);
+      } catch (err) {
+        console.error('AI evaluation failed:', err);
+      }
     }
 
     return successResponse(startup, 201);

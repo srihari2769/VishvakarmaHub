@@ -132,6 +132,14 @@ export async function GET(request: NextRequest) {
         return successResponse(withdrawals);
       }
 
+      case 'contacts': {
+        const contacts = await prisma.contactSubmission.findMany({
+          orderBy: { createdAt: 'desc' },
+          take: 100,
+        });
+        return successResponse(contacts);
+      }
+
       default:
         return errorResponse('Invalid action parameter', 400);
     }
@@ -238,6 +246,16 @@ export async function PATCH(request: NextRequest) {
         return successResponse({ message: 'Withdrawal rejected' });
       }
 
+      case 'mark-contact-read': {
+        const { contactId } = body;
+        if (!contactId) return errorResponse('Contact ID required', 400);
+        await prisma.contactSubmission.update({
+          where: { id: contactId },
+          data: { isRead: true },
+        });
+        return successResponse({ message: 'Marked as read' });
+      }
+
       default:
         return errorResponse('Invalid action', 400);
     }
@@ -256,7 +274,7 @@ export async function DELETE(request: NextRequest) {
     if (payload.role !== 'ADMIN') return errorResponse('Forbidden', 403);
 
     const body = await request.json();
-    const { action, startupId, userId } = body;
+    const { action, startupId, userId, contactId } = body;
 
     switch (action) {
       case 'delete-startup': {
@@ -295,6 +313,13 @@ export async function DELETE(request: NextRequest) {
         await prisma.startup.delete({ where: { id: startupId } });
 
         return successResponse({ message: 'Startup deleted successfully' });
+      }
+
+      case 'delete-contact': {
+        const { contactId } = body;
+        if (!contactId) return errorResponse('Contact ID required', 400);
+        await prisma.contactSubmission.delete({ where: { id: contactId } });
+        return successResponse({ message: 'Contact deleted' });
       }
 
       case 'delete-user': {
