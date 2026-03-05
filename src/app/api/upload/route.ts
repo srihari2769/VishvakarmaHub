@@ -1,13 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { errorResponse, getTokenFromRequest } from '@/lib/utils';
+import { google } from 'googleapis';
+import { Readable } from 'stream';
+
+function getGoogleAuth() {
+  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const key = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+  if (!email || !key) return null;
+
+  return new google.auth.JWT({
+    email,
+    key,
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  });
+}
+
+function bufferToStream(buffer: Buffer): Readable {
+  const stream = new Readable();
+  stream.push(buffer);
+  stream.push(null);
+  return stream;
+}
 
 export async function POST(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);
     if (!token) return errorResponse('Unauthorized', 401);
 
-    const payload = verifyToken(token);
+    verifyToken(token);
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -30,37 +52,63 @@ export async function POST(request: NextRequest) {
       return errorResponse('File type not allowed. Use images (JPEG, PNG, GIF, WebP, SVG) or PDF.', 400);
     }
 
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
+    const auth = getGoogleAuth();
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
-    if (cloudName && uploadPreset) {
-      // Upload to Cloudinary
-      const cloudinaryForm = new FormData();
-      cloudinaryForm.append('file', file);
-      cloudinaryForm.append('upload_preset', uploadPreset);
-      cloudinaryForm.append('folder', `vishvakarmahub/${payload.userId}`);
+    if (auth && folderId) {
+      // Upload to Google Drive
+      const drive = google.drive({ version: 'v3', auth });
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
 
-      const cloudRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
-        { method: 'POST', body: cloudinaryForm }
-      );
+      const timestamp = Date.now();
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const fileName = `${timestamp}_${safeName}`;
 
-      const cloudData = await cloudRes.json();
+      // Upload file
+      const driveResponse = await drive.files.create({
+        requestBody: {
+          name: fileName,
+          parents: [folderId],
+        },
+        media: {
+          mimeType: file.type,
+          body: bufferToStream(buffer),
+        },
+        fields: 'id, name, webViewLink, webContentLink',
+      });
 
-      if (cloudData.secure_url) {
-        return NextResponse.json({
-          success: true,
-          data: {
-            url: cloudData.secure_url,
-            publicId: cloudData.public_id,
-            format: cloudData.format,
-            size: cloudData.bytes,
-          },
-        });
-      } else {
-        console.error('Cloudinary upload error:', cloudData);
-        return errorResponse('Upload to cloud storage failed', 500);
+      const fileId = driveResponse.data.id;
+
+      if (!fileId) {
+        return errorResponse('Google Drive upload failed', 500);
       }
+
+      // Make file publicly readable
+      await drive.permissions.create({
+        fileId,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone',
+        },
+      });
+
+      // Get the direct link for images / download link for PDFs
+      const isImage = file.type.startsWith('image/');
+      const publicUrl = isImage
+        ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`
+        : `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          url: publicUrl,
+          driveFileId: fileId,
+          viewLink: driveResponse.data.webViewLink,
+          format: file.type.split('/')[1],
+          size: file.size,
+        },
+      });
     }
 
     // Fallback: Convert to base64 data URL (works without external services)
