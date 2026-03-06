@@ -62,8 +62,6 @@ interface FormData {
   fundingGoal: string;
   endDate: string;
   rewardTiers: { name: string; amount: string; description: string; maxClaims: string }[];
-  lookingForCofounder: boolean;
-  cofounderRoles: string[];
 }
 
 export default function SubmitIdeaPage() {
@@ -89,8 +87,6 @@ export default function SubmitIdeaPage() {
     fundingGoal: '',
     endDate: '',
     rewardTiers: [{ name: 'Early Supporter', amount: '500', description: 'Thank you for your early support!', maxClaims: '' }],
-    lookingForCofounder: false,
-    cofounderRoles: [],
   };
 
   const [step, setStep] = useState(0);
@@ -228,8 +224,6 @@ export default function SubmitIdeaPage() {
         screenshots: screenshotUrls,
         fundingGoal: Number(form.fundingGoal),
         endDate: form.endDate,
-        lookingForCofounder: form.lookingForCofounder,
-        cofounderRoles: form.cofounderRoles,
         rewardTiers: form.rewardTiers
           .filter((t) => t.name && t.amount)
           .map((t) => ({
@@ -447,47 +441,6 @@ export default function SubmitIdeaPage() {
                       Your product stage helps supporters understand where you are in development.
                       Be honest — this builds trust with your community.
                     </p>
-                  </div>
-
-                  {/* Co-founder Section */}
-                  <div className="pt-4 border-t border-border">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={form.lookingForCofounder}
-                        onChange={(e) => setForm((f) => ({ ...f, lookingForCofounder: e.target.checked }))}
-                        className="w-5 h-5 rounded border-border text-blue focus:ring-blue bg-card"
-                      />
-                      <div>
-                        <span className="text-foreground font-medium">Looking for a co-founder?</span>
-                        <p className="text-xs text-muted">Your startup will appear on the Co-Founders page for people to discover</p>
-                      </div>
-                    </label>
-
-                    {form.lookingForCofounder && (
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium text-foreground mb-2">Roles you need</label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {['Developer', 'Designer', 'Marketer', 'Business Strategist', 'Sales', 'Operations', 'Data Scientist', 'Product Manager', 'Finance'].map((role) => (
-                            <label key={role} className="flex items-center gap-2 p-2 rounded-lg border border-border hover:border-blue/30 cursor-pointer transition-colors">
-                              <input
-                                type="checkbox"
-                                checked={form.cofounderRoles.includes(role)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setForm((f) => ({ ...f, cofounderRoles: [...f.cofounderRoles, role] }));
-                                  } else {
-                                    setForm((f) => ({ ...f, cofounderRoles: f.cofounderRoles.filter((r) => r !== role) }));
-                                  }
-                                }}
-                                className="w-4 h-4 rounded border-border text-blue focus:ring-blue bg-card"
-                              />
-                              <span className="text-sm text-foreground">{role}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}

@@ -537,9 +537,14 @@ export default function StartupDashboardPage() {
                           {formatCurrency(s.campaign?.raisedAmount || 0)}
                         </td>
                         <td className="py-3">
-                          <Link href={`/startup/${s.slug}`} className="text-blue text-sm hover:underline">
-                            View
-                          </Link>
+                          <div className="flex gap-2">
+                            <Link href={`/startup/${s.slug}`} className="text-blue text-sm hover:underline">
+                              View
+                            </Link>
+                            <Link href="/co-founders/manage" className="text-emerald-400 text-sm hover:underline">
+                              Co-Founder
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     ))}
