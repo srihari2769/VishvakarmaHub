@@ -25,6 +25,8 @@ import {
   GlobeAltIcon,
   HeartIcon,
   MegaphoneIcon,
+  MicrophoneIcon,
+  VideoCameraIcon,
 } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon as HandThumbUpSolid } from '@heroicons/react/24/solid';
 
@@ -851,64 +853,172 @@ export default function CompetitionPage() {
 
       {/* Sponsor Packages */}
       <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-purple/5 to-transparent">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-3">Become a Sponsor</h2>
             <p className="text-muted max-w-xl mx-auto">Partner with us and get unparalleled visibility in India&apos;s biggest startup competition</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-              <Card className="p-6 border-yellow-400/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-yellow-400/10 to-transparent rounded-bl-full" />
-                <div className="relative">
-                  <StarIcon className="w-10 h-10 text-yellow-400 mb-3" />
-                  <h3 className="text-lg font-bold text-foreground mb-1">Title Sponsor</h3>
-                  <p className="text-3xl font-bold text-yellow-400 mb-4">₹1,00,000</p>
-                  <div className="space-y-2 text-sm text-muted">
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Prime branding across all channels</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Logo on event backdrop & stage</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>5-min keynote speaking slot</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Exclusive startup access & networking</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Media coverage & press mentions</span></div>
+          {/* Title Sponsor — Featured */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="mb-8">
+            <Card className="p-8 border-yellow-400/30 relative overflow-hidden">
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400" />
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-yellow-400/10 to-transparent rounded-bl-full" />
+              <div className="relative flex flex-col md:flex-row md:items-start gap-6">
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400/20 to-orange-400/20 flex items-center justify-center">
+                    <StarIcon className="w-8 h-8 text-yellow-400" />
                   </div>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-xl font-bold text-foreground">Title Sponsor</h3>
+                    <Badge variant="warning">Most Premium</Badge>
+                  </div>
+                  <p className="text-2xl font-bold text-yellow-400 mb-4">₹1,00,000 – ₹2,00,000</p>
+                  <div className="grid sm:grid-cols-2 gap-2 text-sm text-muted">
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Event named &ldquo;powered by [Sponsor]&rdquo;</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Logo on stage backdrop</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>5–10 min keynote speech</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Premium branding across website</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Media coverage mention</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Startup exhibition booth</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Direct access to top startups</span></div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Platinum + Gold — Row */}
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+              <Card className="p-6 border-purple/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple to-violet-400" />
+                <StarIcon className="w-10 h-10 text-purple mb-3" />
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-bold text-foreground">Platinum Sponsor</h3>
+                  <Badge variant="info">Popular</Badge>
+                </div>
+                <p className="text-2xl font-bold text-purple mb-4">₹75,000</p>
+                <div className="space-y-2 text-sm text-muted">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Logo on event banners</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Featured website placement</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Social media promotion</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Booth at startup exhibition</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>VIP networking access</span></div>
                 </div>
               </Card>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="p-6 border-orange-400/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-orange-400/10 to-transparent rounded-bl-full" />
-                <div className="relative">
-                  <StarIcon className="w-10 h-10 text-orange-400 mb-3" />
-                  <h3 className="text-lg font-bold text-foreground mb-1">Gold Sponsor</h3>
-                  <p className="text-3xl font-bold text-orange-400 mb-4">₹50,000</p>
-                  <div className="space-y-2 text-sm text-muted">
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Logo on website & event materials</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Social media shoutouts</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>VIP networking access</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Branded booth at exhibition</span></div>
-                  </div>
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-400 to-yellow-500" />
+                <StarIcon className="w-10 h-10 text-orange-400 mb-3" />
+                <h3 className="text-lg font-bold text-foreground mb-1">Gold Sponsor</h3>
+                <p className="text-2xl font-bold text-orange-400 mb-4">₹50,000</p>
+                <div className="space-y-2 text-sm text-muted">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Logo on website</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Social media promotion</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Startup booth</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Event mention during ceremony</span></div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Silver + Startup Partner + Innovation Partner + Community Partner */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+              <Card className="p-5 border-gray-300/20 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-gray-300 to-gray-400" />
+                <StarIcon className="w-8 h-8 text-gray-300 mb-2" />
+                <h3 className="text-base font-bold text-foreground mb-1">Silver Sponsor</h3>
+                <p className="text-xl font-bold text-gray-300 mb-3">₹35,000</p>
+                <div className="space-y-1.5 text-sm text-muted">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>Logo on sponsor section</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>Event promotion mention</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>Networking access</span></div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="p-5 border-blue-400/20 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 to-cyan-400" />
+                <RocketLaunchIcon className="w-8 h-8 text-blue-400 mb-2" />
+                <h3 className="text-base font-bold text-foreground mb-1">Startup Partner</h3>
+                <p className="text-xl font-bold text-blue-400 mb-3">₹25,000</p>
+                <div className="space-y-1.5 text-sm text-muted">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Logo on competition page</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Social media mention</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Access to startup database</span></div>
                 </div>
               </Card>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="p-6 border-blue-400/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-400/10 to-transparent rounded-bl-full" />
-                <div className="relative">
-                  <StarIcon className="w-10 h-10 text-blue-400 mb-3" />
-                  <h3 className="text-lg font-bold text-foreground mb-1">Startup Partner</h3>
-                  <p className="text-3xl font-bold text-blue-400 mb-4">₹25,000</p>
-                  <div className="space-y-2 text-sm text-muted">
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Logo on competition page</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Social media mentions</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Direct access to top startups</span></div>
-                  </div>
+              <Card className="p-5 border-green-400/20 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-green-400 to-emerald-400" />
+                <LightBulbIcon className="w-8 h-8 text-green-400 mb-2" />
+                <h3 className="text-base font-bold text-foreground mb-1">Innovation Partner</h3>
+                <p className="text-xl font-bold text-green-400 mb-3">₹15,000</p>
+                <div className="space-y-1.5 text-sm text-muted">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Logo on event website</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Social media posts mention</span></div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="p-5 border-pink-400/20 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-pink-400 to-rose-400" />
+                <HeartIcon className="w-8 h-8 text-pink-400 mb-2" />
+                <h3 className="text-base font-bold text-foreground mb-1">Community Partner</h3>
+                <p className="text-xl font-bold text-pink-400 mb-3">₹10,000</p>
+                <div className="space-y-1.5 text-sm text-muted">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>Brand mention</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>Website listing</span></div>
                 </div>
               </Card>
             </motion.div>
           </div>
+
+          {/* Special Sponsorship Opportunities */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-foreground mb-1">Special Sponsorship Opportunities</h3>
+              <p className="text-sm text-muted">High-value niche sponsorships for maximum brand impact</p>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-5">
+              <Card className="p-5 border-cyan-400/20 text-center h-full">
+                <div className="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center mx-auto mb-3">
+                  <MicrophoneIcon className="w-6 h-6 text-cyan-400" />
+                </div>
+                <h4 className="font-bold text-foreground mb-1">🎤 Stage Sponsor</h4>
+                <p className="text-lg font-bold text-cyan-400 mb-2">₹40,000</p>
+                <p className="text-sm text-muted">Branding on main stage backdrop</p>
+              </Card>
+
+              <Card className="p-5 border-red-400/20 text-center h-full">
+                <div className="w-12 h-12 rounded-full bg-red-400/10 flex items-center justify-center mx-auto mb-3">
+                  <VideoCameraIcon className="w-6 h-6 text-red-400" />
+                </div>
+                <h4 className="font-bold text-foreground mb-1">🎥 Media Sponsor</h4>
+                <p className="text-lg font-bold text-red-400 mb-2">₹30,000</p>
+                <p className="text-sm text-muted">Logo in all videos and livestream</p>
+              </Card>
+
+              <Card className="p-5 border-yellow-400/20 text-center h-full">
+                <div className="w-12 h-12 rounded-full bg-yellow-400/10 flex items-center justify-center mx-auto mb-3">
+                  <TrophyIcon className="w-6 h-6 text-yellow-400" />
+                </div>
+                <h4 className="font-bold text-foreground mb-1">🏆 Award Sponsor</h4>
+                <p className="text-lg font-bold text-yellow-400 mb-2">₹20,000</p>
+                <p className="text-sm text-muted">Sponsor name on winner trophies</p>
+              </Card>
+            </div>
+          </motion.div>
         </div>
       </section>
 
