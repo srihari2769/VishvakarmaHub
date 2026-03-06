@@ -10,6 +10,13 @@ const ALLOWED_PATHS = [
   '/favicon.ico',
   '/login',
   '/signup',
+  '/forgot-password',
+  '/submit-idea',
+  '/dashboard',
+  '/startup-dashboard',
+  '/profile',
+  '/notifications',
+  '/edit-startup',
 ];
 
 // Simple in-memory cache for Edge Runtime

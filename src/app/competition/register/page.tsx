@@ -186,24 +186,108 @@ export default function CompetitionRegisterPage() {
   if (paymentSuccess) {
     return (
       <div className="min-h-screen bg-background pt-24 pb-16 px-4">
-        <div className="max-w-lg mx-auto">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-            <Card className="p-8 text-center border-green-400/20">
-              <div className="w-20 h-20 rounded-full bg-green-400/10 flex items-center justify-center mx-auto mb-6">
-                <CheckCircleIcon className="w-10 h-10 text-green-400" />
-              </div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Registration Successful!</h1>
-              <p className="text-muted mb-6">
-                Your startup <span className="text-foreground font-semibold">{selectedStartup?.title}</span> has been
-                registered for the competition. Payment of <span className="text-green-400 font-bold">₹{fee}</span> received.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link href="/competition">
-                  <Button>View Competition</Button>
-                </Link>
-                <Link href="/dashboard">
-                  <Button variant="outline">Go to Dashboard</Button>
-                </Link>
+        <div className="max-w-2xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <Card className="p-10 sm:p-14 text-center border-green-400/20 relative overflow-hidden">
+              {/* Background glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-green-400/10 rounded-full blur-[100px]" />
+
+              <div className="relative">
+                {/* Success icon */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+                  className="w-24 h-24 rounded-full bg-gradient-to-br from-green-400/20 to-green-500/10 flex items-center justify-center mx-auto mb-8 border border-green-400/30"
+                >
+                  <CheckCircleIcon className="w-12 h-12 text-green-400" />
+                </motion.div>
+
+                {/* Title */}
+                <motion.h1
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-3xl sm:text-4xl font-black text-foreground mb-3"
+                >
+                  Registration Confirmed!
+                </motion.h1>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <p className="text-lg text-muted mb-2">
+                    Your startup <span className="text-foreground font-bold">{selectedStartup?.title}</span> has been
+                    successfully registered for the competition.
+                  </p>
+                  <p className="text-green-400 font-semibold text-lg mb-8">
+                    Payment of ₹{fee} received ✓
+                  </p>
+                </motion.div>
+
+                {/* Info card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="bg-card/50 border border-border/50 rounded-2xl p-6 mb-8 text-left"
+                >
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-blue/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-5 h-5 text-blue" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-foreground font-bold text-base mb-1">What happens next?</h3>
+                      <p className="text-muted text-sm leading-relaxed">
+                        Our team at <span className="text-foreground font-medium">Vishvakarma Hub</span> will review your registration and keep you updated at every stage. All important updates, screening results, and next steps will be sent to your registered email address.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border/50 pt-4 space-y-3">
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-muted">Confirmation email sent to your inbox</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-muted">Screening updates via email &amp; notifications</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-muted">Results announced on the competition page</span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Branding */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-xs text-muted/60 mb-8"
+                >
+                  Organized by <span className="text-foreground/70 font-medium">Trinetrashakti Innovations Pvt Ltd</span> — Startup India Recognized
+                </motion.p>
+
+                {/* Actions */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="flex flex-col sm:flex-row gap-3 justify-center"
+                >
+                  <Link href="/competition">
+                    <Button size="lg">View Competition</Button>
+                  </Link>
+                  <Link href="/dashboard">
+                    <Button variant="outline" size="lg">Go to Dashboard</Button>
+                  </Link>
+                </motion.div>
               </div>
             </Card>
           </motion.div>
