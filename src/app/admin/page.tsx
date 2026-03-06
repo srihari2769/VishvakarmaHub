@@ -112,6 +112,7 @@ interface CompetitionData {
   screeningEnd: string;
   votingEnd: string;
   finalsDate: string;
+  pageContent: Record<string, unknown> | null;
   entries: CompetitionEntryItem[];
   judges: CompetitionJudgeItem[];
   sponsors: CompetitionSponsorItem[];
@@ -170,9 +171,11 @@ export default function AdminPage() {
   const [compEditMode, setCompEditMode] = useState(false);
   const [compForm, setCompForm] = useState<Record<string, string | number>>({});
   const [compSaving, setCompSaving] = useState(false);
-  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges'>('entries');
+  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges' | 'page-content'>('entries');
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
   const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
+  const [pageContentForm, setPageContentForm] = useState<Record<string, unknown>>({});
+  const [pageContentSaving, setPageContentSaving] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -366,6 +369,95 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) fetchCompetitionEntries();
     } catch {}
+  };
+
+  const initPageContentForm = () => {
+    const defaults = {
+      heroBadgeText: 'Registrations Open — Join Now!',
+      heroTitleLine1: "India's Biggest",
+      heroTitleLine2: 'Startup Competition',
+      heroDescription: 'We invite students, founders, engineers, and innovators from every corner of India to showcase their groundbreaking ideas on the national stage.',
+      heroQuote: 'Your idea deserves the spotlight. This is your moment.',
+      topSelected: 200,
+      finalistCount: 20,
+      pitchDuration: '5 min',
+      bannerText: "You're Invited! India's Biggest Startup Competition is LIVE",
+      bannerButtonText: "Register Now — It's Almost Free!",
+      invitationTitle: 'Dear Innovators, This is Your Invitation',
+      invitationDescription: "Whether you're a college student with a brilliant idea, a founder building the next big thing, or an engineer who wants to solve real problems — Vishvakarma Innovation Challenge 2026 is the platform where your startup journey begins.",
+      invitationSubtext: 'We believe every idea matters. No matter how big or small, your innovation can change the world. Join thousands of dreamers who are turning ideas into reality.',
+      invitationHighlights: 'Open to all Indians, Starting at just ₹199, National stage exposure, Meet investors & mentors',
+      prizeSectionTitle: 'What You Win',
+      prizeSectionSubtitle: 'More than just prizes — a launchpad for your startup career',
+      firstPrizeTitle: 'Grand Winner',
+      firstPrizeSubtitle: 'The top startup takes it all',
+      firstPrizeBenefits: 'Cash prize + Trophy, Investor pitch meetings, 1-year incubation support, Media & PR coverage',
+      secondPrizeTitle: 'Runner Up',
+      secondPrizeSubtitle: 'Outstanding innovation runner',
+      secondPrizeBenefits: 'Cash prize + Trophy, Mentorship program, Networking access',
+      thirdPrizeTitle: 'Second Runner Up',
+      thirdPrizeSubtitle: 'Remarkable innovation',
+      thirdPrizeBenefits: 'Cash prize + Trophy, Platform spotlight, Certificate of excellence',
+      participantBenefits: 'Certificate of Participation, Networking with Founders, Startup Visibility, Mentorship Access',
+      screeningCriteria: 'Innovation:30%, Market Potential:30%, Execution Feasibility:20%, Impact:20%',
+      participantCategories: 'Students:College & university students, Engineers:Technical professionals, Founders:Early-stage founders, Innovators:Creative problem solvers, Researchers:Academic researchers',
+      boothTitle: 'Standard Exhibition Booth',
+      boothFeatures: 'Product Demo Space, Branded Backdrop, Power & Wi-Fi, Visitor Footfall',
+      sponsorPackageTitle: 'Become a Sponsor',
+      sponsorPackageSubtitle: "Partner with us and get unparalleled visibility in India's biggest startup competition",
+      titleSponsorPrice: '₹1,00,000 – ₹2,00,000',
+      titleSponsorBenefits: 'Event named "powered by [Sponsor]", Logo on stage backdrop, 5–10 min keynote speech, Premium branding across website, Media coverage mention, Startup exhibition booth, Direct access to top startups',
+      platinumSponsorPrice: '₹75,000',
+      platinumSponsorBenefits: 'Logo on event banners, Featured website placement, Social media promotion, Booth at startup exhibition, VIP networking access',
+      goldSponsorPrice: '₹50,000',
+      goldSponsorBenefits: 'Logo on website, Social media promotion, Startup booth, Event mention during ceremony',
+      silverSponsorPrice: '₹35,000',
+      silverSponsorBenefits: 'Logo on sponsor section, Event promotion mention, Networking access',
+      startupPartnerPrice: '₹25,000',
+      startupPartnerBenefits: 'Logo on competition page, Social media mention, Access to startup database',
+      innovationPartnerPrice: '₹15,000',
+      innovationPartnerBenefits: 'Logo on event website, Social media posts mention',
+      communityPartnerPrice: '₹10,000',
+      communityPartnerBenefits: 'Brand mention, Website listing',
+      stageSponsorTitle: 'Stage Sponsor',
+      stageSponsorPrice: '₹40,000',
+      stageSponsorDesc: 'Branding on main stage backdrop',
+      mediaSponsorTitle: 'Media Sponsor',
+      mediaSponsorPrice: '₹30,000',
+      mediaSponsorDesc: 'Logo in all videos and livestream',
+      awardSponsorTitle: 'Award Sponsor',
+      awardSponsorPrice: '₹20,000',
+      awardSponsorDesc: 'Sponsor name on winner trophies',
+      ctaTitle: "Don't Just Watch.",
+      ctaHighlight: 'Be Part of It.',
+      ctaDescription: "This is more than a competition — it's a movement. Join the next generation of Indian innovators and put your startup on the national map.",
+      ctaFooter: "No idea is too small. No dream is too big.",
+      ctaFooterHighlight: "We're waiting for you.",
+    };
+    const existing = (competitionData?.pageContent as Record<string, unknown>) || {};
+    setPageContentForm({ ...defaults, ...existing });
+  };
+
+  const savePageContent = async () => {
+    setPageContentSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'update-competition', competitionId: competitionData?.id, pageContent: pageContentForm }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Page content saved successfully!');
+        fetchCompetitionEntries();
+      } else {
+        alert(data.error || 'Failed to save page content');
+      }
+    } catch {
+      alert('Failed to save page content');
+    }
+    setPageContentSaving(false);
   };
 
   const fetchAdmin = async (action: string) => {
@@ -1196,16 +1288,16 @@ export default function AdminPage() {
                 </div>
 
                 {/* Sub-tabs */}
-                <div className="flex gap-1 bg-card rounded-lg p-1">
-                  {(['entries', 'details', 'sponsors', 'judges'] as const).map((st) => (
+                <div className="flex gap-1 bg-card rounded-lg p-1 flex-wrap">
+                  {(['entries', 'details', 'sponsors', 'judges', 'page-content'] as const).map((st) => (
                     <button
                       key={st}
-                      onClick={() => setCompSubTab(st)}
-                      className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors capitalize ${
+                      onClick={() => { setCompSubTab(st); if (st === 'page-content') initPageContentForm(); }}
+                      className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors capitalize whitespace-nowrap ${
                         compSubTab === st ? 'bg-blue text-white' : 'text-muted hover:text-foreground'
                       }`}
                     >
-                      {st}
+                      {st === 'page-content' ? 'Page Content' : st}
                     </button>
                   ))}
                 </div>
@@ -1494,6 +1586,349 @@ export default function AdminPage() {
                       </div>
                       <Button size="sm" onClick={addJudge}>Add Judge</Button>
                     </Card>
+                  </div>
+                )}
+
+                {/* Page Content Sub-tab */}
+                {compSubTab === 'page-content' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-muted">Edit all text content displayed on the public competition page.</p>
+                      <Button size="sm" onClick={savePageContent} isLoading={pageContentSaving}>Save All Content</Button>
+                    </div>
+
+                    {/* Hero Section */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">🚀 Hero Section</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Badge Text</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.heroBadgeText || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, heroBadgeText: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title Line 1</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.heroTitleLine1 || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, heroTitleLine1: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title Line 2 (Gradient)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.heroTitleLine2 || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, heroTitleLine2: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Quote</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.heroQuote || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, heroQuote: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Description</label>
+                          <textarea rows={2} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.heroDescription || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, heroDescription: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Top Selected Count</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.topSelected || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, topSelected: parseInt(e.target.value) || 0 })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Finalist Count</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.finalistCount || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, finalistCount: parseInt(e.target.value) || 0 })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Pitch Duration</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.pitchDuration || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, pitchDuration: e.target.value })} />
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Floating Banner */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">📢 Floating Banner</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Banner Text</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.bannerText || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, bannerText: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Button Text</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.bannerButtonText || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, bannerButtonText: e.target.value })} />
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Invitation Section */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">💌 Invitation Section</h4>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.invitationTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, invitationTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Description</label>
+                          <textarea rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.invitationDescription || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, invitationDescription: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Subtext</label>
+                          <textarea rows={2} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.invitationSubtext || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, invitationSubtext: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Highlights (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.invitationHighlights || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, invitationHighlights: e.target.value })} />
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Prizes */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">🏆 Prizes & Rewards</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Section Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.prizeSectionTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, prizeSectionTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Section Subtitle</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.prizeSectionSubtitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, prizeSectionSubtitle: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">1st Place</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.firstPrizeTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, firstPrizeTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Subtitle</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.firstPrizeSubtitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, firstPrizeSubtitle: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.firstPrizeBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, firstPrizeBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">2nd Place</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.secondPrizeTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, secondPrizeTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Subtitle</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.secondPrizeSubtitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, secondPrizeSubtitle: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.secondPrizeBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, secondPrizeBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">3rd Place</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.thirdPrizeTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, thirdPrizeTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Subtitle</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.thirdPrizeSubtitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, thirdPrizeSubtitle: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.thirdPrizeBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, thirdPrizeBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-muted mb-1 mt-2">All Participant Benefits (comma-separated)</label>
+                        <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.participantBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, participantBenefits: e.target.value })} />
+                      </div>
+                    </Card>
+
+                    {/* Screening & Participants */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">📋 Screening & Participants</h4>
+                      <div>
+                        <label className="block text-xs text-muted mb-1">Screening Criteria (format: Label:Weight%, comma-separated)</label>
+                        <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.screeningCriteria || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, screeningCriteria: e.target.value })} />
+                        <p className="text-xs text-muted mt-1">Example: Innovation:30%, Market Potential:30%, Execution Feasibility:20%, Impact:20%</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-muted mb-1">Participant Categories (format: Label:Description, comma-separated)</label>
+                        <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.participantCategories || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, participantCategories: e.target.value })} />
+                        <p className="text-xs text-muted mt-1">Example: Students:College & university students, Engineers:Technical professionals</p>
+                      </div>
+                    </Card>
+
+                    {/* Booth */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">🏢 Exhibition Booth</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Booth Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.boothTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, boothTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Booth Features (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.boothFeatures || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, boothFeatures: e.target.value })} />
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Sponsor Packages */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">🤝 Sponsor Package Cards (Static Display)</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Section Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.sponsorPackageTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, sponsorPackageTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Section Subtitle</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.sponsorPackageSubtitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, sponsorPackageSubtitle: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Title Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price Display</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.titleSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, titleSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.titleSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, titleSponsorBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Platinum Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.platinumSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, platinumSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.platinumSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, platinumSponsorBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Gold Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.goldSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, goldSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.goldSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, goldSponsorBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Silver Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.silverSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, silverSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.silverSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, silverSponsorBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Startup Partner</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.startupPartnerPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, startupPartnerPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.startupPartnerBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, startupPartnerBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Innovation Partner</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.innovationPartnerPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, innovationPartnerPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.innovationPartnerBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, innovationPartnerBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Community Partner</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.communityPartnerPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, communityPartnerPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.communityPartnerBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, communityPartnerBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Special Sponsorships</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Stage Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.stageSponsorTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, stageSponsorTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Media Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.mediaSponsorTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, mediaSponsorTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Award Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.awardSponsorTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, awardSponsorTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Stage Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.stageSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, stageSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Media Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.mediaSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, mediaSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Award Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.awardSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, awardSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Stage Description</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.stageSponsorDesc || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, stageSponsorDesc: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Media Description</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.mediaSponsorDesc || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, mediaSponsorDesc: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Award Description</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.awardSponsorDesc || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, awardSponsorDesc: e.target.value })} />
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* CTA Section */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">🔥 Final CTA</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.ctaTitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, ctaTitle: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Highlight (Gradient Text)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.ctaHighlight || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, ctaHighlight: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Description</label>
+                          <textarea rows={2} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.ctaDescription || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, ctaDescription: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Footer Text</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.ctaFooter || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, ctaFooter: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Footer Highlight (Purple Text)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.ctaFooterHighlight || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, ctaFooterHighlight: e.target.value })} />
+                        </div>
+                      </div>
+                    </Card>
+
+                    <div className="flex justify-end">
+                      <Button onClick={savePageContent} isLoading={pageContentSaving}>Save All Content</Button>
+                    </div>
                   </div>
                 )}
               </>

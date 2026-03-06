@@ -455,6 +455,9 @@ model Competition {
   boothPrice        Float             @default(5000)
   boothDescription  String?           @db.Text
 
+  // Editable page content (JSON blob for all static text on the competition page)
+  pageContent       Json?
+
   isActive        Boolean           @default(true)
   entries         CompetitionEntry[]
   judges          CompetitionJudge[]

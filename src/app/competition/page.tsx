@@ -56,6 +56,7 @@ interface CompetitionData {
   votingEnd: string;
   finalsDate: string;
   isActive: boolean;
+  pageContent: Record<string, unknown> | null;
   entries: CompetitionEntryData[];
   judges: JudgeData[];
   sponsors: SponsorData[];
@@ -118,6 +119,23 @@ export default function CompetitionPage() {
   const [voting, setVoting] = useState<string | null>(null);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  // Helper to get page content value with fallback
+  const pc = (key: string, fallback: unknown = ''): unknown => {
+    return competition?.pageContent?.[key] ?? fallback;
+  };
+  const pcs = (key: string, fallback: string = ''): string => {
+    const val = competition?.pageContent?.[key];
+    return typeof val === 'string' ? val : fallback;
+  };
+  const pcn = (key: string, fallback: number = 0): number => {
+    const val = competition?.pageContent?.[key];
+    return typeof val === 'number' ? val : fallback;
+  };
+  const pcList = (key: string, fallback: string): string[] => {
+    const val = pcs(key, fallback);
+    return val.split(',').map(s => s.trim()).filter(Boolean);
+  };
 
   useEffect(() => {
     fetchCompetition();
@@ -258,12 +276,12 @@ export default function CompetitionPage() {
           <div className="flex items-center gap-2">
             <MegaphoneIcon className="w-5 h-5 text-white animate-bounce" />
             <span className="text-white font-bold text-sm sm:text-base">
-              You&apos;re Invited! India&apos;s Biggest Startup Competition is LIVE
+              {pcs('bannerText', "You're Invited! India's Biggest Startup Competition is LIVE")}
             </span>
           </div>
           <Link href="/submit-idea">
             <button className="px-5 py-1.5 bg-white text-purple font-bold rounded-full text-sm hover:bg-white/90 transition-colors whitespace-nowrap">
-              Register Now — It&apos;s Almost Free!
+              {pcs('bannerButtonText', "Register Now — It's Almost Free!")}
             </button>
           </Link>
         </div>
@@ -294,12 +312,12 @@ export default function CompetitionPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
               </span>
-              Registrations Open — Join Now!
+              {pcs('heroBadgeText', 'Registrations Open — Join Now!')}
             </motion.div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-foreground mb-6 leading-[1.1] tracking-tight">
               <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                India&apos;s Biggest
+                {pcs('heroTitleLine1', "India's Biggest")}
               </motion.span>
               <br />
               <motion.span
@@ -308,7 +326,7 @@ export default function CompetitionPage() {
                 transition={{ delay: 0.4 }}
                 className="bg-gradient-to-r from-purple via-blue to-cyan-400 bg-clip-text text-transparent"
               >
-                Startup Competition
+                {pcs('heroTitleLine2', 'Startup Competition')}
               </motion.span>
             </h1>
 
@@ -318,8 +336,7 @@ export default function CompetitionPage() {
               transition={{ delay: 0.6 }}
               className="text-xl sm:text-2xl text-muted max-w-3xl mx-auto mb-4"
             >
-              We invite <span className="text-foreground font-semibold">students, founders, engineers, and innovators</span> from
-              every corner of India to showcase their groundbreaking ideas on the national stage.
+              {pcs('heroDescription', 'We invite students, founders, engineers, and innovators from every corner of India to showcase their groundbreaking ideas on the national stage.')}
             </motion.p>
 
             <motion.p
@@ -328,7 +345,7 @@ export default function CompetitionPage() {
               transition={{ delay: 0.8 }}
               className="text-lg text-purple font-medium mb-10 italic"
             >
-              &ldquo;Your idea deserves the spotlight. This is your moment.&rdquo;
+              &ldquo;{pcs('heroQuote', 'Your idea deserves the spotlight. This is your moment.')}&rdquo;
             </motion.p>
 
             {/* CTA Buttons */}
@@ -402,9 +419,9 @@ export default function CompetitionPage() {
           >
             {[
               { label: 'Registrations', value: competition?._count?.entries || 0, icon: RocketLaunchIcon, color: 'text-purple' },
-              { label: 'Top Selected', value: 200, icon: StarIcon, color: 'text-yellow-400' },
-              { label: 'Finalists', value: 20, icon: TrophyIcon, color: 'text-orange-400' },
-              { label: 'Pitch Duration', value: '5 min', icon: ClockIcon, color: 'text-blue' },
+              { label: 'Top Selected', value: pcn('topSelected', 200), icon: StarIcon, color: 'text-yellow-400' },
+              { label: 'Finalists', value: pcn('finalistCount', 20), icon: TrophyIcon, color: 'text-orange-400' },
+              { label: 'Pitch Duration', value: pcs('pitchDuration', '5 min'), icon: ClockIcon, color: 'text-blue' },
             ].map((stat, i) => (
               <motion.div
                 key={i}
@@ -436,34 +453,21 @@ export default function CompetitionPage() {
             <div className="relative text-center">
               <HeartIcon className="w-10 h-10 text-purple mx-auto mb-4" />
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
-                Dear Innovators, This is <span className="text-purple">Your Invitation</span>
+                {pcs('invitationTitle', 'Dear Innovators, This is Your Invitation')}
               </h2>
               <p className="text-lg text-muted max-w-3xl mx-auto mb-4 leading-relaxed">
-                Whether you&apos;re a college student with a brilliant idea, a founder building the next big thing,
-                or an engineer who wants to solve real problems — <span className="text-foreground font-semibold">Vishvakarma Innovation Challenge 2026</span> is
-                the platform where your startup journey begins.
+                {pcs('invitationDescription', "Whether you're a college student with a brilliant idea, a founder building the next big thing, or an engineer who wants to solve real problems — Vishvakarma Innovation Challenge 2026 is the platform where your startup journey begins.")}
               </p>
               <p className="text-base text-muted max-w-2xl mx-auto mb-6">
-                We believe <span className="text-purple font-medium">every idea matters</span>. No matter how big or small,
-                your innovation can change the world. Join thousands of dreamers who are turning ideas into reality.
+                {pcs('invitationSubtext', 'We believe every idea matters. No matter how big or small, your innovation can change the world. Join thousands of dreamers who are turning ideas into reality.')}
               </p>
               <div className="flex flex-wrap justify-center gap-6 text-sm">
-                <div className="flex items-center gap-2 text-green-400">
-                  <CheckCircleIcon className="w-5 h-5" />
-                  <span>Open to all Indians</span>
-                </div>
-                <div className="flex items-center gap-2 text-green-400">
-                  <CheckCircleIcon className="w-5 h-5" />
-                  <span>Starting at just ₹199</span>
-                </div>
-                <div className="flex items-center gap-2 text-green-400">
-                  <CheckCircleIcon className="w-5 h-5" />
-                  <span>National stage exposure</span>
-                </div>
-                <div className="flex items-center gap-2 text-green-400">
-                  <CheckCircleIcon className="w-5 h-5" />
-                  <span>Meet investors & mentors</span>
-                </div>
+                {pcList('invitationHighlights', 'Open to all Indians, Starting at just ₹199, National stage exposure, Meet investors & mentors').map((h, i) => (
+                  <div key={i} className="flex items-center gap-2 text-green-400">
+                    <CheckCircleIcon className="w-5 h-5" />
+                    <span>{h}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
@@ -474,8 +478,8 @@ export default function CompetitionPage() {
       <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-yellow-400/5 to-transparent">
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">What You Win</h2>
-            <p className="text-muted max-w-xl mx-auto">More than just prizes — a launchpad for your startup career</p>
+            <h2 className="text-3xl font-bold text-foreground mb-3">{pcs('prizeSectionTitle', 'What You Win')}</h2>
+            <p className="text-muted max-w-xl mx-auto">{pcs('prizeSectionSubtitle', 'More than just prizes — a launchpad for your startup career')}</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -487,13 +491,12 @@ export default function CompetitionPage() {
                   <TrophyIcon className="w-8 h-8 text-yellow-400" />
                 </div>
                 <Badge variant="warning">1st Place</Badge>
-                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">Grand Winner</h3>
-                <p className="text-sm text-muted mb-4">The top startup takes it all</p>
+                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('firstPrizeTitle', 'Grand Winner')}</h3>
+                <p className="text-sm text-muted mb-4">{pcs('firstPrizeSubtitle', 'The top startup takes it all')}</p>
                 <div className="space-y-2 text-sm text-left">
-                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Cash prize + Trophy</span></div>
-                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Investor pitch meetings</span></div>
-                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">1-year incubation support</span></div>
-                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Media & PR coverage</span></div>
+                  {pcList('firstPrizeBenefits', 'Cash prize + Trophy, Investor pitch meetings, 1-year incubation support, Media & PR coverage').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -506,12 +509,12 @@ export default function CompetitionPage() {
                   <TrophyIcon className="w-8 h-8 text-gray-300" />
                 </div>
                 <Badge variant="default">2nd Place</Badge>
-                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">Runner Up</h3>
-                <p className="text-sm text-muted mb-4">Outstanding innovation runner</p>
+                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('secondPrizeTitle', 'Runner Up')}</h3>
+                <p className="text-sm text-muted mb-4">{pcs('secondPrizeSubtitle', 'Outstanding innovation runner')}</p>
                 <div className="space-y-2 text-sm text-left">
-                  <div className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Cash prize + Trophy</span></div>
-                  <div className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Mentorship program</span></div>
-                  <div className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Networking access</span></div>
+                  {pcList('secondPrizeBenefits', 'Cash prize + Trophy, Mentorship program, Networking access').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -524,12 +527,12 @@ export default function CompetitionPage() {
                   <TrophyIcon className="w-8 h-8 text-orange-600" />
                 </div>
                 <Badge variant="info">3rd Place</Badge>
-                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">Second Runner Up</h3>
-                <p className="text-sm text-muted mb-4">Remarkable innovation</p>
+                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('thirdPrizeTitle', 'Second Runner Up')}</h3>
+                <p className="text-sm text-muted mb-4">{pcs('thirdPrizeSubtitle', 'Remarkable innovation')}</p>
                 <div className="space-y-2 text-sm text-left">
-                  <div className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Cash prize + Trophy</span></div>
-                  <div className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Platform spotlight</span></div>
-                  <div className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Certificate of excellence</span></div>
+                  {pcList('thirdPrizeBenefits', 'Cash prize + Trophy, Platform spotlight, Certificate of excellence').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -543,17 +546,18 @@ export default function CompetitionPage() {
                 <h3 className="text-lg font-bold text-foreground">Every Participant Gets</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
-                {[
-                  { icon: AcademicCapIcon, label: 'Certificate of Participation' },
-                  { icon: UserGroupIcon, label: 'Networking with Founders' },
-                  { icon: BoltIcon, label: 'Startup Visibility' },
-                  { icon: SparklesIcon, label: 'Mentorship Access' },
-                ].map((b, i) => (
-                  <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-purple/5">
-                    <b.icon className="w-6 h-6 text-purple" />
-                    <span className="text-muted font-medium text-xs">{b.label}</span>
-                  </div>
-                ))}
+                {(() => {
+                  const icons = [AcademicCapIcon, UserGroupIcon, BoltIcon, SparklesIcon];
+                  return pcList('participantBenefits', 'Certificate of Participation, Networking with Founders, Startup Visibility, Mentorship Access').map((label, i) => {
+                    const Icon = icons[i % icons.length];
+                    return (
+                      <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-purple/5">
+                        <Icon className="w-6 h-6 text-purple" />
+                        <span className="text-muted font-medium text-xs">{label}</span>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </Card>
           </motion.div>
@@ -605,17 +609,15 @@ export default function CompetitionPage() {
                     </div>
                     <p className="text-xs text-muted mb-3">Top 200 startups selected</p>
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      {[
-                        { label: 'Innovation', weight: '30%' },
-                        { label: 'Market Potential', weight: '30%' },
-                        { label: 'Execution Feasibility', weight: '20%' },
-                        { label: 'Impact', weight: '20%' },
-                      ].map((c) => (
-                        <div key={c.label} className="flex justify-between px-3 py-1.5 rounded-lg bg-background/50">
-                          <span className="text-muted text-xs">{c.label}</span>
-                          <span className="text-foreground font-semibold text-xs">{c.weight}</span>
-                        </div>
-                      ))}
+                      {pcList('screeningCriteria', 'Innovation:30%, Market Potential:30%, Execution Feasibility:20%, Impact:20%').map((c) => {
+                        const [label, weight] = c.split(':').map(s => s.trim());
+                        return (
+                          <div key={label} className="flex justify-between px-3 py-1.5 rounded-lg bg-background/50">
+                            <span className="text-muted text-xs">{label}</span>
+                            <span className="text-foreground font-semibold text-xs">{weight}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -682,21 +684,22 @@ export default function CompetitionPage() {
           </motion.div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {[
-              { label: 'Students', icon: AcademicCapIcon, desc: 'College & university students' },
-              { label: 'Engineers', icon: RocketLaunchIcon, desc: 'Technical professionals' },
-              { label: 'Founders', icon: LightBulbIcon, desc: 'Early-stage founders' },
-              { label: 'Innovators', icon: SparklesIcon, desc: 'Creative problem solvers' },
-              { label: 'Researchers', icon: ChartBarIcon, desc: 'Academic researchers' },
-            ].map((p, i) => (
-              <motion.div key={p.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                <Card className="p-4 text-center h-full hover:border-purple/30 transition-colors">
-                  <p.icon className="w-8 h-8 text-purple mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-foreground">{p.label}</p>
-                  <p className="text-xs text-muted mt-1">{p.desc}</p>
-                </Card>
-              </motion.div>
-            ))}
+            {(() => {
+              const icons = [AcademicCapIcon, RocketLaunchIcon, LightBulbIcon, SparklesIcon, ChartBarIcon];
+              return pcList('participantCategories', 'Students:College & university students, Engineers:Technical professionals, Founders:Early-stage founders, Innovators:Creative problem solvers, Researchers:Academic researchers').map((item, i) => {
+                const [label, desc] = item.split(':').map(s => s.trim());
+                const Icon = icons[i % icons.length];
+                return (
+                  <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                    <Card className="p-4 text-center h-full hover:border-purple/30 transition-colors">
+                      <Icon className="w-8 h-8 text-purple mx-auto mb-2" />
+                      <p className="text-sm font-semibold text-foreground">{label}</p>
+                      <p className="text-xs text-muted mt-1">{desc}</p>
+                    </Card>
+                  </motion.div>
+                );
+              });
+            })()}
           </div>
         </div>
       </section>
@@ -756,10 +759,10 @@ export default function CompetitionPage() {
               <div className="relative">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                   <div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">Standard Exhibition Booth</h3>
+                    <h3 className="text-2xl font-bold text-foreground mb-2">{pcs('boothTitle', 'Standard Exhibition Booth')}</h3>
                     <p className="text-muted mb-4">{competition?.boothDescription || '6x6 ft branded booth space with table, chairs, power outlet, and Wi-Fi. Perfect for product demos and live showcases.'}</p>
                     <div className="flex flex-wrap gap-2">
-                      {['Product Demo Space', 'Branded Backdrop', 'Power & Wi-Fi', 'Visitor Footfall'].map((f) => (
+                      {pcList('boothFeatures', 'Product Demo Space, Branded Backdrop, Power & Wi-Fi, Visitor Footfall').map((f) => (
                         <span key={f} className="px-3 py-1 text-xs rounded-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">{f}</span>
                       ))}
                     </div>
@@ -875,15 +878,11 @@ export default function CompetitionPage() {
                     <h3 className="text-xl font-bold text-foreground">Title Sponsor</h3>
                     <Badge variant="warning">Most Premium</Badge>
                   </div>
-                  <p className="text-2xl font-bold text-yellow-400 mb-4">₹1,00,000 – ₹2,00,000</p>
+                  <p className="text-2xl font-bold text-yellow-400 mb-4">{pcs('titleSponsorPrice', '₹1,00,000 – ₹2,00,000')}</p>
                   <div className="grid sm:grid-cols-2 gap-2 text-sm text-muted">
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Event named &ldquo;powered by [Sponsor]&rdquo;</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Logo on stage backdrop</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>5–10 min keynote speech</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Premium branding across website</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Media coverage mention</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Startup exhibition booth</span></div>
-                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Direct access to top startups</span></div>
+                    {pcList('titleSponsorBenefits', 'Event named \u201cpowered by [Sponsor]\u201d, Logo on stage backdrop, 5–10 min keynote speech, Premium branding across website, Media coverage mention, Startup exhibition booth, Direct access to top startups').map((b, i) => (
+                      <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>{b}</span></div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -900,13 +899,11 @@ export default function CompetitionPage() {
                   <h3 className="text-lg font-bold text-foreground">Platinum Sponsor</h3>
                   <Badge variant="info">Popular</Badge>
                 </div>
-                <p className="text-2xl font-bold text-purple mb-4">₹75,000</p>
+                <p className="text-2xl font-bold text-purple mb-4">{pcs('platinumSponsorPrice', '₹75,000')}</p>
                 <div className="space-y-2 text-sm text-muted">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Logo on event banners</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Featured website placement</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Social media promotion</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>Booth at startup exhibition</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>VIP networking access</span></div>
+                  {pcList('platinumSponsorBenefits', 'Logo on event banners, Featured website placement, Social media promotion, Booth at startup exhibition, VIP networking access').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -916,12 +913,11 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-400 to-yellow-500" />
                 <StarIcon className="w-10 h-10 text-orange-400 mb-3" />
                 <h3 className="text-lg font-bold text-foreground mb-1">Gold Sponsor</h3>
-                <p className="text-2xl font-bold text-orange-400 mb-4">₹50,000</p>
+                <p className="text-2xl font-bold text-orange-400 mb-4">{pcs('goldSponsorPrice', '₹50,000')}</p>
                 <div className="space-y-2 text-sm text-muted">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Logo on website</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Social media promotion</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Startup booth</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Event mention during ceremony</span></div>
+                  {pcList('goldSponsorBenefits', 'Logo on website, Social media promotion, Startup booth, Event mention during ceremony').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -934,11 +930,11 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-gray-300 to-gray-400" />
                 <StarIcon className="w-8 h-8 text-gray-300 mb-2" />
                 <h3 className="text-base font-bold text-foreground mb-1">Silver Sponsor</h3>
-                <p className="text-xl font-bold text-gray-300 mb-3">₹35,000</p>
+                <p className="text-xl font-bold text-gray-300 mb-3">{pcs('silverSponsorPrice', '₹35,000')}</p>
                 <div className="space-y-1.5 text-sm text-muted">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>Logo on sponsor section</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>Event promotion mention</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>Networking access</span></div>
+                  {pcList('silverSponsorBenefits', 'Logo on sponsor section, Event promotion mention, Networking access').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -948,11 +944,11 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 to-cyan-400" />
                 <RocketLaunchIcon className="w-8 h-8 text-blue-400 mb-2" />
                 <h3 className="text-base font-bold text-foreground mb-1">Startup Partner</h3>
-                <p className="text-xl font-bold text-blue-400 mb-3">₹25,000</p>
+                <p className="text-xl font-bold text-blue-400 mb-3">{pcs('startupPartnerPrice', '₹25,000')}</p>
                 <div className="space-y-1.5 text-sm text-muted">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Logo on competition page</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Social media mention</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Access to startup database</span></div>
+                  {pcList('startupPartnerBenefits', 'Logo on competition page, Social media mention, Access to startup database').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -962,10 +958,11 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-green-400 to-emerald-400" />
                 <LightBulbIcon className="w-8 h-8 text-green-400 mb-2" />
                 <h3 className="text-base font-bold text-foreground mb-1">Innovation Partner</h3>
-                <p className="text-xl font-bold text-green-400 mb-3">₹15,000</p>
+                <p className="text-xl font-bold text-green-400 mb-3">{pcs('innovationPartnerPrice', '₹15,000')}</p>
                 <div className="space-y-1.5 text-sm text-muted">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Logo on event website</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Social media posts mention</span></div>
+                  {pcList('innovationPartnerBenefits', 'Logo on event website, Social media posts mention').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -975,10 +972,11 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-pink-400 to-rose-400" />
                 <HeartIcon className="w-8 h-8 text-pink-400 mb-2" />
                 <h3 className="text-base font-bold text-foreground mb-1">Community Partner</h3>
-                <p className="text-xl font-bold text-pink-400 mb-3">₹10,000</p>
+                <p className="text-xl font-bold text-pink-400 mb-3">{pcs('communityPartnerPrice', '₹10,000')}</p>
                 <div className="space-y-1.5 text-sm text-muted">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>Brand mention</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>Website listing</span></div>
+                  {pcList('communityPartnerBenefits', 'Brand mention, Website listing').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
                 </div>
               </Card>
             </motion.div>
@@ -995,27 +993,27 @@ export default function CompetitionPage() {
                 <div className="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center mx-auto mb-3">
                   <MicrophoneIcon className="w-6 h-6 text-cyan-400" />
                 </div>
-                <h4 className="font-bold text-foreground mb-1">🎤 Stage Sponsor</h4>
-                <p className="text-lg font-bold text-cyan-400 mb-2">₹40,000</p>
-                <p className="text-sm text-muted">Branding on main stage backdrop</p>
+                <h4 className="font-bold text-foreground mb-1">🎤 {pcs('stageSponsorTitle', 'Stage Sponsor')}</h4>
+                <p className="text-lg font-bold text-cyan-400 mb-2">{pcs('stageSponsorPrice', '₹40,000')}</p>
+                <p className="text-sm text-muted">{pcs('stageSponsorDesc', 'Branding on main stage backdrop')}</p>
               </Card>
 
               <Card className="p-5 border-red-400/20 text-center h-full">
                 <div className="w-12 h-12 rounded-full bg-red-400/10 flex items-center justify-center mx-auto mb-3">
                   <VideoCameraIcon className="w-6 h-6 text-red-400" />
                 </div>
-                <h4 className="font-bold text-foreground mb-1">🎥 Media Sponsor</h4>
-                <p className="text-lg font-bold text-red-400 mb-2">₹30,000</p>
-                <p className="text-sm text-muted">Logo in all videos and livestream</p>
+                <h4 className="font-bold text-foreground mb-1">🎥 {pcs('mediaSponsorTitle', 'Media Sponsor')}</h4>
+                <p className="text-lg font-bold text-red-400 mb-2">{pcs('mediaSponsorPrice', '₹30,000')}</p>
+                <p className="text-sm text-muted">{pcs('mediaSponsorDesc', 'Logo in all videos and livestream')}</p>
               </Card>
 
               <Card className="p-5 border-yellow-400/20 text-center h-full">
                 <div className="w-12 h-12 rounded-full bg-yellow-400/10 flex items-center justify-center mx-auto mb-3">
                   <TrophyIcon className="w-6 h-6 text-yellow-400" />
                 </div>
-                <h4 className="font-bold text-foreground mb-1">🏆 Award Sponsor</h4>
-                <p className="text-lg font-bold text-yellow-400 mb-2">₹20,000</p>
-                <p className="text-sm text-muted">Sponsor name on winner trophies</p>
+                <h4 className="font-bold text-foreground mb-1">🏆 {pcs('awardSponsorTitle', 'Award Sponsor')}</h4>
+                <p className="text-lg font-bold text-yellow-400 mb-2">{pcs('awardSponsorPrice', '₹20,000')}</p>
+                <p className="text-sm text-muted">{pcs('awardSponsorDesc', 'Sponsor name on winner trophies')}</p>
               </Card>
             </div>
           </motion.div>
@@ -1232,13 +1230,12 @@ export default function CompetitionPage() {
             </motion.div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4">
-              Don&apos;t Just Watch.{' '}
-              <span className="bg-gradient-to-r from-purple to-blue bg-clip-text text-transparent">Be Part of It.</span>
+              {pcs('ctaTitle', "Don't Just Watch.")}{' '}
+              <span className="bg-gradient-to-r from-purple to-blue bg-clip-text text-transparent">{pcs('ctaHighlight', 'Be Part of It.')}</span>
             </h2>
 
             <p className="text-lg sm:text-xl text-muted mb-3 max-w-2xl mx-auto">
-              This is more than a competition — it&apos;s a movement. Join the next generation of Indian innovators
-              and put your startup on the national map.
+              {pcs('ctaDescription', "This is more than a competition \u2014 it's a movement. Join the next generation of Indian innovators and put your startup on the national map.")}
             </p>
 
             {competition?.currentPhase === 'REGISTRATION' && (
@@ -1273,7 +1270,7 @@ export default function CompetitionPage() {
             </div>
 
             <p className="text-sm text-muted">
-              No idea is too small. No dream is too big. <span className="text-purple font-semibold">We&apos;re waiting for you.</span>
+              {pcs('ctaFooter', "No idea is too small. No dream is too big.")} <span className="text-purple font-semibold">{pcs('ctaFooterHighlight', "We're waiting for you.")}</span>
             </p>
           </motion.div>
         </div>
