@@ -171,7 +171,7 @@ export default function AdminPage() {
   const [compForm, setCompForm] = useState<Record<string, string | number>>({});
   const [compSaving, setCompSaving] = useState(false);
   const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges'>('entries');
-  const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '' });
+  const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
   const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
 
   useEffect(() => {
@@ -286,7 +286,7 @@ export default function AdminPage() {
   };
 
   const addSponsor = async () => {
-    if (!sponsorForm.sponsorName || !sponsorForm.price) return;
+    if (!sponsorForm.sponsorName || !sponsorForm.price) return alert('Sponsor name and price are required');
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/admin', {
@@ -297,16 +297,21 @@ export default function AdminPage() {
           competitionId: competitionData?.id,
           tier: sponsorForm.tier,
           sponsorName: sponsorForm.sponsorName,
+          logo: sponsorForm.logo || undefined,
           price: parseFloat(sponsorForm.price),
-          benefits: sponsorForm.benefits.split(',').map((b: string) => b.trim()).filter(Boolean),
+          benefits: sponsorForm.benefits ? sponsorForm.benefits.split(',').map((b: string) => b.trim()).filter(Boolean) : [],
         }),
       });
       const data = await res.json();
       if (data.success) {
-        setSponsorForm({ tier: 'TITLE', sponsorName: '', price: '', benefits: '' });
+        setSponsorForm({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
         fetchCompetitionEntries();
+      } else {
+        alert(data.error || 'Failed to add sponsor');
       }
-    } catch {}
+    } catch {
+      alert('Failed to add sponsor');
+    }
   };
 
   const deleteSponsor = async (id: string) => {
@@ -323,7 +328,7 @@ export default function AdminPage() {
   };
 
   const addJudge = async () => {
-    if (!judgeForm.judgeName || !judgeForm.judgeTitle) return;
+    if (!judgeForm.judgeName || !judgeForm.judgeTitle || !judgeForm.judgeOrganization) return alert('Name, title, and organization are required');
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/admin', {
@@ -342,8 +347,12 @@ export default function AdminPage() {
       if (data.success) {
         setJudgeForm({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
         fetchCompetitionEntries();
+      } else {
+        alert(data.error || 'Failed to add judge');
       }
-    } catch {}
+    } catch {
+      alert('Failed to add judge');
+    }
   };
 
   const deleteJudge = async (id: string) => {
@@ -1444,7 +1453,8 @@ export default function AdminPage() {
                         </select>
                         <input placeholder="Sponsor Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.sponsorName} onChange={(e) => setSponsorForm({ ...sponsorForm, sponsorName: e.target.value })} />
                         <input type="number" placeholder="Price (₹)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.price} onChange={(e) => setSponsorForm({ ...sponsorForm, price: e.target.value })} />
-                        <input placeholder="Benefits (comma-separated)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.benefits} onChange={(e) => setSponsorForm({ ...sponsorForm, benefits: e.target.value })} />
+                        <input placeholder="Logo URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.logo} onChange={(e) => setSponsorForm({ ...sponsorForm, logo: e.target.value })} />
+                        <input placeholder="Benefits (comma-separated)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground col-span-full" value={sponsorForm.benefits} onChange={(e) => setSponsorForm({ ...sponsorForm, benefits: e.target.value })} />
                       </div>
                       <Button size="sm" onClick={addSponsor}>Add Sponsor</Button>
                     </Card>
