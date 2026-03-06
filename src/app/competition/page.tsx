@@ -20,6 +20,11 @@ import {
   LightBulbIcon,
   PresentationChartBarIcon,
   StarIcon,
+  FireIcon,
+  BoltIcon,
+  GlobeAltIcon,
+  HeartIcon,
+  MegaphoneIcon,
 } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon as HandThumbUpSolid } from '@heroicons/react/24/solid';
 
@@ -110,10 +115,28 @@ export default function CompetitionPage() {
   const [registering, setRegistering] = useState<string | null>(null);
   const [voting, setVoting] = useState<string | null>(null);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     fetchCompetition();
   }, []);
+
+  useEffect(() => {
+    if (!competition?.registrationEnd) return;
+    const tick = () => {
+      const diff = new Date(competition.registrationEnd).getTime() - Date.now();
+      if (diff <= 0) { setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return; }
+      setCountdown({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [competition?.registrationEnd]);
 
   useEffect(() => {
     if (isAuthenticated && token) {
@@ -227,41 +250,144 @@ export default function CompetitionPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Floating Invitation Banner */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-purple via-blue to-cyan-500 py-3 px-4 text-center shadow-2xl shadow-purple/20">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2">
+            <MegaphoneIcon className="w-5 h-5 text-white animate-bounce" />
+            <span className="text-white font-bold text-sm sm:text-base">
+              You&apos;re Invited! India&apos;s Biggest Startup Competition is LIVE
+            </span>
+          </div>
+          <Link href="/submit-idea">
+            <button className="px-5 py-1.5 bg-white text-purple font-bold rounded-full text-sm hover:bg-white/90 transition-colors whitespace-nowrap">
+              Register Now — It&apos;s Almost Free!
+            </button>
+          </Link>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple/5 via-blue/5 to-transparent" />
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-purple/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue/10 rounded-full blur-3xl" />
+      <section className="relative pt-24 pb-20 overflow-hidden">
+        {/* Animated background effects */}
+        <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-blue/5 to-transparent" />
+        <div className="absolute top-10 left-1/4 w-[500px] h-[500px] bg-purple/15 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-blue/15 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute top-40 right-10 w-[300px] h-[300px] bg-cyan-400/10 rounded-full blur-[100px]" />
+        {/* Floating particles */}
+        <div className="absolute top-32 left-[10%] w-2 h-2 bg-purple rounded-full animate-ping" />
+        <div className="absolute top-48 right-[15%] w-2 h-2 bg-blue rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute top-64 left-[60%] w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-28 left-[75%] w-1.5 h-1.5 bg-yellow-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }} />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple/10 border border-purple/20 text-purple text-sm font-medium mb-6">
-              <TrophyIcon className="w-4 h-4" />
-              National Startup Competition
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
-              Vishvakarma Innovation
-              <br />
-              <span className="bg-gradient-to-r from-purple via-blue to-cyan-400 bg-clip-text text-transparent">
-                Challenge 2026
+            {/* Live badge */}
+            <motion.div
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-purple/20 to-blue/20 border border-purple/30 text-purple text-sm font-bold mb-6 backdrop-blur-sm"
+            >
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
               </span>
+              Registrations Open — Join Now!
+            </motion.div>
+
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-foreground mb-6 leading-[1.1] tracking-tight">
+              <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                India&apos;s Biggest
+              </motion.span>
+              <br />
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-gradient-to-r from-purple via-blue to-cyan-400 bg-clip-text text-transparent"
+              >
+                Startup Competition
+              </motion.span>
             </h1>
 
-            <p className="text-xl sm:text-2xl text-muted max-w-2xl mx-auto mb-8">
-              Build the Future. Launch Your Startup.
-            </p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="text-xl sm:text-2xl text-muted max-w-3xl mx-auto mb-4"
+            >
+              We invite <span className="text-foreground font-semibold">students, founders, engineers, and innovators</span> from
+              every corner of India to showcase their groundbreaking ideas on the national stage.
+            </motion.p>
 
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="text-lg text-purple font-medium mb-10 italic"
+            >
+              &ldquo;Your idea deserves the spotlight. This is your moment.&rdquo;
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className="flex flex-wrap gap-4 justify-center mb-12"
+            >
+              <Link href="/submit-idea">
+                <Button size="lg">
+                  <FireIcon className="w-5 h-5 mr-2 inline" />
+                  Register Your Startup
+                  <ArrowRightIcon className="w-4 h-4 ml-2 inline" />
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="outline" size="lg">
+                  Create Free Account
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* Countdown Timer */}
+            {competition?.currentPhase === 'REGISTRATION' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.2 }}
+                className="mb-12"
+              >
+                <p className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">Registration Closes In</p>
+                <div className="flex justify-center gap-3 sm:gap-5">
+                  {[
+                    { value: countdown.days, label: 'Days' },
+                    { value: countdown.hours, label: 'Hours' },
+                    { value: countdown.minutes, label: 'Minutes' },
+                    { value: countdown.seconds, label: 'Seconds' },
+                  ].map((t) => (
+                    <div
+                      key={t.label}
+                      className="bg-gradient-to-b from-card to-card/50 border border-border/50 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 backdrop-blur-sm min-w-[72px]"
+                    >
+                      <p className="text-3xl sm:text-4xl font-black bg-gradient-to-b from-foreground to-muted bg-clip-text text-transparent">
+                        {String(t.value).padStart(2, '0')}
+                      </p>
+                      <p className="text-[10px] sm:text-xs text-muted font-medium uppercase tracking-wider">{t.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Phase badge */}
             {competition && (
-              <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold ${phaseInfo.bg} ${phaseInfo.color}`}>
-                <SparklesIcon className="w-4 h-4" />
-                {phaseInfo.label}
-                {phase === 'REGISTRATION' && competition.registrationEnd && (
-                  <span className="ml-2 opacity-75">
-                    — {daysLeft(competition.registrationEnd)} days left
-                  </span>
-                )}
-              </div>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
+                <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold ${phaseInfo.bg} ${phaseInfo.color}`}>
+                  <SparklesIcon className="w-4 h-4" />
+                  {phaseInfo.label}
+                </div>
+              </motion.div>
             )}
           </motion.div>
 
@@ -270,20 +396,164 @@ export default function CompetitionPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12 max-w-3xl mx-auto"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto"
           >
             {[
-              { label: 'Registrations', value: competition?._count?.entries || 0, icon: RocketLaunchIcon },
-              { label: 'Top Selected', value: 200, icon: StarIcon },
-              { label: 'Finalists', value: 20, icon: TrophyIcon },
-              { label: 'Pitch Duration', value: '5 min', icon: ClockIcon },
+              { label: 'Registrations', value: competition?._count?.entries || 0, icon: RocketLaunchIcon, color: 'text-purple' },
+              { label: 'Top Selected', value: 200, icon: StarIcon, color: 'text-yellow-400' },
+              { label: 'Finalists', value: 20, icon: TrophyIcon, color: 'text-orange-400' },
+              { label: 'Pitch Duration', value: '5 min', icon: ClockIcon, color: 'text-blue' },
             ].map((stat, i) => (
-              <Card key={i} className="p-4 text-center border border-border/50">
-                <stat.icon className="w-6 h-6 text-purple mx-auto mb-2" />
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs text-muted">{stat.label}</p>
-              </Card>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + i * 0.1 }}
+              >
+                <Card className="p-5 text-center border border-border/50 hover:border-purple/30 transition-all hover:shadow-lg hover:shadow-purple/5">
+                  <stat.icon className={`w-7 h-7 ${stat.color} mx-auto mb-2`} />
+                  <p className="text-3xl font-black text-foreground">{stat.value}</p>
+                  <p className="text-xs text-muted font-medium">{stat.label}</p>
+                </Card>
+              </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Invitation Message Banner */}
+      <section className="py-12 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="relative bg-gradient-to-r from-purple/10 via-blue/10 to-cyan-400/10 rounded-3xl p-8 sm:p-12 border border-purple/20 overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-40 h-40 bg-purple/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-40 h-40 bg-blue/10 rounded-full blur-3xl" />
+            <div className="relative text-center">
+              <HeartIcon className="w-10 h-10 text-purple mx-auto mb-4" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
+                Dear Innovators, This is <span className="text-purple">Your Invitation</span>
+              </h2>
+              <p className="text-lg text-muted max-w-3xl mx-auto mb-4 leading-relaxed">
+                Whether you&apos;re a college student with a brilliant idea, a founder building the next big thing,
+                or an engineer who wants to solve real problems — <span className="text-foreground font-semibold">Vishvakarma Innovation Challenge 2026</span> is
+                the platform where your startup journey begins.
+              </p>
+              <p className="text-base text-muted max-w-2xl mx-auto mb-6">
+                We believe <span className="text-purple font-medium">every idea matters</span>. No matter how big or small,
+                your innovation can change the world. Join thousands of dreamers who are turning ideas into reality.
+              </p>
+              <div className="flex flex-wrap justify-center gap-6 text-sm">
+                <div className="flex items-center gap-2 text-green-400">
+                  <CheckCircleIcon className="w-5 h-5" />
+                  <span>Open to all Indians</span>
+                </div>
+                <div className="flex items-center gap-2 text-green-400">
+                  <CheckCircleIcon className="w-5 h-5" />
+                  <span>Starting at just ₹199</span>
+                </div>
+                <div className="flex items-center gap-2 text-green-400">
+                  <CheckCircleIcon className="w-5 h-5" />
+                  <span>National stage exposure</span>
+                </div>
+                <div className="flex items-center gap-2 text-green-400">
+                  <CheckCircleIcon className="w-5 h-5" />
+                  <span>Meet investors & mentors</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Prizes & Rewards */}
+      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-yellow-400/5 to-transparent">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-3">What You Win</h2>
+            <p className="text-muted max-w-xl mx-auto">More than just prizes — a launchpad for your startup career</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {/* 1st Place */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="p-6 text-center border-yellow-400/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-400 to-orange-400" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400/20 to-orange-400/20 flex items-center justify-center mx-auto mb-4">
+                  <TrophyIcon className="w-8 h-8 text-yellow-400" />
+                </div>
+                <Badge variant="warning">1st Place</Badge>
+                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">Grand Winner</h3>
+                <p className="text-sm text-muted mb-4">The top startup takes it all</p>
+                <div className="space-y-2 text-sm text-left">
+                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Cash prize + Trophy</span></div>
+                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Investor pitch meetings</span></div>
+                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">1-year incubation support</span></div>
+                  <div className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Media & PR coverage</span></div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* 2nd Place */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="p-6 text-center border-gray-300/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-gray-300 to-gray-400" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300/20 to-gray-400/20 flex items-center justify-center mx-auto mb-4">
+                  <TrophyIcon className="w-8 h-8 text-gray-300" />
+                </div>
+                <Badge variant="default">2nd Place</Badge>
+                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">Runner Up</h3>
+                <p className="text-sm text-muted mb-4">Outstanding innovation runner</p>
+                <div className="space-y-2 text-sm text-left">
+                  <div className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Cash prize + Trophy</span></div>
+                  <div className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Mentorship program</span></div>
+                  <div className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Networking access</span></div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* 3rd Place */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="p-6 text-center border-orange-700/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-600 to-orange-700" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600/20 to-orange-700/20 flex items-center justify-center mx-auto mb-4">
+                  <TrophyIcon className="w-8 h-8 text-orange-600" />
+                </div>
+                <Badge variant="info">3rd Place</Badge>
+                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">Second Runner Up</h3>
+                <p className="text-sm text-muted mb-4">Remarkable innovation</p>
+                <div className="space-y-2 text-sm text-left">
+                  <div className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Cash prize + Trophy</span></div>
+                  <div className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Platform spotlight</span></div>
+                  <div className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">Certificate of excellence</span></div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* All Participants Benefits */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+            <Card className="p-6 border-purple/20">
+              <div className="text-center mb-4">
+                <GlobeAltIcon className="w-8 h-8 text-purple mx-auto mb-2" />
+                <h3 className="text-lg font-bold text-foreground">Every Participant Gets</h3>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
+                {[
+                  { icon: AcademicCapIcon, label: 'Certificate of Participation' },
+                  { icon: UserGroupIcon, label: 'Networking with Founders' },
+                  { icon: BoltIcon, label: 'Startup Visibility' },
+                  { icon: SparklesIcon, label: 'Mentorship Access' },
+                ].map((b, i) => (
+                  <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-purple/5">
+                    <b.icon className="w-6 h-6 text-purple" />
+                    <span className="text-muted font-medium text-xs">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </motion.div>
         </div>
       </section>
@@ -836,27 +1106,53 @@ export default function CompetitionPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto text-center">
+      {/* Final CTA — Urgency & Invitation */}
+      <section className="py-20 px-4 sm:px-6 mb-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-purple/10 via-blue/5 to-transparent" />
+        <div className="absolute bottom-0 left-1/3 w-[500px] h-[400px] bg-purple/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/3 w-[500px] h-[400px] bg-blue/10 rounded-full blur-[120px]" />
+        <div className="relative max-w-4xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-            <TrophyIcon className="w-16 h-16 text-purple mx-auto mb-6" />
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              Ready to Compete?
+            <motion.div
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-block mb-6"
+            >
+              <FireIcon className="w-16 h-16 text-orange-400" />
+            </motion.div>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4">
+              Don&apos;t Just Watch.{' '}
+              <span className="bg-gradient-to-r from-purple to-blue bg-clip-text text-transparent">Be Part of It.</span>
             </h2>
-            <p className="text-lg text-muted mb-8 max-w-xl mx-auto">
-              Join the Vishvakarma Innovation Challenge 2026 and showcase your startup to the nation.
+
+            <p className="text-lg sm:text-xl text-muted mb-3 max-w-2xl mx-auto">
+              This is more than a competition — it&apos;s a movement. Join the next generation of Indian innovators
+              and put your startup on the national map.
             </p>
-            <div className="flex flex-wrap gap-4 justify-center">
+
+            {competition?.currentPhase === 'REGISTRATION' && (
+              <motion.p
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-lg font-bold text-orange-400 mb-8"
+              >
+                ⚡ Hurry! Only {countdown.days} days, {countdown.hours} hours left to register!
+              </motion.p>
+            )}
+
+            <div className="flex flex-wrap gap-4 justify-center mb-8">
               {competition?.currentPhase === 'REGISTRATION' ? (
                 <>
                   <Link href="/submit-idea">
                     <Button size="lg">
-                      Submit Your Idea <ArrowRightIcon className="w-4 h-4 ml-2 inline" />
+                      <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
+                      Register Now — From ₹199 Only
+                      <ArrowRightIcon className="w-4 h-4 ml-2 inline" />
                     </Button>
                   </Link>
-                  <Link href="/explore">
-                    <Button variant="outline" size="lg">Explore Startups</Button>
+                  <Link href="/signup">
+                    <Button variant="outline" size="lg">Create Free Account</Button>
                   </Link>
                 </>
               ) : (
@@ -865,6 +1161,10 @@ export default function CompetitionPage() {
                 </Link>
               )}
             </div>
+
+            <p className="text-sm text-muted">
+              No idea is too small. No dream is too big. <span className="text-purple font-semibold">We&apos;re waiting for you.</span>
+            </p>
           </motion.div>
         </div>
       </section>
