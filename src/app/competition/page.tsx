@@ -1084,33 +1084,118 @@ export default function CompetitionPage() {
       )}
 
       {/* Timeline */}
-      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-blue/5 to-transparent">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Event Timeline</h2>
+      <section className="py-20 px-4 sm:px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple/5 to-transparent" />
+        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-purple/8 rounded-full blur-[150px] -translate-y-1/2" />
+        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-blue/8 rounded-full blur-[150px] -translate-y-1/2" />
+
+        <div className="relative max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="text-center mb-14">
+            <Badge variant="info" className="mb-4">📅 Mark Your Calendar</Badge>
+            <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">Event Timeline</h2>
+            <p className="text-muted max-w-xl mx-auto">From registration to the grand finale — here&apos;s your roadmap to innovation glory.</p>
+          </motion.div>
+
+          {/* Desktop Timeline */}
+          <div className="hidden md:block relative">
+            {/* Central Line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2 bg-gradient-to-b from-green-400 via-purple to-blue/30" />
+
+            {competition && [
+              { label: 'Registration Opens', date: competition.registrationStart, phase: 'REGISTRATION', icon: '🚀', desc: 'Submit your startup and secure your spot' },
+              { label: 'Registration Closes', date: competition.registrationEnd, phase: 'REGISTRATION', icon: '⏰', desc: 'Last chance to register — don\'t miss out!' },
+              { label: 'Screening Complete', date: competition.screeningEnd, phase: 'SCREENING', icon: '🔍', desc: 'Expert jury reviews all submissions' },
+              { label: 'Public Voting Ends', date: competition.votingEnd, phase: 'VOTING', icon: '🗳️', desc: 'Community votes for the best startups' },
+              { label: 'Grand Finale', date: competition.finalsDate, phase: 'FINALS', icon: '🏆', desc: 'Live pitch day — winners announced!' },
+            ].map((item, i) => {
+              const isPast = new Date(item.date) < new Date();
+              const isCurrent = item.phase === competition.currentPhase;
+              const isLeft = i % 2 === 0;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className={`relative flex items-center mb-12 last:mb-0 ${isLeft ? 'justify-start' : 'justify-end'}`}
+                >
+                  {/* Center dot */}
+                  <div className="absolute left-1/2 -translate-x-1/2 z-10">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg border-2 ${
+                      isPast ? 'bg-green-400/20 border-green-400 shadow-green-400/20' :
+                      isCurrent ? 'bg-purple/20 border-purple shadow-purple/20' :
+                      'bg-card border-border'
+                    }`}>
+                      {isPast ? <CheckCircleIcon className="w-6 h-6 text-green-400" /> : <span>{item.icon}</span>}
+                    </div>
+                  </div>
+
+                  {/* Card */}
+                  <div className={`w-[calc(50%-3rem)] ${isLeft ? 'pr-4 text-right' : 'pl-4 ml-auto text-left'}`}>
+                    <div className={`p-5 rounded-2xl border backdrop-blur-sm transition-all hover:scale-[1.02] ${
+                      isCurrent ? 'bg-purple/10 border-purple/30 shadow-lg shadow-purple/10' :
+                      isPast ? 'bg-green-400/5 border-green-400/20' :
+                      'bg-card/50 border-border/50'
+                    }`}>
+                      <p className={`text-sm font-bold uppercase tracking-wider mb-1 ${
+                        isCurrent ? 'text-purple' : isPast ? 'text-green-400' : 'text-muted'
+                      }`}>{item.label}</p>
+                      <p className="text-lg font-bold text-foreground">{formatDate(item.date)}</p>
+                      <p className="text-xs text-muted mt-1">{item.desc}</p>
+                      {isCurrent && (
+                        <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple/20 text-purple border border-purple/30 animate-pulse">
+                          Current Phase
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
 
-          <div className="space-y-0">
+          {/* Mobile Timeline */}
+          <div className="md:hidden space-y-0">
             {competition && [
-              { label: 'Registration Opens', date: competition.registrationStart, phase: 'REGISTRATION' },
-              { label: 'Registration Closes', date: competition.registrationEnd, phase: 'REGISTRATION' },
-              { label: 'Screening Complete', date: competition.screeningEnd, phase: 'SCREENING' },
-              { label: 'Public Voting Ends', date: competition.votingEnd, phase: 'VOTING' },
-              { label: 'Finals Day', date: competition.finalsDate, phase: 'FINALS' },
+              { label: 'Registration Opens', date: competition.registrationStart, phase: 'REGISTRATION', icon: '🚀', desc: 'Submit your startup and secure your spot' },
+              { label: 'Registration Closes', date: competition.registrationEnd, phase: 'REGISTRATION', icon: '⏰', desc: 'Last chance to register — don\'t miss out!' },
+              { label: 'Screening Complete', date: competition.screeningEnd, phase: 'SCREENING', icon: '🔍', desc: 'Expert jury reviews all submissions' },
+              { label: 'Public Voting Ends', date: competition.votingEnd, phase: 'VOTING', icon: '🗳️', desc: 'Community votes for the best startups' },
+              { label: 'Grand Finale', date: competition.finalsDate, phase: 'FINALS', icon: '🏆', desc: 'Live pitch day — winners announced!' },
             ].map((item, i) => {
               const isPast = new Date(item.date) < new Date();
               const isCurrent = item.phase === competition.currentPhase;
               return (
-                <div key={i} className="flex gap-4 items-start">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  viewport={{ once: true }}
+                  className="flex gap-4 items-start"
+                >
                   <div className="flex flex-col items-center">
-                    <div className={`w-4 h-4 rounded-full border-2 ${isPast ? 'bg-green-400 border-green-400' : isCurrent ? 'bg-purple border-purple' : 'bg-transparent border-border'}`} />
-                    {i < 4 && <div className={`w-0.5 h-12 ${isPast ? 'bg-green-400/30' : 'bg-border'}`} />}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base border-2 flex-shrink-0 ${
+                      isPast ? 'bg-green-400/20 border-green-400' :
+                      isCurrent ? 'bg-purple/20 border-purple' :
+                      'bg-card border-border'
+                    }`}>
+                      {isPast ? <CheckCircleIcon className="w-5 h-5 text-green-400" /> : <span>{item.icon}</span>}
+                    </div>
+                    {i < 4 && <div className={`w-0.5 h-16 ${isPast ? 'bg-gradient-to-b from-green-400/40 to-green-400/10' : isCurrent ? 'bg-gradient-to-b from-purple/40 to-purple/10' : 'bg-border'}`} />}
                   </div>
-                  <div className="pb-8">
-                    <p className={`font-medium ${isCurrent ? 'text-purple' : isPast ? 'text-green-400' : 'text-muted'}`}>{item.label}</p>
-                    <p className="text-xs text-muted">{formatDate(item.date)}</p>
+                  <div className="pb-6 pt-1">
+                    <p className={`font-bold text-sm uppercase tracking-wider ${isCurrent ? 'text-purple' : isPast ? 'text-green-400' : 'text-muted'}`}>{item.label}</p>
+                    <p className="text-base font-semibold text-foreground">{formatDate(item.date)}</p>
+                    <p className="text-xs text-muted mt-0.5">{item.desc}</p>
+                    {isCurrent && (
+                      <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple/20 text-purple border border-purple/30 animate-pulse">
+                        Current Phase
+                      </span>
+                    )}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
