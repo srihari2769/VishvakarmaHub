@@ -224,7 +224,7 @@ export default function CompetitionPage() {
           </div>
           <Link href="/competition/register">
             <button className="px-5 py-1.5 bg-white text-purple font-bold rounded-full text-sm hover:bg-white/90 transition-colors whitespace-nowrap">
-              {pcs('bannerButtonText', "Register Now — It's Almost Free!")}
+              {pcs('bannerButtonText', "Register Now — From ₹199 Only!")}
             </button>
           </Link>
         </div>
