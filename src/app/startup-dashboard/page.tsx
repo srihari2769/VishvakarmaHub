@@ -290,11 +290,18 @@ export default function StartupDashboardPage() {
             <h1 className="text-2xl font-bold text-foreground">Founder Dashboard</h1>
             <p className="text-muted text-sm">Manage your startups and campaigns</p>
           </div>
-          <Link href="/submit-idea">
-            <Button>
-              <PlusCircleIcon className="w-4 h-4 mr-2" /> New Startup
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            <Link href="/co-founders/manage">
+              <Button variant="outline">
+                <UserGroupIcon className="w-4 h-4 mr-2" /> Find Co-Founder
+              </Button>
+            </Link>
+            <Link href="/submit-idea">
+              <Button>
+                <PlusCircleIcon className="w-4 h-4 mr-2" /> New Startup
+              </Button>
+            </Link>
+          </div>
         </motion.div>
 
         {/* Stats */}
