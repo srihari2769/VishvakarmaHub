@@ -245,7 +245,12 @@ export default function CompetitionPage() {
   }
 
   const phase = competition?.currentPhase as keyof typeof PHASE_INFO;
-  const phaseInfo = phase ? PHASE_INFO[phase] : PHASE_INFO.REGISTRATION;
+  const registrationLive = competition ? Date.now() >= new Date(competition.registrationStart).getTime() : false;
+  const phaseInfo = phase
+    ? (phase === 'REGISTRATION' && !registrationLive
+        ? { label: 'Registration Opens Soon', color: 'text-cyan-400', bg: 'bg-cyan-400/10 border-cyan-400/20' }
+        : PHASE_INFO[phase])
+    : PHASE_INFO.REGISTRATION;
 
   return (
     <div className="min-h-screen">
@@ -1006,18 +1011,34 @@ export default function CompetitionPage() {
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
               <Card className="p-8 border-purple/20 text-center">
                 <RocketLaunchIcon className="w-12 h-12 text-purple mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-foreground mb-2">Register Your Startup</h2>
-                <p className="text-muted mb-6">Submit your approved startup to compete in the Vishvakarma Innovation Challenge 2026</p>
-                <Link href="/competition/register">
-                  <Button size="lg">
-                    <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
-                    Register Now
-                  </Button>
-                </Link>
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  {registrationLive ? 'Register Your Startup' : 'Registration Opens Soon'}
+                </h2>
+                <p className="text-muted mb-6">
+                  {registrationLive
+                    ? 'Submit your approved startup to compete in the Vishvakarma Innovation Challenge 2026'
+                    : `Registration opens on ${formatDate(competition.registrationStart)}. Get your startup ready!`}
+                </p>
+                {registrationLive ? (
+                  <Link href="/competition/register">
+                    <Button size="lg">
+                      <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
+                      Register Now
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/submit-idea">
+                    <Button size="lg" variant="outline">
+                      <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
+                      Prepare Your Startup
+                    </Button>
+                  </Link>
+                )}
                 <div className="mt-6 pt-6 border-t border-border">
                   <p className="text-xs text-muted">
-                    Registration closes on {competition?.registrationEnd && formatDate(competition.registrationEnd)} •{' '}
-                    <span className="text-purple font-medium">{competition?.registrationEnd && daysLeft(competition.registrationEnd)} days remaining</span>
+                    {registrationLive
+                      ? <>Registration closes on {formatDate(competition.registrationEnd)} • <span className="text-purple font-medium">{daysLeft(competition.registrationEnd)} days remaining</span></>
+                      : <>Registration opens on {formatDate(competition.registrationStart)} • <span className="text-cyan-400 font-medium">{daysLeft(competition.registrationStart)} days to go</span></>}
                   </p>
                 </div>
               </Card>
@@ -1268,7 +1289,9 @@ export default function CompetitionPage() {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="text-lg font-bold text-orange-400 mb-8"
               >
-                ⚡ Hurry! Only {countdown.days} days, {countdown.hours} hours left to register!
+                {registrationLive
+                  ? `⚡ Hurry! Only ${countdown.days} days, ${countdown.hours} hours left to register!`
+                  : `🚀 Registration opens in ${countdown.days} days, ${countdown.hours} hours!`}
               </motion.p>
             )}
 
