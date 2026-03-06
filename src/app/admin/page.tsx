@@ -272,7 +272,7 @@ export default function AdminPage() {
       const res = await fetch('/api/admin', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ action: 'update-competition', ...compForm }),
+        body: JSON.stringify({ action: 'update-competition', competitionId: competitionData?.id, ...compForm }),
       });
       const data = await res.json();
       if (data.success) {
