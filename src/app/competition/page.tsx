@@ -1319,6 +1319,16 @@ export default function CompetitionPage() {
             <p className="text-sm text-muted">
               {pcs('ctaFooter', "No idea is too small. No dream is too big.")} <span className="text-purple font-semibold">{pcs('ctaFooterHighlight', "We're waiting for you.")}</span>
             </p>
+
+            <div className="mt-8 pt-6 border-t border-border/30">
+              <p className="text-sm text-muted">
+                Vishvakarma Hub Platform &amp; Event is conducted by{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple to-blue font-bold">Trinetrashakti Innovations Private Limited</span>
+              </p>
+              <p className="text-xs text-muted/70 mt-1">
+                Recognized by <span className="text-green-400 font-semibold">Startup India</span>, Government of India
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>
