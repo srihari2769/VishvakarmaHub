@@ -129,6 +129,8 @@ model User {
   savedStartups   SavedStartup[]
   withdrawals     Withdrawal[]
   cofounderApplications CofounderApplication[]
+  competitionEntries CompetitionEntry[]
+  competitionVotes  CompetitionVote[]
 
   @@index([email])
   @@index([referralCode])
@@ -170,6 +172,7 @@ model Startup {
   comments        Comment[]
   savedBy         SavedStartup[]
   cofounderApplications CofounderApplication[]
+  competitionEntries CompetitionEntry[]
   
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -398,4 +401,128 @@ model ContactSubmission {
 
   @@index([isRead])
   @@map("contact_submissions")
+}
+
+// ==================== SITE SETTINGS ====================
+
+model SiteSettings {
+  id              String   @id @default("global")
+  comingSoon      Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// ==================== COMPETITION ====================
+
+enum CompetitionPhase {
+  REGISTRATION
+  SCREENING
+  VOTING
+  FINALS
+  COMPLETED
+}
+
+enum CompetitionEntryStatus {
+  SUBMITTED
+  SHORTLISTED
+  SELECTED_TOP200
+  PUBLIC_VOTING
+  FINALIST
+  WINNER
+  ELIMINATED
+}
+
+model Competition {
+  id              String            @id @default(cuid())
+  name            String
+  tagline         String
+  slug            String            @unique
+  description     String            @db.Text
+  currentPhase    CompetitionPhase  @default(REGISTRATION)
+
+  registrationStart DateTime
+  registrationEnd   DateTime
+  screeningEnd      DateTime
+  votingEnd         DateTime
+  finalsDate        DateTime
+
+  isActive        Boolean           @default(true)
+  entries         CompetitionEntry[]
+  judges          CompetitionJudge[]
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@map("competitions")
+}
+
+model CompetitionEntry {
+  id              String                   @id @default(cuid())
+  status          CompetitionEntryStatus   @default(SUBMITTED)
+  
+  // Screening scores
+  innovationScore     Float?
+  marketScore         Float?
+  executionScore      Float?
+  impactScore         Float?
+  totalScore          Float?
+  juryNotes           String?              @db.Text
+
+  // Public voting
+  upvotes             Int                  @default(0)
+  
+  // Finals
+  pitchDate           DateTime?
+  finalRank           Int?
+
+  startupId       String
+  startup         Startup                  @relation(fields: [startupId], references: [id])
+
+  competitionId   String
+  competition     Competition              @relation(fields: [competitionId], references: [id])
+
+  userId          String
+  user            User                     @relation(fields: [userId], references: [id])
+
+  votes           CompetitionVote[]
+
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  @@unique([startupId, competitionId])
+  @@index([competitionId])
+  @@index([status])
+  @@map("competition_entries")
+}
+
+model CompetitionJudge {
+  id              String   @id @default(cuid())
+  name            String
+  title           String
+  organization    String
+  avatar          String?
+  
+  competitionId   String
+  competition     Competition @relation(fields: [competitionId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@map("competition_judges")
+}
+
+model CompetitionVote {
+  id              String   @id @default(cuid())
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  
+  entryId         String
+  entry           CompetitionEntry @relation(fields: [entryId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([userId, entryId])
+  @@index([entryId])
+  @@map("competition_votes")
 }

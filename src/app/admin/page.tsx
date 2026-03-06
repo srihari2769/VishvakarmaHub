@@ -21,6 +21,8 @@ import {
   ArrowTrendingUpIcon,
   TrashIcon,
   XMarkIcon,
+  Cog6ToothIcon,
+  TrophyIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -82,7 +84,7 @@ interface ReportData {
   withdrawalStats: { status: string; count: number; amount: number }[];
 }
 
-type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'contacts' | 'reports';
+type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'contacts' | 'reports' | 'settings';
 
 interface ContactSubmission {
   id: string;
@@ -110,6 +112,10 @@ export default function AdminPage() {
   const [withdrawalNote, setWithdrawalNote] = useState('');
   const [viewUser, setViewUser] = useState<PlatformUser | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'startup' | 'user'; id: string; name: string } | null>(null);
+  const [comingSoon, setComingSoon] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [competitionSeeded, setCompetitionSeeded] = useState(false);
+  const [seedingCompetition, setSeedingCompetition] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -133,8 +139,47 @@ export default function AdminPage() {
       fetchAdmin('withdrawals');
       fetchAdmin('contacts');
       fetchAdmin('reports');
+      fetchSiteSettings();
     }
   }, [isAuthenticated, user]);
+
+  const fetchSiteSettings = async () => {
+    try {
+      const res = await fetch('/api/site-settings');
+      const data = await res.json();
+      if (data.success) setComingSoon(data.data.comingSoon);
+    } catch {}
+  };
+
+  const toggleComingSoon = async () => {
+    setSettingsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/site-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ comingSoon: !comingSoon }),
+      });
+      const data = await res.json();
+      if (data.success) setComingSoon(data.data.comingSoon);
+    } catch {}
+    setSettingsLoading(false);
+  };
+
+  const seedCompetition = async () => {
+    setSeedingCompetition(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/competition/seed', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setCompetitionSeeded(true);
+      else alert(data.error || 'Failed to seed competition');
+    } catch {}
+    setSeedingCompetition(false);
+  };
 
   const fetchAdmin = async (action: string) => {
     try {
@@ -338,6 +383,7 @@ export default function AdminPage() {
             { id: 'withdrawals' as Tab, label: `Withdrawals (${withdrawals.filter(w => w.status === 'PENDING').length})` },
             { id: 'contacts' as Tab, label: `Contacts (${contacts.filter(c => !c.isRead).length})` },
             { id: 'reports' as Tab, label: 'Reports' },
+            { id: 'settings' as Tab, label: 'Settings' },
           ]).map((t) => (
             <button
               key={t.id}
@@ -943,6 +989,74 @@ export default function AdminPage() {
                 </Card>
               ))
             )}
+          </motion.div>
+        )}
+
+        {/* Settings Tab */}
+        {tab === 'settings' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-2xl">
+            {/* Coming Soon Toggle */}
+            <Card className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-orange/10 flex items-center justify-center flex-shrink-0">
+                  <Cog6ToothIcon className="w-5 h-5 text-orange" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground mb-1">Coming Soon Mode</h3>
+                  <p className="text-sm text-muted mb-4">
+                    When enabled, the entire website will be inaccessible. Only the Competition event page
+                    and the Admin panel will remain accessible.
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={toggleComingSoon}
+                      disabled={settingsLoading}
+                      className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors ${
+                        comingSoon ? 'bg-orange' : 'bg-border'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                          comingSoon ? 'translate-x-8' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                    <span className={`text-sm font-medium ${comingSoon ? 'text-orange' : 'text-muted'}`}>
+                      {comingSoon ? 'ENABLED — Site is in Coming Soon mode' : 'DISABLED — Site is live'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Competition Seeding */}
+            <Card className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-purple/10 flex items-center justify-center flex-shrink-0">
+                  <TrophyIcon className="w-5 h-5 text-purple" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground mb-1">Vishvakarma Innovation Challenge 2026</h3>
+                  <p className="text-sm text-muted mb-4">
+                    Initialize the national startup competition. This will create the competition record with all phases and dates configured.
+                  </p>
+                  {competitionSeeded ? (
+                    <div className="flex items-center gap-2 text-green-400 text-sm">
+                      <CheckCircleIcon className="w-5 h-5" />
+                      Competition created successfully!
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={seedCompetition}
+                      disabled={seedingCompetition}
+                      size="sm"
+                    >
+                      {seedingCompetition ? 'Creating...' : 'Create Competition'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
           </motion.div>
         )}
       </div>
