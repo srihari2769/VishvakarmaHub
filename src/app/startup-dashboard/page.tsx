@@ -290,18 +290,11 @@ export default function StartupDashboardPage() {
             <h1 className="text-2xl font-bold text-foreground">Founder Dashboard</h1>
             <p className="text-muted text-sm">Manage your startups and campaigns</p>
           </div>
-          <div className="flex gap-3">
-            <Link href="/co-founders/manage">
-              <Button variant="outline">
-                <UserGroupIcon className="w-4 h-4 mr-2" /> Find Co-Founder
-              </Button>
-            </Link>
-            <Link href="/submit-idea">
-              <Button>
-                <PlusCircleIcon className="w-4 h-4 mr-2" /> New Startup
-              </Button>
-            </Link>
-          </div>
+          <Link href="/submit-idea">
+            <Button>
+              <PlusCircleIcon className="w-4 h-4 mr-2" /> New Startup
+            </Button>
+          </Link>
         </motion.div>
 
         {/* Stats */}
@@ -544,14 +537,9 @@ export default function StartupDashboardPage() {
                           {formatCurrency(s.campaign?.raisedAmount || 0)}
                         </td>
                         <td className="py-3">
-                          <div className="flex gap-2">
-                            <Link href={`/startup/${s.slug}`} className="text-blue text-sm hover:underline">
-                              View
-                            </Link>
-                            <Link href="/co-founders/manage" className="text-emerald-400 text-sm hover:underline">
-                              Co-Founder
-                            </Link>
-                          </div>
+                          <Link href={`/startup/${s.slug}`} className="text-blue text-sm hover:underline">
+                            View
+                          </Link>
                         </td>
                       </tr>
                     ))}
