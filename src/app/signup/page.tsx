@@ -74,7 +74,7 @@ function SignupForm() {
       }
 
       setUser(data.data.user, data.data.token);
-      router.push('/dashboard');
+      router.push('/competition/register');
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {

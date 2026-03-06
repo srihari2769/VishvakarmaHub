@@ -52,11 +52,8 @@ export default function LoginPage() {
         case 'ADMIN':
           router.push('/admin');
           break;
-        case 'FOUNDER':
-          router.push('/startup-dashboard');
-          break;
         default:
-          router.push('/dashboard');
+          router.push('/competition/register');
       }
     } catch {
       setError('Something went wrong. Please try again.');
