@@ -108,7 +108,7 @@ export default function CompetitionPage() {
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState<string | null>(null);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [countdownLabel, setCountdownLabel] = useState('Registration Closes In');
+  const [countdownLabel, setCountdownLabel] = useState('');
 
   // Helper to get page content value with fallback
   const pc = (key: string, fallback: unknown = ''): unknown => {
