@@ -108,6 +108,7 @@ export default function CompetitionPage() {
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState<string | null>(null);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [countdownLabel, setCountdownLabel] = useState('Registration Closes In');
 
   // Helper to get page content value with fallback
   const pc = (key: string, fallback: unknown = ''): unknown => {
@@ -131,9 +132,44 @@ export default function CompetitionPage() {
   }, []);
 
   useEffect(() => {
-    if (!competition?.registrationEnd) return;
+    if (!competition) return;
+    const now = Date.now();
+    const regStart = new Date(competition.registrationStart).getTime();
+    const regEnd = new Date(competition.registrationEnd).getTime();
+    const screenEnd = competition.screeningEnd ? new Date(competition.screeningEnd).getTime() : 0;
+    const voteEnd = competition.votingEnd ? new Date(competition.votingEnd).getTime() : 0;
+    const finals = competition.finalsDate ? new Date(competition.finalsDate).getTime() : 0;
+
+    let targetTime = 0;
+    let label = '';
+
+    if (now < regStart) {
+      targetTime = regStart;
+      label = 'Registration Opens In';
+    } else if (competition.currentPhase === 'REGISTRATION' && now < regEnd) {
+      targetTime = regEnd;
+      label = 'Registration Closes In';
+    } else if (competition.currentPhase === 'SCREENING' && screenEnd && now < screenEnd) {
+      targetTime = screenEnd;
+      label = 'Screening Ends In';
+    } else if (competition.currentPhase === 'VOTING' && voteEnd && now < voteEnd) {
+      targetTime = voteEnd;
+      label = 'Voting Ends In';
+    } else if (competition.currentPhase === 'FINALS' && finals && now < finals) {
+      targetTime = finals;
+      label = 'Finals Day In';
+    }
+
+    if (!targetTime) {
+      setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      setCountdownLabel('');
+      return;
+    }
+
+    setCountdownLabel(label);
+
     const tick = () => {
-      const diff = new Date(competition.registrationEnd).getTime() - Date.now();
+      const diff = targetTime - Date.now();
       if (diff <= 0) { setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return; }
       setCountdown({
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -145,7 +181,7 @@ export default function CompetitionPage() {
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [competition?.registrationEnd]);
+  }, [competition]);
 
   const fetchCompetition = async () => {
     try {
@@ -313,14 +349,14 @@ export default function CompetitionPage() {
             </motion.div>
 
             {/* Countdown Timer */}
-            {competition?.currentPhase === 'REGISTRATION' && (
+            {countdownLabel && (countdown.days > 0 || countdown.hours > 0 || countdown.minutes > 0 || countdown.seconds > 0) && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1.2 }}
                 className="mb-12"
               >
-                <p className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">Registration Closes In</p>
+                <p className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">{countdownLabel}</p>
                 <div className="flex justify-center gap-3 sm:gap-5">
                   {[
                     { value: countdown.days, label: 'Days' },
