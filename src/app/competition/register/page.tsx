@@ -465,7 +465,7 @@ export default function CompetitionRegisterPage() {
                 <RocketLaunchIcon className="w-12 h-12 text-muted mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-foreground mb-2">No Approved Startups</h3>
                 <p className="text-muted mb-6">You need an approved startup to register. Submit your idea first!</p>
-                <Link href="/submit-idea"><Button>Submit Your Idea</Button></Link>
+                <Link href="/competition/submit-idea"><Button>Submit Your Idea</Button></Link>
               </Card>
             ) : (
               <div className="space-y-3">
