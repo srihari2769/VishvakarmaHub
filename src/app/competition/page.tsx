@@ -307,7 +307,7 @@ export default function CompetitionPage() {
               </Link>
               <Link href="/signup">
                 <Button variant="outline" size="lg">
-                  Create Free Account
+                  Create Account
                 </Button>
               </Link>
             </motion.div>
@@ -1162,7 +1162,7 @@ export default function CompetitionPage() {
                     </Button>
                   </Link>
                   <Link href="/signup">
-                    <Button variant="outline" size="lg">Create Free Account</Button>
+                    <Button variant="outline" size="lg">Create Account</Button>
                   </Link>
                 </>
               ) : (
