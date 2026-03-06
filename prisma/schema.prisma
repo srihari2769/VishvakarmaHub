@@ -115,6 +115,10 @@ model User {
   verifyToken     String?
   resetToken      String?
   resetTokenExpiry DateTime?
+  referralCode    String?   @unique
+  referredBy      String?
+  referralCount   Int       @default(0)
+  isVerified      Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -126,6 +130,7 @@ model User {
   withdrawals     Withdrawal[]
 
   @@index([email])
+  @@index([referralCode])
   @@map("users")
 }
 
@@ -151,6 +156,9 @@ model Startup {
   marketPotential String?
   executionRisk   String?
   startupPotential Int?
+  lookingForCofounder Boolean @default(false)
+  cofounderRoles  String[]
+  isFeatured      Boolean @default(false)
   
   founderId       String
   founder         User          @relation(fields: [founderId], references: [id])

@@ -14,7 +14,7 @@ const faqs = [
       },
       {
         q: 'How does public funding work?',
-        a: 'Founders create campaigns with funding goals and reward tiers. Supporters browse startups and contribute funds. If a campaign reaches its goal, the funds are released to the founder. If not, contributors are refunded.',
+        a: 'Founders create campaigns with funding goals and reward tiers. Supporters browse startups and contribute funds. If a campaign reaches its goal, the full funds are released to the founder. Even if a campaign does not reach its full goal, the partial funds raised are still provided to the founder to continue development.',
       },
       {
         q: 'Is Vishvakarma Hub free to use?',
@@ -52,7 +52,7 @@ const faqs = [
       },
       {
         q: 'Can I get a refund?',
-        a: 'Yes, refunds are provided if a campaign is cancelled, does not meet its funding goal, or is found to be fraudulent. See our Refund Policy for details.',
+        a: 'Yes, refunds are provided if a campaign is cancelled, or is found to be fraudulent. If a campaign does not reach its funding goal, the partial funds are released to the founder and are not refunded. See our Refund Policy for details.',
       },
       {
         q: 'Do I get equity for my contribution?',

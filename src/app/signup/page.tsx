@@ -1,18 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button, Input, Select } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
 import { validateEmail, validatePassword } from '@/lib/validations';
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -21,6 +23,11 @@ export default function SignupPage() {
     confirmPassword: '',
     role: 'USER',
   });
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) setReferralCode(ref);
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +62,7 @@ export default function SignupPage() {
           email: formData.email,
           password: formData.password,
           role: formData.role,
+          referralCode: referralCode || undefined,
         }),
       });
 
@@ -89,6 +97,9 @@ export default function SignupPage() {
           </Link>
           <h1 className="text-3xl font-bold text-foreground">Create Account</h1>
           <p className="text-muted mt-2">Join the innovation revolution</p>
+          {referralCode && (
+            <p className="text-sm text-purple mt-2">You were referred by a founder!</p>
+          )}
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-8">
@@ -175,5 +186,17 @@ export default function SignupPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-blue border-t-transparent rounded-full" />
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }

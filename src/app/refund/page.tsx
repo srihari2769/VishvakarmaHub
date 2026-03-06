@@ -26,7 +26,7 @@ export default function RefundPage() {
               <p className="mb-2">Refunds may be issued in the following circumstances:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong className="text-foreground">Campaign Cancelled:</strong> If a campaign is cancelled before reaching its funding goal, all contributions will be automatically refunded within 7-10 business days.</li>
-                <li><strong className="text-foreground">Campaign Not Funded:</strong> If a campaign does not reach its minimum funding goal by the deadline, contributions are refunded in full.</li>
+                <li><strong className="text-foreground">Campaign Not Fully Funded:</strong> If a campaign does not reach its minimum funding goal by the deadline, the partial funds raised are still released to the founder to continue development. Contributors should understand that their contributions support innovation even if a campaign doesn&apos;t reach its full goal. No refunds are issued in this case.</li>
                 <li><strong className="text-foreground">Fraudulent Campaign:</strong> If a campaign is found to be fraudulent and is removed by our team, all contributors will receive a full refund.</li>
                 <li><strong className="text-foreground">Duplicate Payment:</strong> If a technical error results in duplicate charges, the duplicate amount will be refunded.</li>
                 <li><strong className="text-foreground">Unauthorized Transaction:</strong> If a contribution was made without your authorization, contact us immediately for investigation and potential refund.</li>
@@ -37,6 +37,7 @@ export default function RefundPage() {
               <h2 className="text-xl font-semibold text-foreground mb-3">4. Non-Refundable Situations</h2>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Contributions to successfully funded campaigns that have been disbursed to the campaign creator</li>
+                <li>Contributions to campaigns that did not reach their funding goal — partial funds are released to founders</li>
                 <li>Change of mind after contributing to an active campaign</li>
                 <li>Dissatisfaction with campaign updates or progress (dispute resolution applies instead)</li>
                 <li>Platform fees on processed transactions</li>

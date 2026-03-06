@@ -9,7 +9,7 @@ export const maxDuration = 30;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, password, role } = body;
+    const { firstName, lastName, email, password, role, referralCode } = body;
 
     // Validate input
     if (!firstName || !lastName || !email || !password) {
@@ -36,15 +36,33 @@ export async function POST(request: NextRequest) {
     const verifyToken = generateVerificationToken();
 
     // Create user
+    const userData: Record<string, unknown> = {
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      role: role === 'FOUNDER' ? 'FOUNDER' : 'USER',
+      verifyToken,
+    };
+
+    // Track referral if code provided
+    if (referralCode && typeof referralCode === 'string') {
+      const referrer = await prisma.user.findUnique({
+        where: { referralCode: referralCode.trim() },
+        select: { id: true },
+      });
+      if (referrer) {
+        userData.referredBy = referralCode.trim();
+        // Increment referrer's count
+        await prisma.user.update({
+          where: { id: referrer.id },
+          data: { referralCount: { increment: 1 } },
+        });
+      }
+    }
+
     const user = await prisma.user.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        role: role === 'FOUNDER' ? 'FOUNDER' : 'USER',
-        verifyToken,
-      },
+      data: userData as any,
       select: {
         id: true,
         email: true,

@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
     const founderMode = searchParams.get('founder');
+    const cofounderMode = searchParams.get('cofounder');
 
     const where: Record<string, unknown> = {};
 
@@ -31,6 +32,10 @@ export async function GET(request: NextRequest) {
 
     if (category) {
       where.category = category;
+    }
+
+    if (cofounderMode === 'true') {
+      where.lookingForCofounder = true;
     }
 
     if (search) {
@@ -119,6 +124,8 @@ export async function POST(request: NextRequest) {
       screenshots,
       demoVideo,
       endDate,
+      lookingForCofounder,
+      cofounderRoles,
     } = body;
 
     // Validate required fields
@@ -151,6 +158,8 @@ export async function POST(request: NextRequest) {
         demoVideo: demoVideo || null,
         screenshots: screenshots || [],
         founderId: payload.userId,
+        lookingForCofounder: lookingForCofounder || false,
+        cofounderRoles: cofounderRoles || [],
         campaign: fundingGoal
           ? {
               create: {

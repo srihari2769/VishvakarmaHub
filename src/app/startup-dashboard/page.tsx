@@ -22,6 +22,11 @@ import {
   XCircleIcon,
   DocumentTextIcon,
   TrashIcon,
+  ShareIcon,
+  GiftIcon,
+  CheckBadgeIcon,
+  StarIcon,
+  ClipboardDocumentIcon,
 } from '@heroicons/react/24/outline';
 
 interface StartupSummary {
@@ -57,7 +62,27 @@ interface WithdrawalRecord {
   };
 }
 
-type Tab = 'overview' | 'startups' | 'analytics' | 'withdraw';
+type Tab = 'overview' | 'startups' | 'analytics' | 'withdraw' | 'referrals';
+
+interface ReferredUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  createdAt: string;
+}
+
+interface ReferralData {
+  referralCode: string;
+  referralCount: number;
+  isVerified: boolean;
+  hasFeaturedStartup: boolean;
+  referredUsers: ReferredUser[];
+  rewards: {
+    featuredSlotUnlocked: boolean;
+    verifiedBadgeUnlocked: boolean;
+  };
+}
 
 export default function StartupDashboardPage() {
   const router = useRouter();
@@ -79,6 +104,9 @@ export default function StartupDashboardPage() {
   const [withdrawSuccess, setWithdrawSuccess] = useState('');
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [draft, setDraft] = useState<{ title: string; step: number; categories: string[] } | null>(null);
+  const [referralData, setReferralData] = useState<ReferralData | null>(null);
+  const [referralCopied, setReferralCopied] = useState(false);
+  const [claimingReward, setClaimingReward] = useState(false);
 
   // Check for saved draft in localStorage
   useEffect(() => {
@@ -146,6 +174,20 @@ export default function StartupDashboardPage() {
       };
       fetchStartups();
       fetchWithdrawals();
+      // Fetch referral data
+      const fetchReferrals = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch('/api/referrals', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data.success) setReferralData(data.data);
+        } catch (error) {
+          console.error('Failed to fetch referral data:', error);
+        }
+      };
+      fetchReferrals();
     }
   }, [isAuthenticated, user]);
 
@@ -271,6 +313,7 @@ export default function StartupDashboardPage() {
             { id: 'startups' as Tab, label: 'My Startups', icon: RocketLaunchIcon },
             { id: 'analytics' as Tab, label: 'Analytics', icon: ArrowTrendingUpIcon },
             { id: 'withdraw' as Tab, label: 'Withdraw Funds', icon: BanknotesIcon },
+            { id: 'referrals' as Tab, label: 'Referrals', icon: GiftIcon },
           ]).map((t) => {
             const Icon = t.icon;
             return (
@@ -753,6 +796,200 @@ export default function StartupDashboardPage() {
                       {w.adminNote && (
                         <p className="text-sm text-blue mt-1">Admin: {w.adminNote}</p>
                       )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </motion.div>
+        )}
+
+        {tab === 'referrals' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            {/* Referral Link Card */}
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-purple/10 flex items-center justify-center">
+                  <ShareIcon className="w-5 h-5 text-purple" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Your Referral Link</h3>
+                  <p className="text-sm text-muted">Invite founders and earn rewards</p>
+                </div>
+              </div>
+
+              {referralData?.referralCode ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 px-4 py-3 bg-background border border-border rounded-lg text-foreground text-sm font-mono break-all">
+                      {typeof window !== 'undefined'
+                        ? `${window.location.origin}/signup?ref=${referralData.referralCode}`
+                        : `https://vishvakarmahub.vercel.app/signup?ref=${referralData.referralCode}`}
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const url = `${window.location.origin}/signup?ref=${referralData.referralCode}`;
+                        navigator.clipboard.writeText(url);
+                        setReferralCopied(true);
+                        setTimeout(() => setReferralCopied(false), 2000);
+                      }}
+                    >
+                      {referralCopied ? (
+                        <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <ClipboardDocumentIcon className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted">
+                    Referral code: <span className="font-mono text-foreground">{referralData.referralCode}</span>
+                  </p>
+                </div>
+              ) : (
+                <p className="text-muted text-sm">Loading referral code...</p>
+              )}
+            </Card>
+
+            {/* Rewards Progress */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <StarIcon className="w-6 h-6 text-yellow-400" />
+                  <h4 className="font-semibold text-foreground">Featured Startup Slot</h4>
+                </div>
+                <p className="text-sm text-muted mb-3">
+                  Invite 1 founder to unlock a featured slot for one of your startups.
+                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-yellow-400 rounded-full transition-all"
+                      style={{ width: `${Math.min((referralData?.referralCount || 0) / 1 * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-muted">{Math.min(referralData?.referralCount || 0, 1)}/1</span>
+                </div>
+                {referralData?.rewards.featuredSlotUnlocked && !referralData.hasFeaturedStartup && startups.length > 0 && (
+                  <div className="mt-3">
+                    <select
+                      className="w-full px-3 py-2 bg-card border border-border rounded-lg text-foreground text-sm mb-2"
+                      id="featured-startup-select"
+                    >
+                      {startups.map((s) => (
+                        <option key={s.id} value={s.id}>{s.title}</option>
+                      ))}
+                    </select>
+                    <Button
+                      size="sm"
+                      disabled={claimingReward}
+                      onClick={async () => {
+                        setClaimingReward(true);
+                        try {
+                          const select = document.getElementById('featured-startup-select') as HTMLSelectElement;
+                          const token = localStorage.getItem('token');
+                          const res = await fetch('/api/referrals', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                            body: JSON.stringify({ reward: 'featured', startupId: select.value }),
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            // Refresh referral data
+                            const r = await fetch('/api/referrals', { headers: { Authorization: `Bearer ${token}` } });
+                            const rd = await r.json();
+                            if (rd.success) setReferralData(rd.data);
+                          }
+                        } catch { /* ignore */ } finally {
+                          setClaimingReward(false);
+                        }
+                      }}
+                    >
+                      {claimingReward ? 'Claiming...' : 'Claim Featured Slot'}
+                    </Button>
+                  </div>
+                )}
+                {referralData?.hasFeaturedStartup && (
+                  <p className="text-sm text-emerald-400 flex items-center gap-1 mt-2">
+                    <CheckCircleIcon className="w-4 h-4" /> Featured slot active
+                  </p>
+                )}
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <CheckBadgeIcon className="w-6 h-6 text-blue" />
+                  <h4 className="font-semibold text-foreground">Verified Founder Badge</h4>
+                </div>
+                <p className="text-sm text-muted mb-3">
+                  Invite 5 founders to earn the verified founder badge on your profile.
+                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue rounded-full transition-all"
+                      style={{ width: `${Math.min((referralData?.referralCount || 0) / 5 * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-muted">{Math.min(referralData?.referralCount || 0, 5)}/5</span>
+                </div>
+                {referralData?.rewards.verifiedBadgeUnlocked && !referralData.isVerified && (
+                  <Button
+                    size="sm"
+                    className="mt-3"
+                    disabled={claimingReward}
+                    onClick={async () => {
+                      setClaimingReward(true);
+                      try {
+                        const token = localStorage.getItem('token');
+                        const res = await fetch('/api/referrals', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                          body: JSON.stringify({ reward: 'verified' }),
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          const r = await fetch('/api/referrals', { headers: { Authorization: `Bearer ${token}` } });
+                          const rd = await r.json();
+                          if (rd.success) setReferralData(rd.data);
+                        }
+                      } catch { /* ignore */ } finally {
+                        setClaimingReward(false);
+                      }
+                    }}
+                  >
+                    {claimingReward ? 'Claiming...' : 'Claim Verified Badge'}
+                  </Button>
+                )}
+                {referralData?.isVerified && (
+                  <p className="text-sm text-blue flex items-center gap-1 mt-2">
+                    <CheckBadgeIcon className="w-4 h-4" /> Verified badge earned
+                  </p>
+                )}
+              </Card>
+            </div>
+
+            {/* Referred Users */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                People You Referred ({referralData?.referralCount || 0})
+              </h3>
+              {!referralData?.referredUsers?.length ? (
+                <p className="text-muted text-sm">No referrals yet. Share your link to get started!</p>
+              ) : (
+                <div className="space-y-3">
+                  {referralData.referredUsers.map((u) => (
+                    <div key={u.id} className="flex items-center justify-between p-3 bg-background rounded-lg border border-border/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-purple/20 flex items-center justify-center text-purple text-sm font-bold">
+                          {u.firstName[0]}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{u.firstName} {u.lastName}</p>
+                          <p className="text-xs text-muted">{u.role}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted">{new Date(u.createdAt).toLocaleDateString()}</span>
                     </div>
                   ))}
                 </div>

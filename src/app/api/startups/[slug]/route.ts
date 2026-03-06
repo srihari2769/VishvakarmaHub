@@ -23,6 +23,7 @@ export async function GET(
             avatar: true,
             bio: true,
             linkedIn: true,
+            isVerified: true,
           },
         },
         campaign: {
@@ -101,6 +102,7 @@ export async function PATCH(
       title, shortDescription, problemDescription, targetAudience,
       solutionExplanation, innovationUniqueness, category, location,
       productStage, logo, thumbnail, pitchDeck, demoVideo, screenshots,
+      lookingForCofounder, cofounderRoles,
     } = body;
 
     const updateData: Record<string, unknown> = {};
@@ -118,6 +120,8 @@ export async function PATCH(
     if (pitchDeck !== undefined) updateData.pitchDeck = pitchDeck;
     if (demoVideo !== undefined) updateData.demoVideo = demoVideo;
     if (screenshots !== undefined) updateData.screenshots = screenshots;
+    if (lookingForCofounder !== undefined) updateData.lookingForCofounder = lookingForCofounder;
+    if (cofounderRoles !== undefined) updateData.cofounderRoles = cofounderRoles;
 
     const updated = await prisma.startup.update({
       where: { id: startup.id },

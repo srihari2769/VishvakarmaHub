@@ -9,6 +9,7 @@ import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/react/24/outline';
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
+  { href: '/co-founders', label: 'Co-Founders' },
   { href: '/categories', label: 'Categories' },
   { href: '/how-it-works', label: 'How It Works' },
 ];

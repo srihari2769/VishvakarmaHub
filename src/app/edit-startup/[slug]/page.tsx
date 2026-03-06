@@ -43,6 +43,8 @@ interface FormData {
   pitchDeck: UploadedFile[];
   screenshots: UploadedFile[];
   demoVideo: string;
+  lookingForCofounder: boolean;
+  cofounderRoles: string[];
 }
 
 export default function EditStartupPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -69,6 +71,8 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
     pitchDeck: [],
     screenshots: [],
     demoVideo: '',
+    lookingForCofounder: false,
+    cofounderRoles: [],
   });
 
   useEffect(() => {
@@ -104,6 +108,8 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
             url, name: `screenshot-${i + 1}`, size: 0, type: 'image/png',
           })),
           demoVideo: s.demoVideo || '',
+          lookingForCofounder: s.lookingForCofounder || false,
+          cofounderRoles: s.cofounderRoles || [],
         });
       } catch {
         setError('Failed to load startup');
@@ -152,6 +158,8 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
           pitchDeck: form.pitchDeck[0]?.url || null,
           demoVideo: form.demoVideo || null,
           screenshots: form.screenshots.map((f) => f.url),
+          lookingForCofounder: form.lookingForCofounder,
+          cofounderRoles: form.cofounderRoles,
         }),
       });
 
@@ -240,6 +248,47 @@ export default function EditStartupPage({ params }: { params: Promise<{ slug: st
                   onChange={(e) => updateField('productStage', e.target.value)}
                   options={PRODUCT_STAGES}
                 />
+
+                {/* Co-founder Section */}
+                <div className="pt-4 border-t border-border">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.lookingForCofounder}
+                      onChange={(e) => updateField('lookingForCofounder', e.target.checked)}
+                      className="w-5 h-5 rounded border-border text-blue focus:ring-blue bg-card"
+                    />
+                    <div>
+                      <span className="text-foreground font-medium">Looking for a co-founder?</span>
+                      <p className="text-xs text-muted">Your startup will appear on the Co-Founders page</p>
+                    </div>
+                  </label>
+
+                  {form.lookingForCofounder && (
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-foreground mb-2">Roles you need</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {['Developer', 'Designer', 'Marketer', 'Business Strategist', 'Sales', 'Operations', 'Data Scientist', 'Product Manager', 'Finance'].map((role) => (
+                          <label key={role} className="flex items-center gap-2 p-2 rounded-lg border border-border hover:border-blue/30 cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={form.cofounderRoles.includes(role)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  updateField('cofounderRoles', [...form.cofounderRoles, role]);
+                                } else {
+                                  updateField('cofounderRoles', form.cofounderRoles.filter((r) => r !== role));
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-border text-blue focus:ring-blue bg-card"
+                            />
+                            <span className="text-sm text-foreground">{role}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </Card>
 
