@@ -10,14 +10,43 @@ const ALLOWED_PATHS = [
   '/favicon.ico',
   '/login',
   '/signup',
-  '/forgot-password',
-  '/submit-idea',
-  '/dashboard',
-  '/startup-dashboard',
-  '/profile',
-  '/edit-startup',
-  '/notifications',
 ];
+
+// Simple in-memory cache for Edge Runtime
+let cachedComingSoon: boolean | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 30_000; // 30 seconds
+
+async function isComingSoon(origin: string): Promise<boolean> {
+  const now = Date.now();
+  if (cachedComingSoon !== null && now - cacheTimestamp < CACHE_TTL) {
+    return cachedComingSoon;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    const res = await fetch(`${origin}/api/site-settings`, {
+      signal: controller.signal,
+      cache: 'no-store',
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      const result = data.success && data.data.comingSoon === true;
+      cachedComingSoon = result;
+      cacheTimestamp = now;
+      return result;
+    }
+  } catch {
+    // On error, use cached value if available, otherwise don't block
+    if (cachedComingSoon !== null) return cachedComingSoon;
+  }
+
+  return false;
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -32,25 +61,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  try {
-    // Check coming soon status via internal API
-    const baseUrl = request.nextUrl.origin;
-    const res = await fetch(`${baseUrl}/api/site-settings`, {
-      headers: { 'x-middleware-request': '1' },
-      next: { revalidate: 30 }, // Cache for 30 seconds
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.data.comingSoon) {
-        // Redirect to coming soon page
-        const url = request.nextUrl.clone();
-        url.pathname = '/coming-soon';
-        return NextResponse.redirect(url);
-      }
-    }
-  } catch {
-    // If the check fails, let the request through
+  const comingSoon = await isComingSoon(request.nextUrl.origin);
+  if (comingSoon) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/coming-soon';
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
