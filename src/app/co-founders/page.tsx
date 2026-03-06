@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Card, Badge, Button, ProgressBar } from '@/components/ui';
 import { formatCurrency, calculateProgress } from '@/lib/utils';
@@ -10,7 +9,6 @@ import {
   UserGroupIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
-  RocketLaunchIcon,
   PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
 
@@ -187,19 +185,18 @@ export default function CoFoundersPage() {
                   transition={{ delay: i * 0.05 }}
                 >
                   <Card className="overflow-hidden hover:border-purple/30 transition-colors group h-full flex flex-col">
+                    {/* Image */}
                     <Link href={`/startup/${startup.slug}`}>
-                      {/* Image */}
-                      <div className="relative h-40 bg-card">
+                      <div className="h-48 bg-gradient-to-br from-purple/10 to-blue/10 flex items-center justify-center relative overflow-hidden">
                         {startup.thumbnail || startup.logo ? (
-                          <Image
-                            src={startup.thumbnail || startup.logo!}
+                          <img
+                            src={(startup.thumbnail || startup.logo)!}
                             alt={startup.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple/20 to-blue/20">
-                            <RocketLaunchIcon className="w-12 h-12 text-muted" />
+                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple to-blue flex items-center justify-center">
+                            <span className="text-2xl font-bold text-white">{startup.title[0]}</span>
                           </div>
                         )}
                         <div className="absolute top-3 left-3">
@@ -208,82 +205,80 @@ export default function CoFoundersPage() {
                       </div>
                     </Link>
 
-                      <div className="p-5 flex flex-col flex-1">
-                        <Link href={`/startup/${startup.slug}`}>
+                    <div className="p-5 flex flex-col flex-1">
+                      <Link href={`/startup/${startup.slug}`}>
                         <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-purple transition-colors">
                           {startup.title}
                         </h3>
                         <p className="text-sm text-muted line-clamp-2 mb-3">
                           {startup.shortDescription}
                         </p>
-                        </Link>
+                      </Link>
 
-                        {/* Founder Info */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-6 h-6 rounded-full bg-purple/20 flex items-center justify-center text-purple text-xs font-bold overflow-hidden">
-                            {startup.founder.avatar ? (
-                              <Image
-                                src={startup.founder.avatar}
-                                alt=""
-                                width={24}
-                                height={24}
-                                className="object-cover"
-                              />
-                            ) : (
-                              startup.founder.firstName[0]
-                            )}
-                          </div>
-                          <span className="text-xs text-muted">
-                            {startup.founder.firstName} {startup.founder.lastName}
-                          </span>
-                          {startup.location && (
-                            <>
-                              <span className="text-muted">·</span>
-                              <span className="text-xs text-muted flex items-center gap-1">
-                                <MapPinIcon className="w-3 h-3" />
-                                {startup.location}
-                              </span>
-                            </>
+                      {/* Founder Info */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 rounded-full bg-purple/20 flex items-center justify-center text-purple text-xs font-bold overflow-hidden">
+                          {startup.founder.avatar ? (
+                            <img
+                              src={startup.founder.avatar}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            startup.founder.firstName[0]
                           )}
                         </div>
-
-                        {/* Roles Needed */}
-                        <div className="mb-3">
-                          <p className="text-xs text-muted mb-1.5 font-medium">Looking for:</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {startup.cofounderRoles.map((role) => (
-                              <span
-                                key={role}
-                                className="px-2 py-0.5 text-xs rounded-full bg-purple/10 text-purple border border-purple/20"
-                              >
-                                {role}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Campaign Progress */}
-                        {startup.campaign && (
-                          <div>
-                            <ProgressBar progress={progress} />
-                            <div className="flex justify-between mt-2 text-xs text-muted">
-                              <span>{formatCurrency(startup.campaign.raisedAmount)} raised</span>
-                              <span>{startup.campaign.supporterCount} supporters</span>
-                            </div>
-                          </div>
+                        <span className="text-xs text-muted">
+                          {startup.founder.firstName} {startup.founder.lastName}
+                        </span>
+                        {startup.location && (
+                          <>
+                            <span className="text-muted">·</span>
+                            <span className="text-xs text-muted flex items-center gap-1">
+                              <MapPinIcon className="w-3 h-3" />
+                              {startup.location}
+                            </span>
+                          </>
                         )}
+                      </div>
 
-                        {/* Apply Button */}
-                        <div className="mt-auto pt-4">
-                          <Link href={`/co-founders/apply/${startup.slug}`}>
-                            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-purple text-white hover:bg-purple/90 transition-colors">
-                              <PaperAirplaneIcon className="w-4 h-4" />
-                              Apply Now
-                            </button>
-                          </Link>
+                      {/* Roles Needed */}
+                      <div className="mb-3">
+                        <p className="text-xs text-muted mb-1.5 font-medium">Looking for:</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {startup.cofounderRoles.map((role) => (
+                            <span
+                              key={role}
+                              className="px-2 py-0.5 text-xs rounded-full bg-purple/10 text-purple border border-purple/20"
+                            >
+                              {role}
+                            </span>
+                          ))}
                         </div>
                       </div>
-                    </Card>
+
+                      {/* Campaign Progress */}
+                      {startup.campaign && (
+                        <div className="mb-3">
+                          <ProgressBar progress={progress} />
+                          <div className="flex justify-between mt-2 text-xs text-muted">
+                            <span>{formatCurrency(startup.campaign.raisedAmount)} raised</span>
+                            <span>{startup.campaign.supporterCount} supporters</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Apply Button */}
+                      <div className="mt-auto pt-3">
+                        <Link href={`/co-founders/apply/${startup.slug}`}>
+                          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-purple text-white hover:bg-purple/90 transition-colors">
+                            <PaperAirplaneIcon className="w-4 h-4" />
+                            Apply Now
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+                  </Card>
                 </motion.div>
               );
             })}
