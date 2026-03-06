@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 import { verifyToken } from '@/lib/auth';
@@ -47,13 +47,13 @@ export async function GET() {
     });
 
     if (!competition) {
-      return NextResponse.json(errorResponse('No active competition found'), { status: 404 });
+      return errorResponse('No active competition found', 404);
     }
 
-    return NextResponse.json(successResponse(competition));
+    return successResponse(competition);
   } catch (error) {
     console.error('Competition fetch error:', error);
-    return NextResponse.json(errorResponse('Failed to fetch competition'), { status: 500 });
+    return errorResponse('Failed to fetch competition', 500);
   }
 }
 
@@ -61,14 +61,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);
-    if (!token) return NextResponse.json(errorResponse('Unauthorized'), { status: 401 });
+    if (!token) return errorResponse('Unauthorized', 401);
 
     const decoded = verifyToken(token);
-    if (!decoded) return NextResponse.json(errorResponse('Invalid token'), { status: 401 });
+    if (!decoded) return errorResponse('Invalid token', 401);
 
     const { startupId } = await request.json();
     if (!startupId) {
-      return NextResponse.json(errorResponse('Startup ID is required'), { status: 400 });
+      return errorResponse('Startup ID is required', 400);
     }
 
     // Check active competition
@@ -76,19 +76,19 @@ export async function POST(request: NextRequest) {
       where: { isActive: true, currentPhase: 'REGISTRATION' },
     });
     if (!competition) {
-      return NextResponse.json(errorResponse('Registration is not currently open'), { status: 400 });
+      return errorResponse('Registration is not currently open', 400);
     }
 
     // Verify startup belongs to user and is approved
     const startup = await prisma.startup.findUnique({ where: { id: startupId } });
     if (!startup) {
-      return NextResponse.json(errorResponse('Startup not found'), { status: 404 });
+      return errorResponse('Startup not found', 404);
     }
     if (startup.founderId !== decoded.userId) {
-      return NextResponse.json(errorResponse('You can only register your own startup'), { status: 403 });
+      return errorResponse('You can only register your own startup', 403);
     }
     if (startup.status !== 'APPROVED' && startup.status !== 'ACTIVE') {
-      return NextResponse.json(errorResponse('Only approved startups can be registered'), { status: 400 });
+      return errorResponse('Only approved startups can be registered', 400);
     }
 
     // Check duplicate
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       where: { startupId_competitionId: { startupId, competitionId: competition.id } },
     });
     if (existing) {
-      return NextResponse.json(errorResponse('This startup is already registered'), { status: 400 });
+      return errorResponse('This startup is already registered', 400);
     }
 
     const entry = await prisma.competitionEntry.create({
@@ -121,9 +121,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(successResponse(entry), { status: 201 });
+    return successResponse(entry, 201);
   } catch (error) {
     console.error('Competition registration error:', error);
-    return NextResponse.json(errorResponse('Failed to register for competition'), { status: 500 });
+    return errorResponse('Failed to register for competition', 500);
   }
 }

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 import { verifyToken } from '@/lib/auth';
@@ -9,19 +9,19 @@ export const maxDuration = 30;
 export async function POST(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);
-    if (!token) return NextResponse.json(errorResponse('Unauthorized'), { status: 401 });
+    if (!token) return errorResponse('Unauthorized', 401);
 
     const decoded = verifyToken(token);
     if (!decoded || decoded.role !== 'ADMIN') {
-      return NextResponse.json(errorResponse('Admin access required'), { status: 403 });
+      return errorResponse('Admin access required', 403);
     }
 
-    // Check if competition already exists
+    // Check if competition already exists - return it as success
     const existing = await prisma.competition.findFirst({
       where: { slug: 'vishvakarma-innovation-challenge-2026' },
     });
     if (existing) {
-      return NextResponse.json(errorResponse('Competition already exists'), { status: 400 });
+      return successResponse(existing);
     }
 
     const competition = await prisma.competition.create({
@@ -40,9 +40,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(successResponse(competition), { status: 201 });
+    return successResponse(competition, 201);
   } catch (error) {
     console.error('Seed competition error:', error);
-    return NextResponse.json(errorResponse('Failed to seed competition'), { status: 500 });
+    return errorResponse('Failed to seed competition', 500);
   }
 }

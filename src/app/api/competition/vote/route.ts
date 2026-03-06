@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 import { verifyToken } from '@/lib/auth';
@@ -9,14 +9,14 @@ export const maxDuration = 30;
 export async function POST(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);
-    if (!token) return NextResponse.json(errorResponse('Unauthorized'), { status: 401 });
+    if (!token) return errorResponse('Unauthorized', 401);
 
     const decoded = verifyToken(token);
-    if (!decoded) return NextResponse.json(errorResponse('Invalid token'), { status: 401 });
+    if (!decoded) return errorResponse('Invalid token', 401);
 
     const { entryId } = await request.json();
     if (!entryId) {
-      return NextResponse.json(errorResponse('Entry ID is required'), { status: 400 });
+      return errorResponse('Entry ID is required', 400);
     }
 
     const entry = await prisma.competitionEntry.findUnique({
@@ -25,11 +25,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (!entry) {
-      return NextResponse.json(errorResponse('Entry not found'), { status: 404 });
+      return errorResponse('Entry not found', 404);
     }
 
     if (entry.competition.currentPhase !== 'VOTING') {
-      return NextResponse.json(errorResponse('Voting is not currently open'), { status: 400 });
+      return errorResponse('Voting is not currently open', 400);
     }
 
     // Check if already voted
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
           data: { upvotes: { decrement: 1 } },
         }),
       ]);
-      return NextResponse.json(successResponse({ voted: false }));
+      return successResponse({ voted: false });
     } else {
       // Add vote
       await prisma.$transaction([
@@ -58,10 +58,10 @@ export async function POST(request: NextRequest) {
           data: { upvotes: { increment: 1 } },
         }),
       ]);
-      return NextResponse.json(successResponse({ voted: true }));
+      return successResponse({ voted: true });
     }
   } catch (error) {
     console.error('Vote error:', error);
-    return NextResponse.json(errorResponse('Failed to process vote'), { status: 500 });
+    return errorResponse('Failed to process vote', 500);
   }
 }

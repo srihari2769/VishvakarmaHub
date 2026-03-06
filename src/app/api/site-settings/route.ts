@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 import { verifyToken } from '@/lib/auth';
@@ -14,10 +14,10 @@ export async function GET() {
         data: { id: 'global', comingSoon: false },
       });
     }
-    return NextResponse.json(successResponse({ comingSoon: settings.comingSoon }));
+    return successResponse({ comingSoon: settings.comingSoon });
   } catch (error) {
     console.error('Site settings fetch error:', error);
-    return NextResponse.json(errorResponse('Failed to fetch site settings'), { status: 500 });
+    return errorResponse('Failed to fetch site settings', 500);
   }
 }
 
@@ -25,18 +25,18 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);
-    if (!token) return NextResponse.json(errorResponse('Unauthorized'), { status: 401 });
+    if (!token) return errorResponse('Unauthorized', 401);
 
     const decoded = verifyToken(token);
     if (!decoded || decoded.role !== 'ADMIN') {
-      return NextResponse.json(errorResponse('Admin access required'), { status: 403 });
+      return errorResponse('Admin access required', 403);
     }
 
     const body = await request.json();
     const { comingSoon } = body;
 
     if (typeof comingSoon !== 'boolean') {
-      return NextResponse.json(errorResponse('comingSoon must be a boolean'), { status: 400 });
+      return errorResponse('comingSoon must be a boolean', 400);
     }
 
     const settings = await prisma.siteSettings.upsert({
@@ -45,9 +45,9 @@ export async function PATCH(request: NextRequest) {
       create: { id: 'global', comingSoon },
     });
 
-    return NextResponse.json(successResponse({ comingSoon: settings.comingSoon }));
+    return successResponse({ comingSoon: settings.comingSoon });
   } catch (error) {
     console.error('Site settings update error:', error);
-    return NextResponse.json(errorResponse('Failed to update site settings'), { status: 500 });
+    return errorResponse('Failed to update site settings', 500);
   }
 }
