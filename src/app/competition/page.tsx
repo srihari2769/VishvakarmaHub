@@ -231,16 +231,17 @@ export default function CompetitionPage() {
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   };
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://vishvakarmahub.vercel.app/competition';
+  const shareUrl = 'https://vishvakarmahub.vercel.app/competition';
+  const applyUrl = 'https://vishvakarmahub.vercel.app/competition/register';
   const shareTitle = competition?.name || 'Vishvakarma Innovation Challenge 2026';
-  const shareText = `${shareTitle} — ${competition?.tagline || "India's Biggest Startup Competition"}\n\n🚀 Register your startup and compete for amazing prizes!\n🎓 Students: ₹${competition?.studentFee || 199} | 💼 Founders: ₹${competition?.founderFee || 499}\n\nOrganized by Trinetrashakti Innovations Pvt Ltd (Startup India Recognized)\n\n👉 Register now:`;
+  const shareText = `${shareTitle} — ${competition?.tagline || "India's Biggest Startup Competition"}\n\n🚀 Register your startup and compete for amazing prizes!\n🎓 Students: ₹${competition?.studentFee || 199} | 💼 Founders: ₹${competition?.founderFee || 499}\n\nOrganized by Trinetrashakti Innovations Pvt Ltd (Startup India Recognized)\n\n🔗 Competition Page: ${shareUrl}\n✅ Apply Now: ${applyUrl}`;
 
   const shareLinks = [
-    { name: 'WhatsApp', color: 'bg-green-500 hover:bg-green-600', icon: '💬', href: `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}` },
-    { name: 'X (Twitter)', color: 'bg-gray-800 hover:bg-gray-700', icon: '𝕏', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}` },
+    { name: 'WhatsApp', color: 'bg-green-500 hover:bg-green-600', icon: '💬', href: `https://wa.me/?text=${encodeURIComponent(shareText)}` },
+    { name: 'X (Twitter)', color: 'bg-gray-800 hover:bg-gray-700', icon: '𝕏', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle + ' — Register now!')}&url=${encodeURIComponent(shareUrl)}` },
     { name: 'LinkedIn', color: 'bg-blue-600 hover:bg-blue-700', icon: '💼', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}` },
     { name: 'Facebook', color: 'bg-blue-500 hover:bg-blue-600', icon: '📘', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}` },
-    { name: 'Telegram', color: 'bg-sky-500 hover:bg-sky-600', icon: '✈️', href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
+    { name: 'Telegram', color: 'bg-sky-500 hover:bg-sky-600', icon: '✈️', href: `https://t.me/share/url?url=${encodeURIComponent(applyUrl)}&text=${encodeURIComponent(shareText)}` },
   ];
 
   const copyLink = async () => {
