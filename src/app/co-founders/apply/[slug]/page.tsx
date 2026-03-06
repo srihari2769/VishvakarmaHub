@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, Button, Textarea, Input } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
 import {
   UserGroupIcon,
-  RocketLaunchIcon,
   MapPinIcon,
   ArrowLeftIcon,
   PaperAirplaneIcon,
@@ -210,16 +208,14 @@ export default function ApplyCofounderPage({ params }: { params: Promise<{ slug:
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-xl bg-card border border-border flex-shrink-0 overflow-hidden">
                 {startup.logo || startup.thumbnail ? (
-                  <Image
+                  <img
                     src={startup.logo || startup.thumbnail!}
                     alt={startup.title}
-                    width={64}
-                    height={64}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple/20 to-blue/20">
-                    <RocketLaunchIcon className="w-8 h-8 text-muted" />
+                    <span className="text-xl font-bold text-purple">{startup.title[0]}</span>
                   </div>
                 )}
               </div>
@@ -243,7 +239,7 @@ export default function ApplyCofounderPage({ params }: { params: Promise<{ slug:
                 <div className="flex items-center gap-2 mt-3">
                   <div className="w-5 h-5 rounded-full bg-purple/20 flex items-center justify-center text-purple text-[10px] font-bold overflow-hidden">
                     {startup.founder.avatar ? (
-                      <Image src={startup.founder.avatar} alt="" width={20} height={20} className="object-cover" />
+                      <img src={startup.founder.avatar} alt="" className="w-full h-full object-cover" />
                     ) : (
                       startup.founder.firstName[0]
                     )}
