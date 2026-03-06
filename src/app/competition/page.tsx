@@ -27,6 +27,7 @@ import {
   MegaphoneIcon,
   MicrophoneIcon,
   VideoCameraIcon,
+  ShareIcon,
 } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon as HandThumbUpSolid } from '@heroicons/react/24/solid';
 
@@ -109,6 +110,8 @@ export default function CompetitionPage() {
   const [voting, setVoting] = useState<string | null>(null);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [countdownLabel, setCountdownLabel] = useState('');
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Helper to get page content value with fallback
   const pc = (key: string, fallback: unknown = ''): unknown => {
@@ -226,6 +229,24 @@ export default function CompetitionPage() {
   const daysLeft = (dateStr: string) => {
     const diff = new Date(dateStr).getTime() - Date.now();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  };
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://vishvakarmahub.vercel.app/competition';
+  const shareTitle = competition?.name || 'Vishvakarma Innovation Challenge 2026';
+  const shareText = `${shareTitle} — ${competition?.tagline || "India's Biggest Startup Competition"}\n\n🚀 Register your startup and compete for amazing prizes!\n🎓 Students: ₹${competition?.studentFee || 199} | 💼 Founders: ₹${competition?.founderFee || 499}\n\nOrganized by Trinetrashakti Innovations Pvt Ltd (Startup India Recognized)\n\n👉 Register now:`;
+
+  const shareLinks = [
+    { name: 'WhatsApp', color: 'bg-green-500 hover:bg-green-600', icon: '💬', href: `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}` },
+    { name: 'X (Twitter)', color: 'bg-gray-800 hover:bg-gray-700', icon: '𝕏', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}` },
+    { name: 'LinkedIn', color: 'bg-blue-600 hover:bg-blue-700', icon: '💼', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}` },
+    { name: 'Facebook', color: 'bg-blue-500 hover:bg-blue-600', icon: '📘', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}` },
+    { name: 'Telegram', color: 'bg-sky-500 hover:bg-sky-600', icon: '✈️', href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
+  ];
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const formatDate = (dateStr: string) => {
@@ -390,6 +411,60 @@ export default function CompetitionPage() {
                   <SparklesIcon className="w-4 h-4" />
                   {phaseInfo.label}
                 </div>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Share Button */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.6 }}
+            className="mt-8 relative inline-block"
+          >
+            <button
+              onClick={() => setShowShareMenu(!showShareMenu)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-card border border-border/50 text-muted hover:text-foreground hover:border-purple/40 transition-all text-sm font-medium"
+            >
+              <ShareIcon className="w-4 h-4" />
+              Share This Event
+            </button>
+
+            {showShareMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                className="absolute top-full mt-3 left-1/2 -translate-x-1/2 z-50 bg-card border border-border rounded-2xl p-5 shadow-2xl shadow-black/40 min-w-[300px]"
+              >
+                <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-3">Share via</p>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {shareLinks.map((link) => (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl ${link.color} text-white transition-all hover:scale-105`}
+                      onClick={() => setShowShareMenu(false)}
+                    >
+                      <span className="text-lg">{link.icon}</span>
+                      <span className="text-[10px] font-medium">{link.name}</span>
+                    </a>
+                  ))}
+                  <button
+                    onClick={() => { copyLink(); setShowShareMenu(false); }}
+                    className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-purple/20 hover:bg-purple/30 text-purple transition-all hover:scale-105"
+                  >
+                    <span className="text-lg">{copied ? '✅' : '🔗'}</span>
+                    <span className="text-[10px] font-medium">{copied ? 'Copied!' : 'Copy Link'}</span>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowShareMenu(false)}
+                  className="w-full text-xs text-muted hover:text-foreground py-1.5 transition-colors"
+                >
+                  Close
+                </button>
               </motion.div>
             )}
           </motion.div>
