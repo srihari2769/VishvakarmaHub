@@ -8,6 +8,15 @@ const ALLOWED_PATHS = [
   '/api',
   '/_next',
   '/favicon.ico',
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/submit-idea',
+  '/dashboard',
+  '/startup-dashboard',
+  '/profile',
+  '/edit-startup',
+  '/notifications',
 ];
 
 export async function middleware(request: NextRequest) {

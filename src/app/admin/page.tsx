@@ -84,7 +84,26 @@ interface ReportData {
   withdrawalStats: { status: string; count: number; amount: number }[];
 }
 
-type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'contacts' | 'reports' | 'settings';
+type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'contacts' | 'reports' | 'competition' | 'settings';
+
+interface CompetitionEntryItem {
+  id: string;
+  status: string;
+  upvotes: number;
+  totalScore: number | null;
+  createdAt: string;
+  startup: { id: string; title: string; slug: string; category: string; logo: string | null };
+  user: { firstName: string; lastName: string; email: string };
+  _count: { votes: number };
+}
+
+interface CompetitionData {
+  id: string;
+  name: string;
+  currentPhase: string;
+  entries: CompetitionEntryItem[];
+  _count: { entries: number };
+}
 
 interface ContactSubmission {
   id: string;
@@ -116,6 +135,8 @@ export default function AdminPage() {
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [competitionSeeded, setCompetitionSeeded] = useState(false);
   const [seedingCompetition, setSeedingCompetition] = useState(false);
+  const [competitionData, setCompetitionData] = useState<CompetitionData | null>(null);
+  const [entryStatusLoading, setEntryStatusLoading] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -140,6 +161,7 @@ export default function AdminPage() {
       fetchAdmin('contacts');
       fetchAdmin('reports');
       fetchSiteSettings();
+      fetchCompetitionEntries();
     }
   }, [isAuthenticated, user]);
 
@@ -179,6 +201,32 @@ export default function AdminPage() {
       else alert(data.error || 'Failed to seed competition');
     } catch {}
     setSeedingCompetition(false);
+  };
+
+  const fetchCompetitionEntries = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin?action=competition-entries', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success && data.data) setCompetitionData(data.data);
+    } catch {}
+  };
+
+  const updateEntryStatus = async (entryId: string, status: string) => {
+    setEntryStatusLoading(entryId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'update-entry-status', entryId, status }),
+      });
+      const data = await res.json();
+      if (data.success) fetchCompetitionEntries();
+    } catch {}
+    setEntryStatusLoading(null);
   };
 
   const fetchAdmin = async (action: string) => {
@@ -383,6 +431,7 @@ export default function AdminPage() {
             { id: 'withdrawals' as Tab, label: `Withdrawals (${withdrawals.filter(w => w.status === 'PENDING').length})` },
             { id: 'contacts' as Tab, label: `Contacts (${contacts.filter(c => !c.isRead).length})` },
             { id: 'reports' as Tab, label: 'Reports' },
+            { id: 'competition' as Tab, label: `Competition (${competitionData?._count?.entries || 0})` },
             { id: 'settings' as Tab, label: 'Settings' },
           ]).map((t) => (
             <button
@@ -988,6 +1037,91 @@ export default function AdminPage() {
                   </div>
                 </Card>
               ))
+            )}
+          </motion.div>
+        )}
+
+        {/* Competition Tab */}
+        {tab === 'competition' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            {competitionData ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">{competitionData.name}</h3>
+                    <p className="text-sm text-muted">
+                      Phase: <span className="text-blue font-medium">{competitionData.currentPhase}</span> &middot; {competitionData._count.entries} entries
+                    </p>
+                  </div>
+                  <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
+                </div>
+                {competitionData.entries.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <TrophyIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                    <p className="text-muted">No entries registered yet.</p>
+                  </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {competitionData.entries.map((entry) => (
+                      <Card key={entry.id} className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {entry.startup.logo ? (
+                              <img src={entry.startup.logo} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <RocketLaunchIcon className="w-6 h-6 text-muted" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-foreground truncate">{entry.startup.title}</h4>
+                            <p className="text-xs text-muted">
+                              {entry.user.firstName} {entry.user.lastName} &middot; {entry.user.email}
+                            </p>
+                            <p className="text-xs text-muted mt-0.5">
+                              {entry.startup.category} &middot; Registered {new Date(entry.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="text-right flex-shrink-0 space-y-1">
+                            <Badge variant={
+                              entry.status === 'WINNER' ? 'success' :
+                              entry.status === 'ELIMINATED' ? 'danger' :
+                              entry.status === 'FINALIST' ? 'info' :
+                              entry.status === 'SUBMITTED' ? 'default' : 'warning'
+                            }>
+                              {entry.status}
+                            </Badge>
+                            <p className="text-xs text-muted">{entry.upvotes} votes</p>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <select
+                              className="text-xs bg-card border border-border rounded px-2 py-1.5 text-foreground"
+                              value={entry.status}
+                              disabled={entryStatusLoading === entry.id}
+                              onChange={(e) => updateEntryStatus(entry.id, e.target.value)}
+                            >
+                              <option value="SUBMITTED">Submitted</option>
+                              <option value="SHORTLISTED">Shortlisted</option>
+                              <option value="SELECTED_TOP200">Top 200</option>
+                              <option value="PUBLIC_VOTING">Public Voting</option>
+                              <option value="FINALIST">Finalist</option>
+                              <option value="WINNER">Winner</option>
+                              <option value="ELIMINATED">Eliminated</option>
+                            </select>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <Card className="p-8 text-center">
+                <TrophyIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                <p className="text-muted mb-4">No competition created yet.</p>
+                <Button onClick={seedCompetition} disabled={seedingCompetition} size="sm">
+                  {seedingCompetition ? 'Creating...' : 'Create Competition'}
+                </Button>
+              </Card>
             )}
           </motion.div>
         )}

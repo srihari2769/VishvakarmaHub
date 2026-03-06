@@ -140,6 +140,28 @@ export async function GET(request: NextRequest) {
         return successResponse(contacts);
       }
 
+      case 'competition-entries': {
+        const competition = await prisma.competition.findFirst({
+          where: { isActive: true },
+          include: {
+            entries: {
+              include: {
+                startup: {
+                  select: { id: true, title: true, slug: true, category: true, logo: true },
+                },
+                user: {
+                  select: { firstName: true, lastName: true, email: true },
+                },
+                _count: { select: { votes: true } },
+              },
+              orderBy: { createdAt: 'desc' },
+            },
+            _count: { select: { entries: true } },
+          },
+        });
+        return successResponse(competition);
+      }
+
       default:
         return errorResponse('Invalid action parameter', 400);
     }
@@ -320,6 +342,18 @@ export async function DELETE(request: NextRequest) {
         if (!contactId) return errorResponse('Contact ID required', 400);
         await prisma.contactSubmission.delete({ where: { id: contactId } });
         return successResponse({ message: 'Contact deleted' });
+      }
+
+      case 'update-entry-status': {
+        const { entryId, status: entryStatus } = body;
+        if (!entryId || !entryStatus) return errorResponse('Entry ID and status required', 400);
+        const validStatuses = ['SUBMITTED', 'SHORTLISTED', 'SELECTED_TOP200', 'PUBLIC_VOTING', 'FINALIST', 'WINNER', 'ELIMINATED'];
+        if (!validStatuses.includes(entryStatus)) return errorResponse('Invalid status', 400);
+        const updatedEntry = await prisma.competitionEntry.update({
+          where: { id: entryId },
+          data: { status: entryStatus },
+        });
+        return successResponse(updatedEntry);
       }
 
       case 'delete-user': {
