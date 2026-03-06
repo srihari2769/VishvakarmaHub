@@ -93,13 +93,6 @@ interface JudgeData {
   avatar: string | null;
 }
 
-interface UserStartup {
-  id: string;
-  title: string;
-  slug: string;
-  status: string;
-}
-
 const PHASE_INFO = {
   REGISTRATION: { label: 'Phase 1 — Registration Open', color: 'text-green-400', bg: 'bg-green-400/10 border-green-400/20' },
   SCREENING: { label: 'Phase 2 — Jury Screening', color: 'text-yellow-400', bg: 'bg-yellow-400/10 border-yellow-400/20' },
@@ -111,13 +104,9 @@ const PHASE_INFO = {
 export default function CompetitionPage() {
   const { user, token, isAuthenticated } = useAuthStore();
   const [competition, setCompetition] = useState<CompetitionData | null>(null);
-  const [userStartups, setUserStartups] = useState<UserStartup[]>([]);
-  const [registeredStartups, setRegisteredStartups] = useState<Set<string>>(new Set());
   const [votedEntries, setVotedEntries] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [registering, setRegistering] = useState<string | null>(null);
   const [voting, setVoting] = useState<string | null>(null);
-  const [message, setMessage] = useState({ text: '', type: '' });
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // Helper to get page content value with fallback
@@ -158,12 +147,6 @@ export default function CompetitionPage() {
     return () => clearInterval(interval);
   }, [competition?.registrationEnd]);
 
-  useEffect(() => {
-    if (isAuthenticated && token) {
-      fetchUserStartups();
-    }
-  }, [isAuthenticated, token]);
-
   const fetchCompetition = async () => {
     try {
       const res = await fetch('/api/competition');
@@ -175,46 +158,6 @@ export default function CompetitionPage() {
       console.error('Failed to fetch competition:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchUserStartups = async () => {
-    try {
-      const res = await fetch('/api/startups?founder=me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success) {
-        const approved = data.data.filter((s: UserStartup) => s.status === 'APPROVED' || s.status === 'ACTIVE');
-        setUserStartups(approved);
-      }
-    } catch (error) {
-      console.error('Failed to fetch user startups:', error);
-    }
-  };
-
-  const registerStartup = async (startupId: string) => {
-    if (!token) return;
-    setRegistering(startupId);
-    setMessage({ text: '', type: '' });
-    try {
-      const res = await fetch('/api/competition', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ startupId }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setRegisteredStartups((prev) => new Set(prev).add(startupId));
-        setMessage({ text: 'Startup registered successfully!', type: 'success' });
-        fetchCompetition();
-      } else {
-        setMessage({ text: data.error || 'Registration failed', type: 'error' });
-      }
-    } catch {
-      setMessage({ text: 'Network error', type: 'error' });
-    } finally {
-      setRegistering(null);
     }
   };
 
@@ -279,7 +222,7 @@ export default function CompetitionPage() {
               {pcs('bannerText', "You're Invited! India's Biggest Startup Competition is LIVE")}
             </span>
           </div>
-          <Link href="/submit-idea">
+          <Link href="/competition/register">
             <button className="px-5 py-1.5 bg-white text-purple font-bold rounded-full text-sm hover:bg-white/90 transition-colors whitespace-nowrap">
               {pcs('bannerButtonText', "Register Now — It's Almost Free!")}
             </button>
@@ -355,7 +298,7 @@ export default function CompetitionPage() {
               transition={{ delay: 1 }}
               className="flex flex-wrap gap-4 justify-center mb-12"
             >
-              <Link href="/submit-idea">
+              <Link href="/competition/register">
                 <Button size="lg">
                   <FireIcon className="w-5 h-5 mr-2 inline" />
                   Register Your Startup
@@ -1025,57 +968,17 @@ export default function CompetitionPage() {
         <section className="py-16 px-4 sm:px-6">
           <div className="max-w-3xl mx-auto">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
-              <Card className="p-8 border-purple/20">
-                <div className="text-center mb-8">
-                  <RocketLaunchIcon className="w-12 h-12 text-purple mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Register Your Startup</h2>
-                  <p className="text-muted">Submit your approved startup to compete in the Vishvakarma Innovation Challenge 2026</p>
-                </div>
-
-                {message.text && (
-                  <div className={`mb-6 p-4 rounded-xl text-sm ${message.type === 'success' ? 'bg-green-400/10 text-green-400 border border-green-400/20' : 'bg-red-400/10 text-red-400 border border-red-400/20'}`}>
-                    {message.text}
-                  </div>
-                )}
-
-                {!isAuthenticated ? (
-                  <div className="text-center">
-                    <p className="text-muted mb-4">You need to be logged in and have an approved startup to register.</p>
-                    <Link href="/login"><Button>Log In to Register</Button></Link>
-                  </div>
-                ) : userStartups.length === 0 ? (
-                  <div className="text-center">
-                    <p className="text-muted mb-4">You don&apos;t have any approved startups yet. Submit a startup idea first!</p>
-                    <Link href="/submit-idea"><Button>Submit Your Idea</Button></Link>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {userStartups.map((startup) => (
-                      <div key={startup.id} className="flex items-center justify-between p-4 rounded-xl bg-background/50 border border-border/50">
-                        <div>
-                          <p className="font-medium text-foreground">{startup.title}</p>
-                          <p className="text-xs text-muted">Status: {startup.status}</p>
-                        </div>
-                        {registeredStartups.has(startup.id) ? (
-                          <span className="flex items-center gap-1.5 text-sm text-green-400">
-                            <CheckCircleIcon className="w-4 h-4" />
-                            Registered
-                          </span>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => registerStartup(startup.id)}
-                            disabled={registering === startup.id}
-                          >
-                            {registering === startup.id ? 'Registering...' : 'Register'}
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-6 pt-6 border-t border-border text-center">
+              <Card className="p-8 border-purple/20 text-center">
+                <RocketLaunchIcon className="w-12 h-12 text-purple mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-foreground mb-2">Register Your Startup</h2>
+                <p className="text-muted mb-6">Submit your approved startup to compete in the Vishvakarma Innovation Challenge 2026</p>
+                <Link href="/competition/register">
+                  <Button size="lg">
+                    <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
+                    Register Now
+                  </Button>
+                </Link>
+                <div className="mt-6 pt-6 border-t border-border">
                   <p className="text-xs text-muted">
                     Registration closes on {competition?.registrationEnd && formatDate(competition.registrationEnd)} •{' '}
                     <span className="text-purple font-medium">{competition?.registrationEnd && daysLeft(competition.registrationEnd)} days remaining</span>
@@ -1251,7 +1154,7 @@ export default function CompetitionPage() {
             <div className="flex flex-wrap gap-4 justify-center mb-8">
               {competition?.currentPhase === 'REGISTRATION' ? (
                 <>
-                  <Link href="/submit-idea">
+                  <Link href="/competition/register">
                     <Button size="lg">
                       <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
                       Register Now — From ₹199 Only

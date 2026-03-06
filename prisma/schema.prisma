@@ -489,6 +489,13 @@ model CompetitionEntry {
   id              String                   @id @default(cuid())
   status          CompetitionEntryStatus   @default(SUBMITTED)
   
+  // Registration payment
+  registrationType    String?              // STUDENT or FOUNDER
+  registrationFee     Float?
+  paymentStatus       String?              @default("PENDING") // PENDING, PAID, FAILED
+  razorpayOrderId     String?
+  razorpayPaymentId   String?
+
   // Screening scores
   innovationScore     Float?
   marketScore         Float?
