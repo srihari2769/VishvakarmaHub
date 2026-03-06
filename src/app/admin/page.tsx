@@ -23,6 +23,7 @@ import {
   XMarkIcon,
   Cog6ToothIcon,
   TrophyIcon,
+  PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -174,6 +175,8 @@ export default function AdminPage() {
   const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges' | 'page-content'>('entries');
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
   const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
+  const [editingJudge, setEditingJudge] = useState<string | null>(null);
+  const [editJudgeForm, setEditJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
   const [pageContentForm, setPageContentForm] = useState<Record<string, unknown>>({});
   const [pageContentSaving, setPageContentSaving] = useState(false);
 
@@ -355,6 +358,34 @@ export default function AdminPage() {
       }
     } catch {
       alert('Failed to add judge');
+    }
+  };
+
+  const editJudge = async (id: string) => {
+    if (!editJudgeForm.judgeName || !editJudgeForm.judgeTitle || !editJudgeForm.judgeOrganization) return alert('Name, title, and organization are required');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          action: 'edit-judge',
+          judgeId: id,
+          judgeName: editJudgeForm.judgeName,
+          judgeTitle: editJudgeForm.judgeTitle,
+          judgeOrganization: editJudgeForm.judgeOrganization,
+          judgeAvatar: editJudgeForm.judgeAvatar || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEditingJudge(null);
+        fetchCompetitionEntries();
+      } else {
+        alert(data.error || 'Failed to update judge');
+      }
+    } catch {
+      alert('Failed to update judge');
     }
   };
 
@@ -1560,18 +1591,36 @@ export default function AdminPage() {
                       <div className="space-y-3">
                         {competitionData.judges.map((j) => (
                           <Card key={j.id} className="p-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-full bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
-                                {j.avatar ? <img src={j.avatar} alt="" className="w-full h-full object-cover" /> : <UsersIcon className="w-5 h-5 text-muted" />}
+                            {editingJudge === j.id ? (
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <input placeholder="Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editJudgeForm.judgeName} onChange={(e) => setEditJudgeForm({ ...editJudgeForm, judgeName: e.target.value })} />
+                                  <input placeholder="Title (e.g. CEO)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editJudgeForm.judgeTitle} onChange={(e) => setEditJudgeForm({ ...editJudgeForm, judgeTitle: e.target.value })} />
+                                  <input placeholder="Organization" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editJudgeForm.judgeOrganization} onChange={(e) => setEditJudgeForm({ ...editJudgeForm, judgeOrganization: e.target.value })} />
+                                  <input placeholder="Avatar URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editJudgeForm.judgeAvatar} onChange={(e) => setEditJudgeForm({ ...editJudgeForm, judgeAvatar: e.target.value })} />
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button size="sm" onClick={() => editJudge(j.id)}>Save</Button>
+                                  <Button size="sm" variant="outline" onClick={() => setEditingJudge(null)}>Cancel</Button>
+                                </div>
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-foreground">{j.name}</h4>
-                                <p className="text-xs text-muted">{j.title}{j.organization ? ` at ${j.organization}` : ''}</p>
+                            ) : (
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                                  {j.avatar ? <img src={j.avatar} alt="" className="w-full h-full object-cover" /> : <UsersIcon className="w-5 h-5 text-muted" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-foreground">{j.name}</h4>
+                                  <p className="text-xs text-muted">{j.title}{j.organization ? ` at ${j.organization}` : ''}</p>
+                                </div>
+                                <button onClick={() => { setEditingJudge(j.id); setEditJudgeForm({ judgeName: j.name, judgeTitle: j.title, judgeOrganization: j.organization, judgeAvatar: j.avatar || '' }); }} className="text-blue-400 hover:text-blue-300 p-1">
+                                  <PencilSquareIcon className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => deleteJudge(j.id)} className="text-red-400 hover:text-red-300 p-1">
+                                  <TrashIcon className="w-4 h-4" />
+                                </button>
                               </div>
-                              <button onClick={() => deleteJudge(j.id)} className="text-red-400 hover:text-red-300 p-1">
-                                <TrashIcon className="w-4 h-4" />
-                              </button>
-                            </div>
+                            )}
                           </Card>
                         ))}
                       </div>

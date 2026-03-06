@@ -339,6 +339,16 @@ export async function PATCH(request: NextRequest) {
         return successResponse(judge, 201);
       }
 
+      case 'edit-judge': {
+        const { judgeId: editJudgeId, judgeName: editJName, judgeTitle: editJTitle, judgeOrganization: editJOrg, judgeAvatar: editJAvatar } = body;
+        if (!editJudgeId || !editJName || !editJTitle || !editJOrg) return errorResponse('Missing judge fields', 400);
+        const updatedJudge = await prisma.competitionJudge.update({
+          where: { id: editJudgeId },
+          data: { name: editJName, title: editJTitle, organization: editJOrg, avatar: editJAvatar || null },
+        });
+        return successResponse(updatedJudge);
+      }
+
       case 'delete-judge': {
         const { judgeId } = body;
         if (!judgeId) return errorResponse('Judge ID required', 400);
