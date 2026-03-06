@@ -101,9 +101,14 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row items-center justify-between">
-          <p className="text-sm text-muted">
-            &copy; {new Date().getFullYear()} Vishvakarma Hub. All rights reserved.
-          </p>
+          <div>
+            <p className="text-sm text-muted">
+              &copy; {new Date().getFullYear()} Vishvakarma Hub. All rights reserved.
+            </p>
+            <p className="text-xs text-muted/70 mt-1">
+              An initiative by <span className="text-foreground/80 font-medium">Trinetrashakti Innovations Private Limited</span>, a Startup India recognized company.
+            </p>
+          </div>
           <div className="flex items-center space-x-6 mt-4 md:mt-0">
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-muted hover:text-blue transition-colors">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>

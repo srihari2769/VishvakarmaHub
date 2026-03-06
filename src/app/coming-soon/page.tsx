@@ -99,6 +99,15 @@ export default function ComingSoonPage() {
               />
             ))}
           </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="text-xs text-muted/60 mt-16"
+          >
+            An initiative by <span className="text-foreground/70 font-medium">Trinetrashakti Innovations Private Limited</span>, a Startup India recognized company.
+          </motion.p>
         </motion.div>
       </div>
     </div>
