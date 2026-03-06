@@ -62,7 +62,32 @@ interface WithdrawalRecord {
   };
 }
 
-type Tab = 'overview' | 'startups' | 'analytics' | 'withdraw' | 'referrals';
+type Tab = 'overview' | 'startups' | 'analytics' | 'withdraw' | 'referrals' | 'applications';
+
+interface CofounderApp {
+  id: string;
+  role: string;
+  message: string;
+  experience: string;
+  portfolio: string | null;
+  linkedIn: string | null;
+  status: string;
+  createdAt: string;
+  applicant: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatar: string | null;
+    linkedIn: string | null;
+    bio: string | null;
+  };
+  startup: {
+    id: string;
+    title: string;
+    slug: string;
+  };
+}
 
 interface ReferredUser {
   id: string;
@@ -107,6 +132,8 @@ export default function StartupDashboardPage() {
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [referralCopied, setReferralCopied] = useState(false);
   const [claimingReward, setClaimingReward] = useState(false);
+  const [cofounderApps, setCofounderApps] = useState<CofounderApp[]>([]);
+  const [appActionLoading, setAppActionLoading] = useState<string | null>(null);
 
   // Check for saved draft in localStorage
   useEffect(() => {
@@ -188,6 +215,20 @@ export default function StartupDashboardPage() {
         }
       };
       fetchReferrals();
+      // Fetch co-founder applications
+      const fetchApplications = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch('/api/cofounder-applications?view=founder', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data.success) setCofounderApps(data.data);
+        } catch (error) {
+          console.error('Failed to fetch applications:', error);
+        }
+      };
+      fetchApplications();
     }
   }, [isAuthenticated, user]);
 
@@ -314,6 +355,7 @@ export default function StartupDashboardPage() {
             { id: 'analytics' as Tab, label: 'Analytics', icon: ArrowTrendingUpIcon },
             { id: 'withdraw' as Tab, label: 'Withdraw Funds', icon: BanknotesIcon },
             { id: 'referrals' as Tab, label: 'Referrals', icon: GiftIcon },
+            { id: 'applications' as Tab, label: 'Applications', icon: UserGroupIcon },
           ]).map((t) => {
             const Icon = t.icon;
             return (
@@ -990,6 +1032,121 @@ export default function StartupDashboardPage() {
                         </div>
                       </div>
                       <span className="text-xs text-muted">{new Date(u.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </motion.div>
+        )}
+
+        {tab === 'applications' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-1">Co-Founder Applications</h3>
+              <p className="text-sm text-muted mb-6">Review applications from people who want to join your startups.</p>
+
+              {cofounderApps.length === 0 ? (
+                <div className="text-center py-12">
+                  <UserGroupIcon className="w-12 h-12 text-muted mx-auto mb-3" />
+                  <p className="text-muted">No applications received yet.</p>
+                  <p className="text-sm text-muted mt-1">When someone applies to join your startup, it will appear here.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {cofounderApps.map((app) => (
+                    <div key={app.id} className="p-5 bg-background rounded-xl border border-border">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-purple/20 flex items-center justify-center text-purple text-sm font-bold flex-shrink-0">
+                            {app.applicant.firstName[0]}
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{app.applicant.firstName} {app.applicant.lastName}</p>
+                            <p className="text-xs text-muted">{app.applicant.email}</p>
+                            {app.applicant.bio && <p className="text-xs text-muted mt-1">{app.applicant.bio}</p>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-purple/10 text-purple border border-purple/20">{app.role}</span>
+                          <span className={`px-2 py-0.5 text-xs rounded-full ${
+                            app.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                              : app.status === 'ACCEPTED' ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>{app.status}</span>
+                        </div>
+                      </div>
+
+                      <div className="text-xs text-muted mb-1">Applying to: <span className="text-foreground">{app.startup.title}</span></div>
+
+                      <div className="mt-3 space-y-3">
+                        <div>
+                          <p className="text-xs font-medium text-muted mb-1">Why they want to join:</p>
+                          <p className="text-sm text-foreground bg-card p-3 rounded-lg border border-border/50">{app.message}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-muted mb-1">Experience:</p>
+                          <p className="text-sm text-foreground bg-card p-3 rounded-lg border border-border/50">{app.experience}</p>
+                        </div>
+                        {(app.portfolio || app.linkedIn || app.applicant.linkedIn) && (
+                          <div className="flex flex-wrap gap-3">
+                            {app.portfolio && <a href={app.portfolio} target="_blank" rel="noopener noreferrer" className="text-xs text-blue hover:underline">Portfolio ↗</a>}
+                            {(app.linkedIn || app.applicant.linkedIn) && <a href={app.linkedIn || app.applicant.linkedIn!} target="_blank" rel="noopener noreferrer" className="text-xs text-blue hover:underline">LinkedIn ↗</a>}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
+                        <span className="text-xs text-muted">{new Date(app.createdAt).toLocaleDateString()}</span>
+                        {app.status === 'PENDING' && (
+                          <div className="flex gap-2">
+                            <button
+                              disabled={appActionLoading === app.id}
+                              onClick={async () => {
+                                setAppActionLoading(app.id);
+                                try {
+                                  const token = localStorage.getItem('token');
+                                  const res = await fetch(`/api/cofounder-applications/${app.id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                    body: JSON.stringify({ status: 'ACCEPTED' }),
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    setCofounderApps(prev => prev.map(a => a.id === app.id ? { ...a, status: 'ACCEPTED' } : a));
+                                  }
+                                } catch { /* ignore */ }
+                                setAppActionLoading(null);
+                              }}
+                              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-colors disabled:opacity-50"
+                            >
+                              {appActionLoading === app.id ? '...' : 'Accept'}
+                            </button>
+                            <button
+                              disabled={appActionLoading === app.id}
+                              onClick={async () => {
+                                setAppActionLoading(app.id);
+                                try {
+                                  const token = localStorage.getItem('token');
+                                  const res = await fetch(`/api/cofounder-applications/${app.id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                    body: JSON.stringify({ status: 'REJECTED' }),
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    setCofounderApps(prev => prev.map(a => a.id === app.id ? { ...a, status: 'REJECTED' } : a));
+                                  }
+                                } catch { /* ignore */ }
+                                setAppActionLoading(null);
+                              }}
+                              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                            >
+                              {appActionLoading === app.id ? '...' : 'Decline'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -128,6 +128,7 @@ model User {
   notifications   Notification[]
   savedStartups   SavedStartup[]
   withdrawals     Withdrawal[]
+  cofounderApplications CofounderApplication[]
 
   @@index([email])
   @@index([referralCode])
@@ -168,6 +169,7 @@ model Startup {
   milestones      Milestone[]
   comments        Comment[]
   savedBy         SavedStartup[]
+  cofounderApplications CofounderApplication[]
   
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -352,6 +354,36 @@ model Withdrawal {
   @@index([userId])
   @@index([status])
   @@map("withdrawals")
+}
+
+enum CofounderApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model CofounderApplication {
+  id              String                     @id @default(cuid())
+  role            String
+  message         String                     @db.Text
+  experience      String                     @db.Text
+  portfolio       String?
+  linkedIn        String?
+  status          CofounderApplicationStatus  @default(PENDING)
+
+  applicantId     String
+  applicant       User                       @relation(fields: [applicantId], references: [id])
+
+  startupId       String
+  startup         Startup                    @relation(fields: [startupId], references: [id])
+
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  @@unique([applicantId, startupId])
+  @@index([startupId])
+  @@index([applicantId])
+  @@map("cofounder_applications")
 }
 
 model ContactSubmission {

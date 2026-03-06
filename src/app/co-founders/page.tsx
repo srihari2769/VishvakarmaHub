@@ -11,6 +11,7 @@ import {
   MagnifyingGlassIcon,
   MapPinIcon,
   RocketLaunchIcon,
+  PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
 
 interface CofounderStartup {
@@ -185,8 +186,8 @@ export default function CoFoundersPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                 >
-                  <Link href={`/startup/${startup.slug}`}>
-                    <Card className="overflow-hidden hover:border-purple/30 transition-colors group h-full">
+                  <Card className="overflow-hidden hover:border-purple/30 transition-colors group h-full flex flex-col">
+                    <Link href={`/startup/${startup.slug}`}>
                       {/* Image */}
                       <div className="relative h-40 bg-card">
                         {startup.thumbnail || startup.logo ? (
@@ -205,14 +206,17 @@ export default function CoFoundersPage() {
                           <Badge variant="info">{startup.productStage.replace('_', ' ')}</Badge>
                         </div>
                       </div>
+                    </Link>
 
-                      <div className="p-5">
+                      <div className="p-5 flex flex-col flex-1">
+                        <Link href={`/startup/${startup.slug}`}>
                         <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-purple transition-colors">
                           {startup.title}
                         </h3>
                         <p className="text-sm text-muted line-clamp-2 mb-3">
                           {startup.shortDescription}
                         </p>
+                        </Link>
 
                         {/* Founder Info */}
                         <div className="flex items-center gap-2 mb-3">
@@ -268,9 +272,18 @@ export default function CoFoundersPage() {
                             </div>
                           </div>
                         )}
+
+                        {/* Apply Button */}
+                        <div className="mt-auto pt-4">
+                          <Link href={`/co-founders/apply/${startup.slug}`}>
+                            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-purple text-white hover:bg-purple/90 transition-colors">
+                              <PaperAirplaneIcon className="w-4 h-4" />
+                              Apply Now
+                            </button>
+                          </Link>
+                        </div>
                       </div>
                     </Card>
-                  </Link>
                 </motion.div>
               );
             })}

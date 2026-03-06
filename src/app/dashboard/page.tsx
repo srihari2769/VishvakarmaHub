@@ -15,6 +15,7 @@ import {
   BookmarkIcon,
   Cog6ToothIcon,
   ArrowTopRightOnSquareIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 
 interface Contribution {
@@ -34,7 +35,23 @@ interface Notification {
   createdAt: string;
 }
 
-type Tab = 'overview' | 'contributions' | 'notifications' | 'settings';
+interface MyApplication {
+  id: string;
+  role: string;
+  message: string;
+  status: string;
+  createdAt: string;
+  startup: {
+    id: string;
+    title: string;
+    slug: string;
+    logo: string | null;
+    thumbnail: string | null;
+    founder: { firstName: string; lastName: string };
+  };
+}
+
+type Tab = 'overview' | 'contributions' | 'notifications' | 'applications' | 'settings';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -42,6 +59,7 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>('overview');
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [myApplications, setMyApplications] = useState<MyApplication[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -70,6 +88,13 @@ export default function DashboardPage() {
         .then((res) => res.json())
         .then((data) => { if (data.success) setNotifications(data.data || []); })
         .catch(console.error);
+      // Fetch my co-founder applications
+      fetch('/api/cofounder-applications?view=applicant', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => { if (data.success) setMyApplications(data.data || []); })
+        .catch(console.error);
     }
   }, [isAuthenticated, user]);
 
@@ -87,6 +112,7 @@ export default function DashboardPage() {
     { id: 'overview', label: 'Overview', icon: UserCircleIcon },
     { id: 'contributions', label: 'Contributions', icon: CurrencyRupeeIcon },
     { id: 'notifications', label: 'Notifications', icon: BellIcon },
+    { id: 'applications', label: 'My Applications', icon: UserGroupIcon },
     { id: 'settings', label: 'Settings', icon: Cog6ToothIcon },
   ];
 
@@ -304,6 +330,62 @@ export default function DashboardPage() {
                         <span className="text-xs text-muted whitespace-nowrap ml-2">
                           {new Date(n.createdAt).toLocaleDateString()}
                         </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </motion.div>
+        )}
+
+        {/* My Applications */}
+        {tab === 'applications' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="font-semibold text-foreground">My Co-Founder Applications</h2>
+                  <p className="text-sm text-muted">Track the status of your applications to join startups.</p>
+                </div>
+                <Link href="/co-founders">
+                  <Button variant="outline" className="text-sm">Browse Startups</Button>
+                </Link>
+              </div>
+
+              {myApplications.length === 0 ? (
+                <div className="text-center py-12">
+                  <UserGroupIcon className="w-12 h-12 text-muted mx-auto mb-3" />
+                  <p className="text-muted">You haven&apos;t applied to any startups yet.</p>
+                  <Link href="/co-founders" className="text-sm text-purple hover:underline mt-2 inline-block">Browse startups looking for co-founders</Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myApplications.map((app) => (
+                    <div key={app.id} className="flex items-start gap-4 p-4 bg-background rounded-xl border border-border">
+                      <div className="w-10 h-10 rounded-lg bg-purple/10 flex items-center justify-center text-purple text-sm font-bold flex-shrink-0">
+                        {app.startup.title[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <Link href={`/startup/${app.startup.slug}`} className="font-medium text-foreground hover:text-purple transition-colors">
+                              {app.startup.title}
+                            </Link>
+                            <p className="text-xs text-muted mt-0.5">Applied as: <span className="text-purple">{app.role}</span></p>
+                          </div>
+                          <span className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ${
+                            app.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                              : app.status === 'ACCEPTED' ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>{app.status}</span>
+                        </div>
+                        <p className="text-sm text-muted mt-2 line-clamp-2">{app.message}</p>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-muted">
+                          <span>Founder: {app.startup.founder.firstName} {app.startup.founder.lastName}</span>
+                          <span>·</span>
+                          <span>{new Date(app.createdAt).toLocaleDateString()}</span>
+                        </div>
                       </div>
                     </div>
                   ))}
