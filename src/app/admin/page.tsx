@@ -294,10 +294,11 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           action: 'add-sponsor',
+          competitionId: competitionData?.id,
           tier: sponsorForm.tier,
-          name: sponsorForm.sponsorName,
+          sponsorName: sponsorForm.sponsorName,
           price: parseFloat(sponsorForm.price),
-          benefits: sponsorForm.benefits,
+          benefits: sponsorForm.benefits.split(',').map((b: string) => b.trim()).filter(Boolean),
         }),
       });
       const data = await res.json();
@@ -330,10 +331,11 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           action: 'add-judge',
-          name: judgeForm.judgeName,
-          title: judgeForm.judgeTitle,
-          organization: judgeForm.judgeOrganization,
-          avatar: judgeForm.judgeAvatar || undefined,
+          competitionId: competitionData?.id,
+          judgeName: judgeForm.judgeName,
+          judgeTitle: judgeForm.judgeTitle,
+          judgeOrganization: judgeForm.judgeOrganization,
+          judgeAvatar: judgeForm.judgeAvatar || undefined,
         }),
       });
       const data = await res.json();
@@ -1430,8 +1432,15 @@ export default function AdminPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <select className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.tier} onChange={(e) => setSponsorForm({ ...sponsorForm, tier: e.target.value })}>
                           <option value="TITLE">Title Sponsor</option>
+                          <option value="PLATINUM">Platinum Sponsor</option>
                           <option value="GOLD">Gold Sponsor</option>
+                          <option value="SILVER">Silver Sponsor</option>
                           <option value="STARTUP_PARTNER">Startup Partner</option>
+                          <option value="INNOVATION_PARTNER">Innovation Partner</option>
+                          <option value="COMMUNITY_PARTNER">Community Partner</option>
+                          <option value="STAGE">Stage Sponsor</option>
+                          <option value="MEDIA">Media Sponsor</option>
+                          <option value="AWARD">Award Sponsor</option>
                         </select>
                         <input placeholder="Sponsor Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.sponsorName} onChange={(e) => setSponsorForm({ ...sponsorForm, sponsorName: e.target.value })} />
                         <input type="number" placeholder="Price (₹)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.price} onChange={(e) => setSponsorForm({ ...sponsorForm, price: e.target.value })} />
