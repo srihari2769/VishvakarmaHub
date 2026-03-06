@@ -156,6 +156,8 @@ export async function GET(request: NextRequest) {
               },
               orderBy: { createdAt: 'desc' },
             },
+            judges: { orderBy: { createdAt: 'asc' } },
+            sponsors: { orderBy: { price: 'desc' } },
             _count: { select: { entries: true } },
           },
         });
@@ -276,6 +278,72 @@ export async function PATCH(request: NextRequest) {
           data: { isRead: true },
         });
         return successResponse({ message: 'Marked as read' });
+      }
+
+      case 'update-competition': {
+        const { competitionId: compId, ...updateData } = body;
+        if (!compId) return errorResponse('Competition ID required', 400);
+        const allowedFields = ['name', 'tagline', 'description', 'currentPhase', 'studentFee', 'founderFee', 'boothPrice', 'boothDescription', 'registrationStart', 'registrationEnd', 'screeningEnd', 'votingEnd', 'finalsDate'];
+        const filtered: Record<string, unknown> = {};
+        for (const key of allowedFields) {
+          if (updateData[key] !== undefined) {
+            if (['registrationStart', 'registrationEnd', 'screeningEnd', 'votingEnd', 'finalsDate'].includes(key)) {
+              filtered[key] = new Date(updateData[key] as string);
+            } else {
+              filtered[key] = updateData[key];
+            }
+          }
+        }
+        const updatedComp = await prisma.competition.update({
+          where: { id: compId },
+          data: filtered,
+        });
+        return successResponse(updatedComp);
+      }
+
+      case 'add-sponsor': {
+        const { competitionId: sponsorCompId, tier, sponsorName, logo: sponsorLogo, price, benefits: sponsorBenefits } = body;
+        if (!sponsorCompId || !tier || !sponsorName || !price) return errorResponse('Missing sponsor fields', 400);
+        const sponsor = await prisma.competitionSponsor.create({
+          data: {
+            tier,
+            name: sponsorName,
+            logo: sponsorLogo || null,
+            price: parseFloat(price),
+            benefits: JSON.stringify(sponsorBenefits || []),
+            competitionId: sponsorCompId,
+          },
+        });
+        return successResponse(sponsor, 201);
+      }
+
+      case 'delete-sponsor': {
+        const { sponsorId } = body;
+        if (!sponsorId) return errorResponse('Sponsor ID required', 400);
+        await prisma.competitionSponsor.delete({ where: { id: sponsorId } });
+        return successResponse({ message: 'Sponsor deleted' });
+      }
+
+      case 'add-judge': {
+        const { competitionId: judgeCompId, judgeName, judgeTitle, judgeOrganization, judgeAvatar } = body;
+        if (!judgeCompId || !judgeName || !judgeTitle || !judgeOrganization) return errorResponse('Missing judge fields', 400);
+        const judge = await prisma.competitionJudge.create({
+          data: {
+            name: judgeName,
+            title: judgeTitle,
+            organization: judgeOrganization,
+            avatar: judgeAvatar || null,
+            competitionId: judgeCompId,
+          },
+        });
+        return successResponse(judge, 201);
+      }
+
+      case 'delete-judge': {
+        const { judgeId } = body;
+        if (!judgeId) return errorResponse('Judge ID required', 400);
+        await prisma.competitionJudge.delete({ where: { id: judgeId } });
+        return successResponse({ message: 'Judge deleted' });
       }
 
       default:

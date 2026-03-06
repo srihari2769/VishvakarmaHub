@@ -100,9 +100,39 @@ interface CompetitionEntryItem {
 interface CompetitionData {
   id: string;
   name: string;
+  tagline: string;
+  description: string;
   currentPhase: string;
+  studentFee: number;
+  founderFee: number;
+  boothPrice: number;
+  boothDescription: string | null;
+  registrationStart: string;
+  registrationEnd: string;
+  screeningEnd: string;
+  votingEnd: string;
+  finalsDate: string;
   entries: CompetitionEntryItem[];
+  judges: CompetitionJudgeItem[];
+  sponsors: CompetitionSponsorItem[];
   _count: { entries: number };
+}
+
+interface CompetitionJudgeItem {
+  id: string;
+  name: string;
+  title: string;
+  organization: string;
+  avatar: string | null;
+}
+
+interface CompetitionSponsorItem {
+  id: string;
+  tier: string;
+  name: string;
+  logo: string | null;
+  price: number;
+  benefits: string;
 }
 
 interface ContactSubmission {
@@ -137,6 +167,12 @@ export default function AdminPage() {
   const [seedingCompetition, setSeedingCompetition] = useState(false);
   const [competitionData, setCompetitionData] = useState<CompetitionData | null>(null);
   const [entryStatusLoading, setEntryStatusLoading] = useState<string | null>(null);
+  const [compEditMode, setCompEditMode] = useState(false);
+  const [compForm, setCompForm] = useState<Record<string, string | number>>({});
+  const [compSaving, setCompSaving] = useState(false);
+  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges'>('entries');
+  const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '' });
+  const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
 
   useEffect(() => {
     checkAuth();
@@ -227,6 +263,98 @@ export default function AdminPage() {
       if (data.success) fetchCompetitionEntries();
     } catch {}
     setEntryStatusLoading(null);
+  };
+
+  const saveCompetitionDetails = async () => {
+    setCompSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'update-competition', ...compForm }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCompEditMode(false);
+        fetchCompetitionEntries();
+      } else {
+        alert(data.error || 'Failed to save');
+      }
+    } catch {}
+    setCompSaving(false);
+  };
+
+  const addSponsor = async () => {
+    if (!sponsorForm.sponsorName || !sponsorForm.price) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          action: 'add-sponsor',
+          tier: sponsorForm.tier,
+          name: sponsorForm.sponsorName,
+          price: parseFloat(sponsorForm.price),
+          benefits: sponsorForm.benefits,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSponsorForm({ tier: 'TITLE', sponsorName: '', price: '', benefits: '' });
+        fetchCompetitionEntries();
+      }
+    } catch {}
+  };
+
+  const deleteSponsor = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'delete-sponsor', sponsorId: id }),
+      });
+      const data = await res.json();
+      if (data.success) fetchCompetitionEntries();
+    } catch {}
+  };
+
+  const addJudge = async () => {
+    if (!judgeForm.judgeName || !judgeForm.judgeTitle) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          action: 'add-judge',
+          name: judgeForm.judgeName,
+          title: judgeForm.judgeTitle,
+          organization: judgeForm.judgeOrganization,
+          avatar: judgeForm.judgeAvatar || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setJudgeForm({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
+        fetchCompetitionEntries();
+      }
+    } catch {}
+  };
+
+  const deleteJudge = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'delete-judge', judgeId: id }),
+      });
+      const data = await res.json();
+      if (data.success) fetchCompetitionEntries();
+    } catch {}
   };
 
   const fetchAdmin = async (action: string) => {
@@ -1055,62 +1183,298 @@ export default function AdminPage() {
                   </div>
                   <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
                 </div>
-                {competitionData.entries.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <TrophyIcon className="w-12 h-12 mx-auto text-muted mb-3" />
-                    <p className="text-muted">No entries registered yet.</p>
-                  </Card>
-                ) : (
-                  <div className="space-y-3">
-                    {competitionData.entries.map((entry) => (
-                      <Card key={entry.id} className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
-                            {entry.startup.logo ? (
-                              <img src={entry.startup.logo} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <RocketLaunchIcon className="w-6 h-6 text-muted" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-foreground truncate">{entry.startup.title}</h4>
-                            <p className="text-xs text-muted">
-                              {entry.user.firstName} {entry.user.lastName} &middot; {entry.user.email}
-                            </p>
-                            <p className="text-xs text-muted mt-0.5">
-                              {entry.startup.category} &middot; Registered {new Date(entry.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="text-right flex-shrink-0 space-y-1">
-                            <Badge variant={
-                              entry.status === 'WINNER' ? 'success' :
-                              entry.status === 'ELIMINATED' ? 'danger' :
-                              entry.status === 'FINALIST' ? 'info' :
-                              entry.status === 'SUBMITTED' ? 'default' : 'warning'
-                            }>
-                              {entry.status}
-                            </Badge>
-                            <p className="text-xs text-muted">{entry.upvotes} votes</p>
-                          </div>
-                          <div className="flex-shrink-0">
-                            <select
-                              className="text-xs bg-card border border-border rounded px-2 py-1.5 text-foreground"
-                              value={entry.status}
-                              disabled={entryStatusLoading === entry.id}
-                              onChange={(e) => updateEntryStatus(entry.id, e.target.value)}
-                            >
-                              <option value="SUBMITTED">Submitted</option>
-                              <option value="SHORTLISTED">Shortlisted</option>
-                              <option value="SELECTED_TOP200">Top 200</option>
-                              <option value="PUBLIC_VOTING">Public Voting</option>
-                              <option value="FINALIST">Finalist</option>
-                              <option value="WINNER">Winner</option>
-                              <option value="ELIMINATED">Eliminated</option>
-                            </select>
-                          </div>
-                        </div>
+
+                {/* Sub-tabs */}
+                <div className="flex gap-1 bg-card rounded-lg p-1">
+                  {(['entries', 'details', 'sponsors', 'judges'] as const).map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setCompSubTab(st)}
+                      className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors capitalize ${
+                        compSubTab === st ? 'bg-blue text-white' : 'text-muted hover:text-foreground'
+                      }`}
+                    >
+                      {st}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Entries Sub-tab */}
+                {compSubTab === 'entries' && (
+                  <>
+                    {competitionData.entries.length === 0 ? (
+                      <Card className="p-8 text-center">
+                        <TrophyIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                        <p className="text-muted">No entries registered yet.</p>
                       </Card>
-                    ))}
+                    ) : (
+                      <div className="space-y-3">
+                        {competitionData.entries.map((entry) => (
+                          <Card key={entry.id} className="p-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {entry.startup.logo ? (
+                                  <img src={entry.startup.logo} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <RocketLaunchIcon className="w-6 h-6 text-muted" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-foreground truncate">{entry.startup.title}</h4>
+                                <p className="text-xs text-muted">
+                                  {entry.user.firstName} {entry.user.lastName} &middot; {entry.user.email}
+                                </p>
+                                <p className="text-xs text-muted mt-0.5">
+                                  {entry.startup.category} &middot; Registered {new Date(entry.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="text-right flex-shrink-0 space-y-1">
+                                <Badge variant={
+                                  entry.status === 'WINNER' ? 'success' :
+                                  entry.status === 'ELIMINATED' ? 'danger' :
+                                  entry.status === 'FINALIST' ? 'info' :
+                                  entry.status === 'SUBMITTED' ? 'default' : 'warning'
+                                }>
+                                  {entry.status}
+                                </Badge>
+                                <p className="text-xs text-muted">{entry.upvotes} votes</p>
+                              </div>
+                              <div className="flex-shrink-0">
+                                <select
+                                  className="text-xs bg-card border border-border rounded px-2 py-1.5 text-foreground"
+                                  value={entry.status}
+                                  disabled={entryStatusLoading === entry.id}
+                                  onChange={(e) => updateEntryStatus(entry.id, e.target.value)}
+                                >
+                                  <option value="SUBMITTED">Submitted</option>
+                                  <option value="SHORTLISTED">Shortlisted</option>
+                                  <option value="SELECTED_TOP200">Top 200</option>
+                                  <option value="PUBLIC_VOTING">Public Voting</option>
+                                  <option value="FINALIST">Finalist</option>
+                                  <option value="WINNER">Winner</option>
+                                  <option value="ELIMINATED">Eliminated</option>
+                                </select>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Details Sub-tab */}
+                {compSubTab === 'details' && (
+                  <Card className="p-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-foreground">Competition Details</h4>
+                      {!compEditMode ? (
+                        <Button size="sm" onClick={() => {
+                          setCompForm({
+                            name: competitionData.name,
+                            tagline: competitionData.tagline || '',
+                            description: competitionData.description || '',
+                            currentPhase: competitionData.currentPhase,
+                            studentFee: competitionData.studentFee,
+                            founderFee: competitionData.founderFee,
+                            boothPrice: competitionData.boothPrice,
+                            boothDescription: competitionData.boothDescription || '',
+                            registrationStart: competitionData.registrationStart?.slice(0, 10) || '',
+                            registrationEnd: competitionData.registrationEnd?.slice(0, 10) || '',
+                            screeningEnd: competitionData.screeningEnd?.slice(0, 10) || '',
+                            votingEnd: competitionData.votingEnd?.slice(0, 10) || '',
+                            finalsDate: competitionData.finalsDate?.slice(0, 10) || '',
+                          });
+                          setCompEditMode(true);
+                        }}>Edit</Button>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => setCompEditMode(false)}>Cancel</Button>
+                          <Button size="sm" onClick={saveCompetitionDetails} isLoading={compSaving}>Save</Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {compEditMode ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Name</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.name || ''} onChange={(e) => setCompForm({ ...compForm, name: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Tagline</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.tagline || ''} onChange={(e) => setCompForm({ ...compForm, tagline: e.target.value })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Description</label>
+                          <textarea rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.description || ''} onChange={(e) => setCompForm({ ...compForm, description: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Current Phase</label>
+                          <select className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.currentPhase || ''} onChange={(e) => setCompForm({ ...compForm, currentPhase: e.target.value })}>
+                            <option value="REGISTRATION">Registration</option>
+                            <option value="SCREENING">Screening</option>
+                            <option value="PUBLIC_VOTING">Public Voting</option>
+                            <option value="FINALS">Finals</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Student Fee (₹)</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.studentFee || ''} onChange={(e) => setCompForm({ ...compForm, studentFee: parseFloat(e.target.value) || 0 })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Founder Fee (₹)</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.founderFee || ''} onChange={(e) => setCompForm({ ...compForm, founderFee: parseFloat(e.target.value) || 0 })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Booth Price (₹)</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.boothPrice || ''} onChange={(e) => setCompForm({ ...compForm, boothPrice: parseFloat(e.target.value) || 0 })} />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted mb-1">Booth Description</label>
+                          <textarea rows={2} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.boothDescription || ''} onChange={(e) => setCompForm({ ...compForm, boothDescription: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Registration Start</label>
+                          <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.registrationStart || ''} onChange={(e) => setCompForm({ ...compForm, registrationStart: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Registration End</label>
+                          <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.registrationEnd || ''} onChange={(e) => setCompForm({ ...compForm, registrationEnd: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Screening End</label>
+                          <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.screeningEnd || ''} onChange={(e) => setCompForm({ ...compForm, screeningEnd: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Voting End</label>
+                          <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.votingEnd || ''} onChange={(e) => setCompForm({ ...compForm, votingEnd: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Finals Date</label>
+                          <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.finalsDate || ''} onChange={(e) => setCompForm({ ...compForm, finalsDate: e.target.value })} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="md:col-span-2">
+                          <span className="text-muted">Tagline:</span>
+                          <p className="text-foreground">{competitionData.tagline || '—'}</p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <span className="text-muted">Description:</span>
+                          <p className="text-foreground">{competitionData.description || '—'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Student Fee:</span>
+                          <p className="text-foreground font-medium">{formatCurrency(competitionData.studentFee)}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Founder Fee:</span>
+                          <p className="text-foreground font-medium">{formatCurrency(competitionData.founderFee)}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Booth Price:</span>
+                          <p className="text-foreground font-medium">{formatCurrency(competitionData.boothPrice)}</p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <span className="text-muted">Booth Description:</span>
+                          <p className="text-foreground">{competitionData.boothDescription || '—'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Registration:</span>
+                          <p className="text-foreground">{competitionData.registrationStart ? new Date(competitionData.registrationStart).toLocaleDateString() : '—'} → {competitionData.registrationEnd ? new Date(competitionData.registrationEnd).toLocaleDateString() : '—'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Screening End:</span>
+                          <p className="text-foreground">{competitionData.screeningEnd ? new Date(competitionData.screeningEnd).toLocaleDateString() : '—'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Voting End:</span>
+                          <p className="text-foreground">{competitionData.votingEnd ? new Date(competitionData.votingEnd).toLocaleDateString() : '—'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Finals:</span>
+                          <p className="text-foreground">{competitionData.finalsDate ? new Date(competitionData.finalsDate).toLocaleDateString() : '—'}</p>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                )}
+
+                {/* Sponsors Sub-tab */}
+                {compSubTab === 'sponsors' && (
+                  <div className="space-y-4">
+                    {competitionData.sponsors.length > 0 && (
+                      <div className="space-y-3">
+                        {competitionData.sponsors.map((s) => (
+                          <Card key={s.id} className="p-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {s.logo ? <img src={s.logo} alt="" className="w-full h-full object-cover" /> : <BanknotesIcon className="w-5 h-5 text-muted" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-foreground">{s.name}</h4>
+                                <p className="text-xs text-muted">{s.tier.replace('_', ' ')} &middot; {formatCurrency(s.price)}</p>
+                              </div>
+                              <button onClick={() => deleteSponsor(s.id)} className="text-red-400 hover:text-red-300 p-1">
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-medium text-foreground text-sm">Add Sponsor</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <select className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.tier} onChange={(e) => setSponsorForm({ ...sponsorForm, tier: e.target.value })}>
+                          <option value="TITLE">Title Sponsor</option>
+                          <option value="GOLD">Gold Sponsor</option>
+                          <option value="STARTUP_PARTNER">Startup Partner</option>
+                        </select>
+                        <input placeholder="Sponsor Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.sponsorName} onChange={(e) => setSponsorForm({ ...sponsorForm, sponsorName: e.target.value })} />
+                        <input type="number" placeholder="Price (₹)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.price} onChange={(e) => setSponsorForm({ ...sponsorForm, price: e.target.value })} />
+                        <input placeholder="Benefits (comma-separated)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.benefits} onChange={(e) => setSponsorForm({ ...sponsorForm, benefits: e.target.value })} />
+                      </div>
+                      <Button size="sm" onClick={addSponsor}>Add Sponsor</Button>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Judges Sub-tab */}
+                {compSubTab === 'judges' && (
+                  <div className="space-y-4">
+                    {competitionData.judges.length > 0 && (
+                      <div className="space-y-3">
+                        {competitionData.judges.map((j) => (
+                          <Card key={j.id} className="p-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-full bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {j.avatar ? <img src={j.avatar} alt="" className="w-full h-full object-cover" /> : <UsersIcon className="w-5 h-5 text-muted" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-foreground">{j.name}</h4>
+                                <p className="text-xs text-muted">{j.title}{j.organization ? ` at ${j.organization}` : ''}</p>
+                              </div>
+                              <button onClick={() => deleteJudge(j.id)} className="text-red-400 hover:text-red-300 p-1">
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-medium text-foreground text-sm">Add Judge</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input placeholder="Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={judgeForm.judgeName} onChange={(e) => setJudgeForm({ ...judgeForm, judgeName: e.target.value })} />
+                        <input placeholder="Title (e.g. CEO)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={judgeForm.judgeTitle} onChange={(e) => setJudgeForm({ ...judgeForm, judgeTitle: e.target.value })} />
+                        <input placeholder="Organization" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={judgeForm.judgeOrganization} onChange={(e) => setJudgeForm({ ...judgeForm, judgeOrganization: e.target.value })} />
+                        <input placeholder="Avatar URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={judgeForm.judgeAvatar} onChange={(e) => setJudgeForm({ ...judgeForm, judgeAvatar: e.target.value })} />
+                      </div>
+                      <Button size="sm" onClick={addJudge}>Add Judge</Button>
+                    </Card>
                   </div>
                 )}
               </>

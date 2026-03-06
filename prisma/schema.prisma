@@ -447,14 +447,39 @@ model Competition {
   votingEnd         DateTime
   finalsDate        DateTime
 
+  // Participation fees
+  studentFee        Float             @default(199)
+  founderFee        Float             @default(499)
+
+  // Exhibition booths
+  boothPrice        Float             @default(5000)
+  boothDescription  String?           @db.Text
+
   isActive        Boolean           @default(true)
   entries         CompetitionEntry[]
   judges          CompetitionJudge[]
+  sponsors        CompetitionSponsor[]
 
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
   @@map("competitions")
+}
+
+model CompetitionSponsor {
+  id              String   @id @default(cuid())
+  tier            String   // TITLE, GOLD, STARTUP_PARTNER
+  name            String
+  logo            String?
+  price           Float
+  benefits        String   @db.Text  // JSON array of benefit strings
+
+  competitionId   String
+  competition     Competition @relation(fields: [competitionId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@map("competition_sponsors")
 }
 
 model CompetitionEntry {

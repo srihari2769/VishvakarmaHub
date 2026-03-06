@@ -23,6 +23,15 @@ import {
 } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon as HandThumbUpSolid } from '@heroicons/react/24/solid';
 
+interface SponsorData {
+  id: string;
+  tier: string;
+  name: string;
+  logo: string | null;
+  price: number;
+  benefits: string;
+}
+
 interface CompetitionData {
   id: string;
   name: string;
@@ -30,6 +39,10 @@ interface CompetitionData {
   slug: string;
   description: string;
   currentPhase: string;
+  studentFee: number;
+  founderFee: number;
+  boothPrice: number;
+  boothDescription: string | null;
   registrationStart: string;
   registrationEnd: string;
   screeningEnd: string;
@@ -38,6 +51,7 @@ interface CompetitionData {
   isActive: boolean;
   entries: CompetitionEntryData[];
   judges: JudgeData[];
+  sponsors: SponsorData[];
   _count: { entries: number };
 }
 
@@ -411,6 +425,219 @@ export default function CompetitionPage() {
                 </Card>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Participation Fees */}
+      <section className="py-16 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-3">Participation Fees</h2>
+            <p className="text-muted max-w-xl mx-auto">Affordable entry for students and founders alike</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+              <Card className="p-6 text-center border-blue/20 hover:border-blue/40 transition-colors h-full">
+                <AcademicCapIcon className="w-12 h-12 text-blue mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-foreground mb-2">Student</h3>
+                <p className="text-3xl font-bold text-blue mb-2">₹{competition?.studentFee || 199}</p>
+                <p className="text-sm text-muted">Valid college/university ID required</p>
+                <div className="mt-4 space-y-2 text-sm text-muted text-left">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Full competition access</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Mentorship sessions</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Certificate of participation</span></div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="p-6 text-center border-purple/20 hover:border-purple/40 transition-colors h-full">
+                <LightBulbIcon className="w-12 h-12 text-purple mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-foreground mb-2">Founder / Professional</h3>
+                <p className="text-3xl font-bold text-purple mb-2">₹{competition?.founderFee || 499}</p>
+                <p className="text-sm text-muted">For entrepreneurs and working professionals</p>
+                <div className="mt-4 space-y-2 text-sm text-muted text-left">
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Full competition access</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Investor networking opportunity</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Priority pitch slot</span></div>
+                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Certificate of participation</span></div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Exhibition Booths */}
+      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-blue/5 to-transparent">
+        <div className="max-w-4xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-3">Exhibition Booths</h2>
+            <p className="text-muted max-w-xl mx-auto">Showcase your product at the Vishvakarma Innovation Expo</p>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+            <Card className="p-8 border-cyan-400/20 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-cyan-400/10 to-transparent rounded-bl-full" />
+              <div className="relative">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground mb-2">Standard Exhibition Booth</h3>
+                    <p className="text-muted mb-4">{competition?.boothDescription || '6x6 ft branded booth space with table, chairs, power outlet, and Wi-Fi. Perfect for product demos and live showcases.'}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['Product Demo Space', 'Branded Backdrop', 'Power & Wi-Fi', 'Visitor Footfall'].map((f) => (
+                        <span key={f} className="px-3 py-1 text-xs rounded-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">{f}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="text-center md:text-right flex-shrink-0">
+                    <p className="text-4xl font-bold text-cyan-400">₹{(competition?.boothPrice || 5000).toLocaleString('en-IN')}</p>
+                    <p className="text-sm text-muted">per booth</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Sponsors Section */}
+      {competition?.sponsors && competition.sponsors.length > 0 && (
+        <section className="py-16 px-4 sm:px-6">
+          <div className="max-w-5xl mx-auto">
+            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-foreground mb-3">Our Sponsors</h2>
+              <p className="text-muted max-w-xl mx-auto">Backed by industry leaders driving innovation forward</p>
+            </motion.div>
+
+            {competition.sponsors.filter(s => s.tier === 'TITLE').length > 0 && (
+              <div className="mb-10">
+                <h3 className="text-center text-sm font-semibold text-yellow-400 uppercase tracking-widest mb-6">Title Sponsors</h3>
+                <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                  {competition.sponsors.filter(s => s.tier === 'TITLE').map((s) => (
+                    <motion.div key={s.id} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}>
+                      <Card className="p-6 border-yellow-400/20 text-center">
+                        <div className="w-20 h-20 rounded-2xl bg-yellow-400/10 flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-2" /> : <StarIcon className="w-10 h-10 text-yellow-400" />}
+                        </div>
+                        <h4 className="text-lg font-bold text-foreground">{s.name}</h4>
+                        <Badge variant="warning">Title Sponsor</Badge>
+                        {s.benefits && (
+                          <div className="mt-3 space-y-1 text-sm text-muted text-left">
+                            {(() => { try { return JSON.parse(s.benefits); } catch { return s.benefits.split(','); } })().map((b: string, i: number) => (
+                              <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" /><span>{b.trim()}</span></div>
+                            ))}
+                          </div>
+                        )}
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {competition.sponsors.filter(s => s.tier === 'GOLD').length > 0 && (
+              <div className="mb-10">
+                <h3 className="text-center text-sm font-semibold text-orange-400 uppercase tracking-widest mb-6">Gold Sponsors</h3>
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                  {competition.sponsors.filter(s => s.tier === 'GOLD').map((s) => (
+                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+                      <Card className="p-5 border-orange-400/20 text-center">
+                        <div className="w-14 h-14 rounded-xl bg-orange-400/10 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-7 h-7 text-orange-400" />}
+                        </div>
+                        <h4 className="font-semibold text-foreground">{s.name}</h4>
+                        <p className="text-xs text-orange-400 mt-1">Gold Sponsor</p>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').length > 0 && (
+              <div>
+                <h3 className="text-center text-sm font-semibold text-blue-400 uppercase tracking-widest mb-6">Startup Partners</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                  {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').map((s) => (
+                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+                      <Card className="p-4 border-blue-400/20 text-center">
+                        <div className="w-12 h-12 rounded-lg bg-blue-400/10 flex items-center justify-center mx-auto mb-2 overflow-hidden">
+                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-6 h-6 text-blue-400" />}
+                        </div>
+                        <h4 className="text-sm font-semibold text-foreground">{s.name}</h4>
+                        <p className="text-xs text-blue-400 mt-0.5">Startup Partner</p>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Sponsor Packages */}
+      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-purple/5 to-transparent">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-3">Become a Sponsor</h2>
+            <p className="text-muted max-w-xl mx-auto">Partner with us and get unparalleled visibility in India&apos;s biggest startup competition</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+              <Card className="p-6 border-yellow-400/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-yellow-400/10 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <StarIcon className="w-10 h-10 text-yellow-400 mb-3" />
+                  <h3 className="text-lg font-bold text-foreground mb-1">Title Sponsor</h3>
+                  <p className="text-3xl font-bold text-yellow-400 mb-4">₹1,00,000</p>
+                  <div className="space-y-2 text-sm text-muted">
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Prime branding across all channels</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Logo on event backdrop & stage</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>5-min keynote speaking slot</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Exclusive startup access & networking</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>Media coverage & press mentions</span></div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="p-6 border-orange-400/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-orange-400/10 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <StarIcon className="w-10 h-10 text-orange-400 mb-3" />
+                  <h3 className="text-lg font-bold text-foreground mb-1">Gold Sponsor</h3>
+                  <p className="text-3xl font-bold text-orange-400 mb-4">₹50,000</p>
+                  <div className="space-y-2 text-sm text-muted">
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Logo on website & event materials</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Social media shoutouts</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>VIP networking access</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>Branded booth at exhibition</span></div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="p-6 border-blue-400/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-400/10 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <StarIcon className="w-10 h-10 text-blue-400 mb-3" />
+                  <h3 className="text-lg font-bold text-foreground mb-1">Startup Partner</h3>
+                  <p className="text-3xl font-bold text-blue-400 mb-4">₹25,000</p>
+                  <div className="space-y-2 text-sm text-muted">
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Logo on competition page</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Social media mentions</span></div>
+                    <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>Direct access to top startups</span></div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </section>

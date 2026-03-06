@@ -12,6 +12,7 @@ export async function GET() {
       where: { isActive: true },
       include: {
         judges: true,
+        sponsors: { orderBy: { price: 'desc' } },
         entries: {
           where: {
             status: {
