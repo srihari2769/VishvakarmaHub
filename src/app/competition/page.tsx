@@ -806,13 +806,12 @@ export default function CompetitionPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Card className="p-6 text-center border-emerald-400/20 hover:border-emerald-400/40 transition-colors h-full">
                 <TicketIcon className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-foreground mb-2">Citizen Entry</h3>
+                <h3 className="text-lg font-bold text-foreground mb-2">Visitor Entry</h3>
                 <p className="text-3xl font-bold text-emerald-400 mb-2">₹99</p>
                 <p className="text-sm text-muted">For anyone who wants to attend the event</p>
                 <div className="mt-4 space-y-2 text-sm text-muted text-left">
                   <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Event access pass</span></div>
                   <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Innovation showcase viewing</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Networking opportunity</span></div>
                 </div>
                 <Link href="/competition/citizen-pass">
                   <Button className="w-full mt-4" variant="outline">Get Entry Pass</Button>
