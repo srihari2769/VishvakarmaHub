@@ -208,17 +208,7 @@ export default function CitizenEntryPage() {
               {/* Stamp / Branding */}
               <div className="border-t border-white/10 px-6 py-5 text-center relative">
                 <div className="inline-flex flex-col items-center">
-                  {/* Stamp circle */}
-                  <div className="w-24 h-24 rounded-full border-[3px] border-dashed border-indigo-400/50 flex items-center justify-center relative">
-                    <div className="w-[76px] h-[76px] rounded-full border-2 border-indigo-400/30 flex flex-col items-center justify-center">
-                      <span className="text-[8px] uppercase tracking-[0.15em] text-indigo-400/70 font-bold">Verified</span>
-                      <span className="text-sm font-black text-indigo-400/90 leading-tight">VH</span>
-                      <span className="text-[7px] uppercase tracking-[0.1em] text-indigo-400/60 font-medium">2026</span>
-                    </div>
-                    <div className="absolute -rotate-12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <span className="text-[6px] uppercase tracking-[0.3em] text-indigo-400/40 font-bold">★ AUTHENTIC ★</span>
-                    </div>
-                  </div>
+                  <img src="/Stamp.png" alt="VH 2026 Verified Stamp" className="w-28 h-28 object-contain opacity-80" />
                   <p className="text-[10px] text-muted/60 mt-3">
                     An initiative by <span className="text-foreground/70 font-medium">Trinetrashakti Innovations Pvt Ltd</span>
                   </p>
@@ -239,13 +229,14 @@ export default function CitizenEntryPage() {
                   if (passRef.current) {
                     const printWindow = window.open('', '_blank');
                     if (printWindow) {
+                      const html = passRef.current.outerHTML.replace('/Stamp.png', `${window.location.origin}/Stamp.png`);
                       printWindow.document.write(`
                         <html><head><title>Entry Pass - ${passData.passNumber}</title>
                         <style>
                           body { margin: 0; padding: 40px; background: #0B0F1A; display: flex; justify-content: center; }
                           @media print { body { background: white; } }
                         </style></head><body>
-                        ${passRef.current.outerHTML}
+                        ${html}
                         <script>setTimeout(() => window.print(), 500);</script>
                         </body></html>
                       `);
