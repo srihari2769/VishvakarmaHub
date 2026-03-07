@@ -98,7 +98,7 @@ export default function CitizenEntryPage() {
         amount: d.amount * 100,
         currency: d.currency,
         name: 'Vishvakarma Hub',
-        description: `Citizens Entry Pass — ${d.competitionName}`,
+        description: `Visitor Pass — ${d.competitionName}`,
         order_id: d.orderId,
         prefill: d.prefill,
         handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
@@ -150,7 +150,7 @@ export default function CitizenEntryPage() {
         useCORS: true,
       });
       const link = document.createElement('a');
-      link.download = `Entry-Pass-${passData?.passNumber || 'VH'}.png`;
+      link.download = `Visitor-Pass-${passData?.passNumber || 'VH'}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (err) {
@@ -164,10 +164,10 @@ export default function CitizenEntryPage() {
       <div className="min-h-screen bg-background pt-24 pb-16 px-4">
         <div className="max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            {/* Ticket-style Entry Pass */}
+            {/* Ticket-style Visitor Pass */}
             <div ref={passRef} className="flex rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/10 border border-indigo-500/20" style={{ minHeight: 320 }}>
               {/* Left Stub (Red) */}
-              <div className="relative w-24 sm:w-28 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 flex flex-col items-center justify-between py-6 px-2">
+              <div className="relative w-28 sm:w-32 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 flex flex-col items-center justify-center py-6 px-2">
                 {/* Perforated edge (right side of stub) */}
                 <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between py-2">
                   {Array.from({ length: 14 }).map((_, i) => (
@@ -175,19 +175,8 @@ export default function CitizenEntryPage() {
                   ))}
                 </div>
 
-                {/* Rotated Pass Number */}
-                <div className="flex-1 flex items-center justify-center">
-                  <span className="text-white font-mono font-bold text-xs tracking-wider" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)' }}>
-                    {passData.passNumber}
-                  </span>
-                </div>
-
-                {/* Barcode-style lines */}
-                <div className="flex gap-[2px] mt-3">
-                  {Array.from({ length: 16 }).map((_, i) => (
-                    <div key={i} className="bg-white/90" style={{ width: i % 3 === 0 ? 3 : 1.5, height: 40 + (i % 4) * 5 }} />
-                  ))}
-                </div>
+                {/* Stamp */}
+                <img src="/Stamp.png" alt="Verified Stamp" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
               </div>
 
               {/* Main Ticket Body (Dark) */}
@@ -197,7 +186,7 @@ export default function CitizenEntryPage() {
                   {/* Top row */}
                   <div className="text-center">
                     <h2 className="text-2xl sm:text-3xl font-black tracking-wider" style={{ color: '#d4a843', fontFamily: 'Georgia, serif' }}>
-                      ENTRY PASS
+                      VISITOR PASS
                     </h2>
                     <div className="flex items-center justify-center gap-2 mt-1">
                       <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-[#d4a843]" />
@@ -206,17 +195,12 @@ export default function CitizenEntryPage() {
                     </div>
                   </div>
 
-                  {/* Pass number badge */}
-                  <div className="flex justify-center mt-3">
-                    <div className="bg-[#1a1f36] border border-[#d4a843]/50 px-4 py-1 rounded">
-                      <span className="text-xs font-mono font-bold tracking-widest" style={{ color: '#d4a843' }}>{passData.passNumber}</span>
+                  {/* Pass number badge - bigger */}
+                  <div className="flex justify-center mt-4">
+                    <div className="bg-[#1a1f36] border-2 border-[#d4a843]/60 px-6 py-2 rounded-lg">
+                      <span className="text-lg sm:text-xl font-mono font-black tracking-[0.15em]" style={{ color: '#d4a843' }}>{passData.passNumber}</span>
                     </div>
                   </div>
-
-                  {/* ADMIT ONE */}
-                  <p className="text-center mt-2 text-sm font-bold uppercase tracking-[0.3em]" style={{ color: '#d4a843', fontFamily: 'Georgia, serif' }}>
-                    Admit One
-                  </p>
                 </div>
 
                 {/* User Details */}
@@ -289,7 +273,7 @@ export default function CitizenEntryPage() {
                 <Button size="lg">View Competition</Button>
               </Link>
               <Button variant="outline" size="lg" onClick={downloadPass}>
-                Download Entry Pass
+                Download Visitor Pass
               </Button>
             </div>
           </motion.div>
@@ -311,9 +295,9 @@ export default function CitizenEntryPage() {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium mb-4">
               <TicketIcon className="w-4 h-4" />
-              Citizens Entry Pass
+              Visitor Pass
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Get Your Entry Pass</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Get Your Visitor Pass</h1>
             <p className="text-muted">Attend the Vishvakarma Innovation Challenge 2026 as a visitor</p>
             <p className="text-2xl font-bold text-green-400 mt-3">₹99 Only</p>
           </div>
@@ -376,7 +360,7 @@ export default function CitizenEntryPage() {
                 <div>
                   <p className="text-sm text-amber-200/80 font-medium mb-1">Important</p>
                   <p className="text-xs text-amber-200/60 leading-relaxed">
-                    You must bring your original ID proof to the event. The ID proof and entry pass will be verified at the security checkpoint.
+                    You must bring your original ID proof to the event. The ID proof and visitor pass will be verified at the security checkpoint.
                   </p>
                 </div>
               </div>
@@ -389,7 +373,7 @@ export default function CitizenEntryPage() {
             )}
 
             <Button className="w-full mt-6" size="lg" onClick={handleSubmit} isLoading={isSubmitting}>
-              Pay ₹99 & Get Entry Pass
+              Pay ₹99 & Get Visitor Pass
             </Button>
           </Card>
         </motion.div>
