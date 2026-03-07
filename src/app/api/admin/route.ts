@@ -357,6 +357,13 @@ export async function PATCH(request: NextRequest) {
         return successResponse({ message: 'Judge deleted' });
       }
 
+      case 'delete-citizen-pass': {
+        const { passId } = body;
+        if (!passId) return errorResponse('Pass ID required', 400);
+        await prisma.citizenPass.delete({ where: { id: passId } });
+        return successResponse({ message: 'Citizen pass deleted' });
+      }
+
       default:
         return errorResponse('Invalid action', 400);
     }

@@ -195,6 +195,7 @@ export default function AdminPage() {
   const [editJudgeForm, setEditJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
   const [pageContentForm, setPageContentForm] = useState<Record<string, unknown>>({});
   const [pageContentSaving, setPageContentSaving] = useState(false);
+  const [passSearch, setPassSearch] = useState('');
 
   useEffect(() => {
     checkAuth();
@@ -1668,39 +1669,100 @@ export default function AdminPage() {
                       </div>
                       <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
                     </div>
+                    {/* Search */}
+                    <div className="relative">
+                      <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                      <input
+                        type="text"
+                        placeholder="Search by name, phone, ID number, or pass number..."
+                        value={passSearch}
+                        onChange={(e) => setPassSearch(e.target.value)}
+                        className="w-full bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted/60"
+                      />
+                      {passSearch && (
+                        <button onClick={() => setPassSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground">
+                          <XMarkIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                     {(!competitionData.citizenPasses || competitionData.citizenPasses.length === 0) ? (
                       <Card className="p-8 text-center">
                         <TicketIcon className="w-12 h-12 mx-auto text-muted mb-3" />
                         <p className="text-muted">No citizen passes issued yet.</p>
                       </Card>
-                    ) : (
-                      <div className="space-y-2">
-                        {competitionData.citizenPasses.map((pass) => (
-                          <Card key={pass.id} className="p-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-mono text-xs text-blue bg-blue/10 px-2 py-0.5 rounded">{pass.passNumber}</span>
-                                  <Badge variant={pass.paymentStatus === 'PAID' ? 'success' : pass.paymentStatus === 'PENDING' ? 'warning' : 'danger'}>
-                                    {pass.paymentStatus}
-                                  </Badge>
-                                </div>
-                                <p className="font-medium text-foreground mt-1">{pass.name}</p>
-                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted mt-1">
-                                  <span>📱 {pass.phone}</span>
-                                  {pass.email && <span>✉️ {pass.email}</span>}
-                                  <span>🪪 {pass.idProofType}: {pass.idProofNumber}</span>
-                                  <span>₹{pass.fee}</span>
-                                </div>
-                              </div>
-                              <div className="text-xs text-muted whitespace-nowrap">
-                                {new Date(pass.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                              </div>
-                            </div>
+                    ) : (() => {
+                      const q = passSearch.toLowerCase().trim();
+                      const filtered = q
+                        ? competitionData.citizenPasses.filter(p =>
+                            p.name.toLowerCase().includes(q) ||
+                            p.phone.includes(q) ||
+                            p.idProofNumber.toLowerCase().includes(q) ||
+                            p.passNumber.toLowerCase().includes(q) ||
+                            (p.email && p.email.toLowerCase().includes(q))
+                          )
+                        : competitionData.citizenPasses;
+                      if (filtered.length === 0) {
+                        return (
+                          <Card className="p-8 text-center">
+                            <MagnifyingGlassIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                            <p className="text-muted">No passes found matching &ldquo;{passSearch}&rdquo;</p>
                           </Card>
-                        ))}
-                      </div>
-                    )}
+                        );
+                      }
+                      return (
+                        <div className="space-y-2">
+                          {q && <p className="text-xs text-muted">Showing {filtered.length} of {competitionData.citizenPasses.length} passes</p>}
+                          {filtered.map((pass) => (
+                            <Card key={pass.id} className="p-4">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-mono text-xs text-blue bg-blue/10 px-2 py-0.5 rounded">{pass.passNumber}</span>
+                                    <Badge variant={pass.paymentStatus === 'PAID' ? 'success' : pass.paymentStatus === 'PENDING' ? 'warning' : 'danger'}>
+                                      {pass.paymentStatus}
+                                    </Badge>
+                                  </div>
+                                  <p className="font-medium text-foreground mt-1">{pass.name}</p>
+                                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted mt-1">
+                                    <span>📱 {pass.phone}</span>
+                                    {pass.email && <span>✉️ {pass.email}</span>}
+                                    <span>🪪 {pass.idProofType}: {pass.idProofNumber}</span>
+                                    <span>₹{pass.fee}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs text-muted whitespace-nowrap">
+                                    {new Date(pass.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                  </span>
+                                  <button
+                                    onClick={async () => {
+                                      if (!confirm(`Delete pass ${pass.passNumber} for ${pass.name}?`)) return;
+                                      setActionLoading(pass.id);
+                                      try {
+                                        const token = document.cookie.split('; ').find(c => c.startsWith('token='))?.split('=')[1];
+                                        const res = await fetch('/api/admin', {
+                                          method: 'PATCH',
+                                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                          body: JSON.stringify({ action: 'delete-citizen-pass', passId: pass.id }),
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) fetchCompetitionEntries();
+                                      } catch (err) { console.error(err); }
+                                      setActionLoading(null);
+                                    }}
+                                    disabled={actionLoading === pass.id}
+                                    className="text-red-400 hover:text-red-300 p-1 transition-colors"
+                                    title="Delete pass"
+                                  >
+                                    <TrashIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
 
