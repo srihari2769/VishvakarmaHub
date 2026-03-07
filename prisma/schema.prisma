@@ -462,6 +462,7 @@ model Competition {
   entries         CompetitionEntry[]
   judges          CompetitionJudge[]
   sponsors        CompetitionSponsor[]
+  citizenPasses   CitizenPass[]
 
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
@@ -560,4 +561,27 @@ model CompetitionVote {
   @@unique([userId, entryId])
   @@index([entryId])
   @@map("competition_votes")
+}
+
+model CitizenPass {
+  id              String   @id @default(cuid())
+  passNumber      String   @unique           // Unique pass number e.g. VH-2026-000001
+  name            String
+  phone           String
+  email           String?
+  idProofType     String                     // AADHAAR, PAN, VOTER
+  idProofNumber   String
+  fee             Float    @default(99)
+  paymentStatus   String   @default("PENDING") // PENDING, PAID, FAILED
+  razorpayOrderId String?
+  razorpayPaymentId String?
+
+  competitionId   String
+  competition     Competition @relation(fields: [competitionId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@index([competitionId])
+  @@index([passNumber])
+  @@map("citizen_passes")
 }

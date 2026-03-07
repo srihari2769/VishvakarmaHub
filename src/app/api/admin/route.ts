@@ -158,7 +158,8 @@ export async function GET(request: NextRequest) {
             },
             judges: { orderBy: { createdAt: 'asc' } },
             sponsors: { orderBy: { price: 'desc' } },
-            _count: { select: { entries: true } },
+            citizenPasses: { orderBy: { createdAt: 'desc' } },
+            _count: { select: { entries: true, citizenPasses: true } },
           },
         });
         return successResponse(competition);

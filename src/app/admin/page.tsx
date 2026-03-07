@@ -24,6 +24,7 @@ import {
   Cog6ToothIcon,
   TrophyIcon,
   PencilSquareIcon,
+  TicketIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -98,6 +99,20 @@ interface CompetitionEntryItem {
   _count: { votes: number };
 }
 
+interface CitizenPassItem {
+  id: string;
+  passNumber: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  idProofType: string;
+  idProofNumber: string;
+  fee: number;
+  paymentStatus: string;
+  razorpayPaymentId: string | null;
+  createdAt: string;
+}
+
 interface CompetitionData {
   id: string;
   name: string;
@@ -117,7 +132,8 @@ interface CompetitionData {
   entries: CompetitionEntryItem[];
   judges: CompetitionJudgeItem[];
   sponsors: CompetitionSponsorItem[];
-  _count: { entries: number };
+  citizenPasses: CitizenPassItem[];
+  _count: { entries: number; citizenPasses: number };
 }
 
 interface CompetitionJudgeItem {
@@ -172,7 +188,7 @@ export default function AdminPage() {
   const [compEditMode, setCompEditMode] = useState(false);
   const [compForm, setCompForm] = useState<Record<string, string | number>>({});
   const [compSaving, setCompSaving] = useState(false);
-  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges' | 'page-content'>('entries');
+  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
   const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
   const [editingJudge, setEditingJudge] = useState<string | null>(null);
@@ -1312,7 +1328,7 @@ export default function AdminPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">{competitionData.name}</h3>
                     <p className="text-sm text-muted">
-                      Phase: <span className="text-blue font-medium">{competitionData.currentPhase}</span> &middot; {competitionData._count.entries} entries
+                      Phase: <span className="text-blue font-medium">{competitionData.currentPhase}</span> &middot; {competitionData._count.entries} entries &middot; {competitionData._count.citizenPasses || 0} passes
                     </p>
                   </div>
                   <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
@@ -1320,7 +1336,7 @@ export default function AdminPage() {
 
                 {/* Sub-tabs */}
                 <div className="flex gap-1 bg-card rounded-lg p-1 flex-wrap">
-                  {(['entries', 'details', 'sponsors', 'judges', 'page-content'] as const).map((st) => (
+                  {(['entries', 'details', 'sponsors', 'judges', 'citizen-passes', 'page-content'] as const).map((st) => (
                     <button
                       key={st}
                       onClick={() => { setCompSubTab(st); if (st === 'page-content') initPageContentForm(); }}
@@ -1328,7 +1344,7 @@ export default function AdminPage() {
                         compSubTab === st ? 'bg-blue text-white' : 'text-muted hover:text-foreground'
                       }`}
                     >
-                      {st === 'page-content' ? 'Page Content' : st}
+                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st}
                     </button>
                   ))}
                 </div>
@@ -1635,6 +1651,56 @@ export default function AdminPage() {
                       </div>
                       <Button size="sm" onClick={addJudge}>Add Judge</Button>
                     </Card>
+                  </div>
+                )}
+
+                {/* Citizen Passes Sub-tab */}
+                {compSubTab === 'citizen-passes' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground">Citizen Entry Passes</h4>
+                        <p className="text-xs text-muted">
+                          {competitionData.citizenPasses?.filter(p => p.paymentStatus === 'PAID').length || 0} paid &middot;{' '}
+                          {competitionData.citizenPasses?.filter(p => p.paymentStatus === 'PENDING').length || 0} pending &middot;{' '}
+                          Total Revenue: ₹{(competitionData.citizenPasses?.filter(p => p.paymentStatus === 'PAID').reduce((sum, p) => sum + p.fee, 0) || 0).toLocaleString('en-IN')}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
+                    </div>
+                    {(!competitionData.citizenPasses || competitionData.citizenPasses.length === 0) ? (
+                      <Card className="p-8 text-center">
+                        <TicketIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                        <p className="text-muted">No citizen passes issued yet.</p>
+                      </Card>
+                    ) : (
+                      <div className="space-y-2">
+                        {competitionData.citizenPasses.map((pass) => (
+                          <Card key={pass.id} className="p-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-mono text-xs text-blue bg-blue/10 px-2 py-0.5 rounded">{pass.passNumber}</span>
+                                  <Badge variant={pass.paymentStatus === 'PAID' ? 'success' : pass.paymentStatus === 'PENDING' ? 'warning' : 'danger'}>
+                                    {pass.paymentStatus}
+                                  </Badge>
+                                </div>
+                                <p className="font-medium text-foreground mt-1">{pass.name}</p>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted mt-1">
+                                  <span>📱 {pass.phone}</span>
+                                  {pass.email && <span>✉️ {pass.email}</span>}
+                                  <span>🪪 {pass.idProofType}: {pass.idProofNumber}</span>
+                                  <span>₹{pass.fee}</span>
+                                </div>
+                              </div>
+                              <div className="text-xs text-muted whitespace-nowrap">
+                                {new Date(pass.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
