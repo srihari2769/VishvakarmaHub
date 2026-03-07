@@ -10,6 +10,7 @@ import {
   ShieldCheckIcon,
   IdentificationIcon,
 } from '@heroicons/react/24/outline';
+import html2canvas from 'html2canvas-pro';
 
 declare global {
   interface Window {
@@ -140,79 +141,144 @@ export default function CitizenEntryPage() {
     }
   };
 
+  const downloadPass = async () => {
+    if (!passRef.current) return;
+    try {
+      const canvas = await html2canvas(passRef.current, {
+        backgroundColor: '#0B0F1A',
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `Entry-Pass-${passData?.passNumber || 'VH'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
   // Event Pass view
   if (passData) {
     return (
       <div className="min-h-screen bg-background pt-24 pb-16 px-4">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            {/* Event Pass Card */}
-            <div ref={passRef} className="bg-gradient-to-br from-[#111827] to-[#1a1f36] rounded-3xl border border-indigo-500/30 overflow-hidden shadow-2xl shadow-indigo-500/10">
-              {/* Pass Header */}
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 text-center">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <TicketIcon className="w-5 h-5 text-white/80" />
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">Event Entry Pass</span>
+            {/* Ticket-style Entry Pass */}
+            <div ref={passRef} className="flex rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/10 border border-indigo-500/20" style={{ minHeight: 320 }}>
+              {/* Left Stub (Red) */}
+              <div className="relative w-24 sm:w-28 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 flex flex-col items-center justify-between py-6 px-2">
+                {/* Perforated edge (right side of stub) */}
+                <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between py-2">
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <div key={i} className="w-3 h-3 rounded-full bg-[#0B0F1A]" style={{ marginRight: -6 }} />
+                  ))}
                 </div>
-                <h2 className="text-xl font-black text-white">Vishvakarma Innovation Challenge 2026</h2>
+
+                {/* Rotated Pass Number */}
+                <div className="flex-1 flex items-center justify-center">
+                  <span className="text-white font-mono font-bold text-xs tracking-wider" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)' }}>
+                    {passData.passNumber}
+                  </span>
+                </div>
+
+                {/* Barcode-style lines */}
+                <div className="flex gap-[2px] mt-3">
+                  {Array.from({ length: 16 }).map((_, i) => (
+                    <div key={i} className="bg-white/90" style={{ width: i % 3 === 0 ? 3 : 1.5, height: 40 + (i % 4) * 5 }} />
+                  ))}
+                </div>
               </div>
 
-              {/* Pass Number */}
-              <div className="text-center py-4 border-b border-white/10">
-                <span className="text-xs text-muted uppercase tracking-wider">Pass Number</span>
-                <p className="text-2xl font-mono font-black text-indigo-400 tracking-wider mt-1">{passData.passNumber}</p>
-              </div>
-
-              {/* User Details */}
-              <div className="px-6 py-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted uppercase tracking-wider">Name</span>
-                  <span className="text-foreground font-bold text-sm">{passData.name}</span>
-                </div>
-                <div className="border-t border-white/5" />
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted uppercase tracking-wider">Phone</span>
-                  <span className="text-foreground font-medium text-sm">{passData.phone}</span>
-                </div>
-                {passData.email && (
-                  <>
-                    <div className="border-t border-white/5" />
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted uppercase tracking-wider">Email</span>
-                      <span className="text-foreground font-medium text-sm">{passData.email}</span>
+              {/* Main Ticket Body (Dark) */}
+              <div className="flex-1 bg-gradient-to-br from-[#0f1729] to-[#1a1f36] flex flex-col">
+                {/* Ticket header border */}
+                <div className="mx-5 mt-5 mb-3 border-2 border-red-500/60 rounded-xl p-4">
+                  {/* Top row */}
+                  <div className="text-center">
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-wider" style={{ color: '#d4a843', fontFamily: 'Georgia, serif' }}>
+                      ENTRY PASS
+                    </h2>
+                    <div className="flex items-center justify-center gap-2 mt-1">
+                      <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-[#d4a843]" />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: '#d4a843' }}>Vishvakarma Innovation Challenge 2026</span>
+                      <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-[#d4a843]" />
                     </div>
-                  </>
-                )}
-                <div className="border-t border-white/5" />
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted uppercase tracking-wider">ID Proof</span>
-                  <span className="text-foreground font-medium text-sm">{ID_PROOF_LABELS[passData.idProofType] || passData.idProofType}</span>
+                  </div>
+
+                  {/* Pass number badge */}
+                  <div className="flex justify-center mt-3">
+                    <div className="bg-[#1a1f36] border border-[#d4a843]/50 px-4 py-1 rounded">
+                      <span className="text-xs font-mono font-bold tracking-widest" style={{ color: '#d4a843' }}>{passData.passNumber}</span>
+                    </div>
+                  </div>
+
+                  {/* ADMIT ONE */}
+                  <p className="text-center mt-2 text-sm font-bold uppercase tracking-[0.3em]" style={{ color: '#d4a843', fontFamily: 'Georgia, serif' }}>
+                    Admit One
+                  </p>
                 </div>
-                <div className="border-t border-white/5" />
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted uppercase tracking-wider">Entry Fee</span>
-                  <span className="text-green-400 font-bold text-sm">₹{passData.fee} PAID ✓</span>
+
+                {/* User Details */}
+                <div className="px-5 py-3 space-y-2 flex-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-muted uppercase tracking-wider font-medium">Name</span>
+                    <span className="text-foreground font-bold text-sm">{passData.name}</span>
+                  </div>
+                  <div className="border-t border-white/5" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-muted uppercase tracking-wider font-medium">Phone</span>
+                    <span className="text-foreground font-medium text-sm">{passData.phone}</span>
+                  </div>
+                  {passData.email && (
+                    <>
+                      <div className="border-t border-white/5" />
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] text-muted uppercase tracking-wider font-medium">Email</span>
+                        <span className="text-foreground font-medium text-sm">{passData.email}</span>
+                      </div>
+                    </>
+                  )}
+                  <div className="border-t border-white/5" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-muted uppercase tracking-wider font-medium">ID Proof</span>
+                    <span className="text-foreground font-medium text-sm">{ID_PROOF_LABELS[passData.idProofType] || passData.idProofType}</span>
+                  </div>
+                  <div className="border-t border-white/5" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-muted uppercase tracking-wider font-medium">Entry Fee</span>
+                    <span className="text-green-400 font-bold text-sm">₹{passData.fee} PAID ✓</span>
+                  </div>
+                </div>
+
+                {/* ID Warning */}
+                <div className="mx-5 mb-3 p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <ShieldCheckIcon className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-amber-200/80 leading-relaxed">
+                      Bring your original <strong className="text-amber-300">{ID_PROOF_LABELS[passData.idProofType]}</strong> to the venue for verification.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Footer with stamp */}
+                <div className="border-t border-white/10 px-5 py-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] text-muted/60">
+                      An initiative by <span className="text-foreground/70 font-medium">Trinetrashakti Innovations Pvt Ltd</span>
+                    </p>
+                    <p className="text-[8px] text-muted/40">Startup India Recognized</p>
+                  </div>
+                  <img src="/Stamp.png" alt="Verified Stamp" className="w-16 h-16 object-contain opacity-70" />
                 </div>
               </div>
 
-              {/* Instructions */}
-              <div className="mx-6 mb-5 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                <div className="flex items-start gap-2">
-                  <ShieldCheckIcon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-200/80 leading-relaxed">
-                    Please bring your original <strong className="text-amber-300">{ID_PROOF_LABELS[passData.idProofType]}</strong> and show it along with this entry pass at the security checkpoint.
-                  </p>
-                </div>
-              </div>
-
-              {/* Stamp / Branding */}
-              <div className="border-t border-white/10 px-6 py-5 text-center relative">
-                <div className="inline-flex flex-col items-center">
-                  <img src="/Stamp.png" alt="VH 2026 Verified Stamp" className="w-28 h-28 object-contain opacity-80" />
-                  <p className="text-[10px] text-muted/60 mt-3">
-                    An initiative by <span className="text-foreground/70 font-medium">Trinetrashakti Innovations Pvt Ltd</span>
-                  </p>
-                  <p className="text-[9px] text-muted/40">Startup India Recognized</p>
+              {/* Right edge - serrated */}
+              <div className="w-4 flex-shrink-0 bg-gradient-to-b from-[#0f1729] to-[#1a1f36] relative">
+                <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between py-2">
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <div key={i} className="w-3 h-3 rounded-full bg-[#0B0F1A]" style={{ marginRight: -6 }} />
+                  ))}
                 </div>
               </div>
             </div>
@@ -222,30 +288,8 @@ export default function CitizenEntryPage() {
               <Link href="/competition">
                 <Button size="lg">View Competition</Button>
               </Link>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  if (passRef.current) {
-                    const printWindow = window.open('', '_blank');
-                    if (printWindow) {
-                      const html = passRef.current.outerHTML.replace('/Stamp.png', `${window.location.origin}/Stamp.png`);
-                      printWindow.document.write(`
-                        <html><head><title>Entry Pass - ${passData.passNumber}</title>
-                        <style>
-                          body { margin: 0; padding: 40px; background: #0B0F1A; display: flex; justify-content: center; }
-                          @media print { body { background: white; } }
-                        </style></head><body>
-                        ${html}
-                        <script>setTimeout(() => window.print(), 500);</script>
-                        </body></html>
-                      `);
-                      printWindow.document.close();
-                    }
-                  }
-                }}
-              >
-                Print / Save Pass
+              <Button variant="outline" size="lg" onClick={downloadPass}>
+                Download Entry Pass
               </Button>
             </div>
           </motion.div>
