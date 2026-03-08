@@ -113,6 +113,23 @@ interface CitizenPassItem {
   createdAt: string;
 }
 
+interface SponsorRegistrationItem {
+  id: string;
+  sponsorId: string;
+  tier: string;
+  companyName: string;
+  contactPerson: string;
+  designation: string;
+  email: string;
+  phone: string;
+  website: string | null;
+  gstNumber: string | null;
+  amount: number;
+  paymentStatus: string;
+  razorpayPaymentId: string | null;
+  createdAt: string;
+}
+
 interface CompetitionData {
   id: string;
   name: string;
@@ -133,7 +150,8 @@ interface CompetitionData {
   judges: CompetitionJudgeItem[];
   sponsors: CompetitionSponsorItem[];
   citizenPasses: CitizenPassItem[];
-  _count: { entries: number; citizenPasses: number };
+  sponsorRegistrations: SponsorRegistrationItem[];
+  _count: { entries: number; citizenPasses: number; sponsorRegistrations: number };
 }
 
 interface CompetitionJudgeItem {
@@ -188,7 +206,7 @@ export default function AdminPage() {
   const [compEditMode, setCompEditMode] = useState(false);
   const [compForm, setCompForm] = useState<Record<string, string | number>>({});
   const [compSaving, setCompSaving] = useState(false);
-  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
+  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges' | 'citizen-passes' | 'sponsor-registrations' | 'page-content'>('entries');
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
   const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
   const [editingJudge, setEditingJudge] = useState<string | null>(null);
@@ -196,6 +214,7 @@ export default function AdminPage() {
   const [pageContentForm, setPageContentForm] = useState<Record<string, unknown>>({});
   const [pageContentSaving, setPageContentSaving] = useState(false);
   const [passSearch, setPassSearch] = useState('');
+  const [sponsorRegSearch, setSponsorRegSearch] = useState('');
 
   useEffect(() => {
     checkAuth();
@@ -1329,7 +1348,7 @@ export default function AdminPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">{competitionData.name}</h3>
                     <p className="text-sm text-muted">
-                      Phase: <span className="text-blue font-medium">{competitionData.currentPhase}</span> &middot; {competitionData._count.entries} entries &middot; {competitionData._count.citizenPasses || 0} passes
+                      Phase: <span className="text-blue font-medium">{competitionData.currentPhase}</span> &middot; {competitionData._count.entries} entries &middot; {competitionData._count.citizenPasses || 0} passes &middot; {competitionData._count.sponsorRegistrations || 0} sponsor apps
                     </p>
                   </div>
                   <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
@@ -1337,7 +1356,7 @@ export default function AdminPage() {
 
                 {/* Sub-tabs */}
                 <div className="flex gap-1 bg-card rounded-lg p-1 flex-wrap">
-                  {(['entries', 'details', 'sponsors', 'judges', 'citizen-passes', 'page-content'] as const).map((st) => (
+                  {(['entries', 'details', 'sponsors', 'judges', 'citizen-passes', 'sponsor-registrations', 'page-content'] as const).map((st) => (
                     <button
                       key={st}
                       onClick={() => { setCompSubTab(st); if (st === 'page-content') initPageContentForm(); }}
@@ -1345,7 +1364,7 @@ export default function AdminPage() {
                         compSubTab === st ? 'bg-blue text-white' : 'text-muted hover:text-foreground'
                       }`}
                     >
-                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st}
+                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st === 'sponsor-registrations' ? `Sponsor Apps (${competitionData?.sponsorRegistrations?.length || 0})` : st}
                     </button>
                   ))}
                 </div>
@@ -1753,6 +1772,121 @@ export default function AdminPage() {
                                     disabled={actionLoading === pass.id}
                                     className="text-red-400 hover:text-red-300 p-1 transition-colors"
                                     title="Delete pass"
+                                  >
+                                    <TrashIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* Sponsor Registrations Sub-tab */}
+                {compSubTab === 'sponsor-registrations' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground">Sponsor Applications</h4>
+                        <p className="text-xs text-muted">
+                          {competitionData.sponsorRegistrations?.filter(r => r.paymentStatus === 'PAID').length || 0} paid &middot;{' '}
+                          {competitionData.sponsorRegistrations?.filter(r => r.paymentStatus === 'PENDING').length || 0} pending &middot;{' '}
+                          Total Revenue: ₹{(competitionData.sponsorRegistrations?.filter(r => r.paymentStatus === 'PAID').reduce((sum, r) => sum + r.amount, 0) || 0).toLocaleString('en-IN')}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
+                    </div>
+                    {/* Search */}
+                    <div className="relative">
+                      <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                      <input
+                        type="text"
+                        placeholder="Search by company, contact, email, sponsor ID, or tier..."
+                        value={sponsorRegSearch}
+                        onChange={(e) => setSponsorRegSearch(e.target.value)}
+                        className="w-full bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted/60"
+                      />
+                      {sponsorRegSearch && (
+                        <button onClick={() => setSponsorRegSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground">
+                          <XMarkIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    {(!competitionData.sponsorRegistrations || competitionData.sponsorRegistrations.length === 0) ? (
+                      <Card className="p-8 text-center">
+                        <BanknotesIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                        <p className="text-muted">No sponsor applications yet.</p>
+                      </Card>
+                    ) : (() => {
+                      const q = sponsorRegSearch.toLowerCase().trim();
+                      const filtered = q
+                        ? competitionData.sponsorRegistrations.filter(r =>
+                            r.companyName.toLowerCase().includes(q) ||
+                            r.contactPerson.toLowerCase().includes(q) ||
+                            r.email.toLowerCase().includes(q) ||
+                            r.sponsorId.toLowerCase().includes(q) ||
+                            r.tier.toLowerCase().includes(q) ||
+                            r.phone.includes(q)
+                          )
+                        : competitionData.sponsorRegistrations;
+                      if (filtered.length === 0) {
+                        return (
+                          <Card className="p-8 text-center">
+                            <MagnifyingGlassIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                            <p className="text-muted">No registrations found matching &ldquo;{sponsorRegSearch}&rdquo;</p>
+                          </Card>
+                        );
+                      }
+                      return (
+                        <div className="space-y-2">
+                          {q && <p className="text-xs text-muted">Showing {filtered.length} of {competitionData.sponsorRegistrations.length} registrations</p>}
+                          {filtered.map((reg) => (
+                            <Card key={reg.id} className="p-4">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-mono text-xs text-purple bg-purple/10 px-2 py-0.5 rounded">{reg.sponsorId}</span>
+                                    <span className="text-xs text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded font-medium">{reg.tier.replace(/_/g, ' ')}</span>
+                                    <Badge variant={reg.paymentStatus === 'PAID' ? 'success' : reg.paymentStatus === 'PENDING' ? 'warning' : 'danger'}>
+                                      {reg.paymentStatus}
+                                    </Badge>
+                                  </div>
+                                  <p className="font-medium text-foreground mt-1">{reg.companyName}</p>
+                                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted mt-1">
+                                    <span>👤 {reg.contactPerson} ({reg.designation})</span>
+                                    <span>📱 {reg.phone}</span>
+                                    <span>✉️ {reg.email}</span>
+                                    {reg.website && <span>🌐 {reg.website}</span>}
+                                    {reg.gstNumber && <span>📋 GST: {reg.gstNumber}</span>}
+                                    <span className="font-semibold text-green-400">₹{reg.amount.toLocaleString('en-IN')}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs text-muted whitespace-nowrap">
+                                    {new Date(reg.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                  </span>
+                                  <button
+                                    onClick={async () => {
+                                      if (!confirm(`Delete sponsor registration ${reg.sponsorId} for ${reg.companyName}?`)) return;
+                                      setActionLoading(reg.id);
+                                      try {
+                                        const token = document.cookie.split('; ').find(c => c.startsWith('token='))?.split('=')[1];
+                                        const res = await fetch('/api/admin', {
+                                          method: 'PATCH',
+                                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                          body: JSON.stringify({ action: 'delete-sponsor-registration', registrationId: reg.id }),
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) fetchCompetitionEntries();
+                                      } catch (err) { console.error(err); }
+                                      setActionLoading(null);
+                                    }}
+                                    disabled={actionLoading === reg.id}
+                                    className="text-red-400 hover:text-red-300 p-1 transition-colors"
+                                    title="Delete registration"
                                   >
                                     <TrashIcon className="w-4 h-4" />
                                   </button>

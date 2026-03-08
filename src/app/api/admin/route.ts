@@ -159,7 +159,8 @@ export async function GET(request: NextRequest) {
             judges: { orderBy: { createdAt: 'asc' } },
             sponsors: { orderBy: { price: 'desc' } },
             citizenPasses: { orderBy: { createdAt: 'desc' } },
-            _count: { select: { entries: true, citizenPasses: true } },
+            sponsorRegistrations: { orderBy: { createdAt: 'desc' } },
+            _count: { select: { entries: true, citizenPasses: true, sponsorRegistrations: true } },
           },
         });
         return successResponse(competition);
@@ -362,6 +363,13 @@ export async function PATCH(request: NextRequest) {
         if (!passId) return errorResponse('Pass ID required', 400);
         await prisma.citizenPass.delete({ where: { id: passId } });
         return successResponse({ message: 'Citizen pass deleted' });
+      }
+
+      case 'delete-sponsor-registration': {
+        const { registrationId: delRegId } = body;
+        if (!delRegId) return errorResponse('Registration ID required', 400);
+        await prisma.sponsorRegistration.delete({ where: { id: delRegId } });
+        return successResponse({ message: 'Sponsor registration deleted' });
       }
 
       default:

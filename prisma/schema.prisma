@@ -463,6 +463,7 @@ model Competition {
   judges          CompetitionJudge[]
   sponsors        CompetitionSponsor[]
   citizenPasses   CitizenPass[]
+  sponsorRegistrations SponsorRegistration[]
 
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
@@ -484,6 +485,34 @@ model CompetitionSponsor {
   createdAt       DateTime @default(now())
 
   @@map("competition_sponsors")
+}
+
+model SponsorRegistration {
+  id                  String   @id @default(cuid())
+  sponsorId           String   @unique // e.g. SPR-2026-000001
+  tier                String   // TITLE, PLATINUM, GOLD, SILVER, STARTUP_PARTNER, INNOVATION_PARTNER, COMMUNITY_PARTNER, STAGE, MEDIA, AWARD
+
+  // Organization details
+  companyName         String
+  contactPerson       String
+  designation         String
+  email               String
+  phone               String
+  website             String?
+  gstNumber           String?
+
+  // Payment
+  amount              Float
+  paymentStatus       String   @default("PENDING") // PENDING, PAID, FAILED
+  razorpayOrderId     String?
+  razorpayPaymentId   String?
+
+  competitionId       String
+  competition         Competition @relation(fields: [competitionId], references: [id])
+
+  createdAt           DateTime @default(now())
+
+  @@map("sponsor_registrations")
 }
 
 model CompetitionEntry {
