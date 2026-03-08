@@ -16,7 +16,7 @@ const ALLOWED_PATHS = [
 // Simple in-memory cache for Edge Runtime
 let cachedComingSoon: boolean | null = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 30_000; // 30 seconds
+const CACHE_TTL = 15_000; // 15 seconds
 
 async function isComingSoon(origin: string): Promise<boolean> {
   const now = Date.now();
@@ -26,7 +26,7 @@ async function isComingSoon(origin: string): Promise<boolean> {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
 
     const res = await fetch(`${origin}/api/site-settings`, {
       signal: controller.signal,
@@ -66,7 +66,10 @@ export async function middleware(request: NextRequest) {
   if (comingSoon) {
     const url = request.nextUrl.clone();
     url.pathname = '/coming-soon';
-    return NextResponse.redirect(url);
+    const response = NextResponse.redirect(url, 307);
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('x-middleware-cache', 'no-cache');
+    return response;
   }
 
   return NextResponse.next();
