@@ -453,9 +453,13 @@ export default function AdminPage() {
       boothFeatures: 'Product Demo Space, Branded Backdrop, Power & Wi-Fi, Visitor Footfall',
       sponsorPackageTitle: 'Become a Sponsor',
       sponsorPackageSubtitle: "Partner with us and get unparalleled visibility in India's biggest startup competition",
-      titleSponsorPrice: '₹1,00,000 – ₹2,00,000',
+      titleSponsorPrice: '₹5,00,000',
       titleSponsorBenefits: 'Event named "powered by [Sponsor]", Logo on stage backdrop, 5–10 min keynote speech, Premium branding across website, Media coverage mention, Startup exhibition booth, Direct access to top startups',
-      platinumSponsorPrice: '₹75,000',
+      presentingSponsorPrice: '₹3,00,000',
+      presentingSponsorBenefits: 'Co-branded event title, Logo on stage backdrop, 5 min keynote slot, Premium branding on website, Media coverage mention, VIP booth at exhibition',
+      diamondSponsorPrice: '₹2,00,000',
+      diamondSponsorBenefits: 'Logo on event banners and stage, Featured website section, Social media promotion, Exhibition booth, VIP networking access, Award ceremony mention',
+      platinumSponsorPrice: '₹1,00,000',
       platinumSponsorBenefits: 'Logo on event banners, Featured website placement, Social media promotion, Booth at startup exhibition, VIP networking access',
       goldSponsorPrice: '₹50,000',
       goldSponsorBenefits: 'Logo on website, Social media promotion, Startup booth, Event mention during ceremony',
@@ -1967,6 +1971,28 @@ export default function AdminPage() {
                         <div>
                           <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
                           <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.titleSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, titleSponsorBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Presenting Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.presentingSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, presentingSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.presentingSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, presentingSponsorBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Diamond Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.diamondSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, diamondSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.diamondSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, diamondSponsorBenefits: e.target.value })} />
                         </div>
                       </div>
                       <p className="text-xs text-muted font-semibold mt-2">Platinum Sponsor</p>
