@@ -955,21 +955,55 @@ export default function CompetitionPage() {
                     <h3 className="text-xl font-bold text-foreground">Title Sponsor</h3>
                     <Badge variant="warning">Most Premium</Badge>
                   </div>
-                  <p className="text-2xl font-bold text-yellow-400 mb-4">{pcs('titleSponsorPrice', '₹1,00,000 – ₹2,00,000')}</p>
+                  <p className="text-2xl font-bold text-yellow-400 mb-4">{pcs('titleSponsorPrice', '₹5,00,000')}</p>
                   <div className="grid sm:grid-cols-2 gap-2 text-sm text-muted">
                     {pcList('titleSponsorBenefits', 'Event named \u201cpowered by [Sponsor]\u201d, Logo on stage backdrop, 5–10 min keynote speech, Premium branding across website, Media coverage mention, Startup exhibition booth, Direct access to top startups').map((b, i) => (
                       <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>{b}</span></div>
                     ))}
                   </div>
-                  <div className="mt-4">
-                    <Link href="/competition/sponsor?tier=TITLE">
-                      <Button size="sm">Become Title Sponsor →</Button>
-                    </Link>
-                  </div>
                 </div>
               </div>
             </Card>
           </motion.div>
+
+          {/* Presenting + Diamond — Row */}
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+              <Card className="p-6 border-rose-400/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-rose-400 via-pink-400 to-rose-400" />
+                <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-rose-400/10 to-transparent rounded-bl-full" />
+                <StarIcon className="w-10 h-10 text-rose-400 mb-3" />
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-bold text-foreground">Presenting Sponsor</h3>
+                  <Badge variant="danger">Premium</Badge>
+                </div>
+                <p className="text-2xl font-bold text-rose-400 mb-4">{pcs('presentingSponsorPrice', '₹3,00,000')}</p>
+                <div className="space-y-2 text-sm text-muted">
+                  {pcList('presentingSponsorBenefits', 'Co-branded event title, Logo on stage backdrop, 5 min keynote slot, Premium branding on website, Media coverage mention, VIP booth at exhibition').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-rose-400 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="p-6 border-sky-400/30 relative overflow-hidden h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-400 via-blue-400 to-sky-400" />
+                <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-sky-400/10 to-transparent rounded-bl-full" />
+                <StarIcon className="w-10 h-10 text-sky-400 mb-3" />
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-bold text-foreground">Diamond Sponsor</h3>
+                  <Badge variant="info">Elite</Badge>
+                </div>
+                <p className="text-2xl font-bold text-sky-400 mb-4">{pcs('diamondSponsorPrice', '₹2,00,000')}</p>
+                <div className="space-y-2 text-sm text-muted">
+                  {pcList('diamondSponsorBenefits', 'Logo on event banners and stage, Featured website section, Social media promotion, Exhibition booth, VIP networking access, Award ceremony mention').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-sky-400 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </Card>
+            </motion.div>
+          </div>
 
           {/* Platinum + Gold — Row */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -981,16 +1015,11 @@ export default function CompetitionPage() {
                   <h3 className="text-lg font-bold text-foreground">Platinum Sponsor</h3>
                   <Badge variant="info">Popular</Badge>
                 </div>
-                <p className="text-2xl font-bold text-purple mb-4">{pcs('platinumSponsorPrice', '₹75,000')}</p>
+                <p className="text-2xl font-bold text-purple mb-4">{pcs('platinumSponsorPrice', '₹1,00,000')}</p>
                 <div className="space-y-2 text-sm text-muted">
                   {pcList('platinumSponsorBenefits', 'Logo on event banners, Featured website placement, Social media promotion, Booth at startup exhibition, VIP networking access').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>{b}</span></div>
                   ))}
-                </div>
-                <div className="mt-4">
-                  <Link href="/competition/sponsor?tier=PLATINUM">
-                    <Button size="sm" variant="outline">Become Sponsor →</Button>
-                  </Link>
                 </div>
               </Card>
             </motion.div>
@@ -1005,11 +1034,6 @@ export default function CompetitionPage() {
                   {pcList('goldSponsorBenefits', 'Logo on website, Social media promotion, Startup booth, Event mention during ceremony').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>{b}</span></div>
                   ))}
-                </div>
-                <div className="mt-4">
-                  <Link href="/competition/sponsor?tier=GOLD">
-                    <Button size="sm" variant="outline">Become Sponsor →</Button>
-                  </Link>
                 </div>
               </Card>
             </motion.div>
@@ -1028,11 +1052,6 @@ export default function CompetitionPage() {
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>{b}</span></div>
                   ))}
                 </div>
-                <div className="mt-3">
-                  <Link href="/competition/sponsor?tier=SILVER">
-                    <Button size="sm" variant="outline">Sponsor →</Button>
-                  </Link>
-                </div>
               </Card>
             </motion.div>
 
@@ -1046,11 +1065,6 @@ export default function CompetitionPage() {
                   {pcList('startupPartnerBenefits', 'Logo on competition page, Social media mention, Access to startup database').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>{b}</span></div>
                   ))}
-                </div>
-                <div className="mt-3">
-                  <Link href="/competition/sponsor?tier=STARTUP_PARTNER">
-                    <Button size="sm" variant="outline">Sponsor →</Button>
-                  </Link>
                 </div>
               </Card>
             </motion.div>
@@ -1066,11 +1080,6 @@ export default function CompetitionPage() {
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>{b}</span></div>
                   ))}
                 </div>
-                <div className="mt-3">
-                  <Link href="/competition/sponsor?tier=INNOVATION_PARTNER">
-                    <Button size="sm" variant="outline">Sponsor →</Button>
-                  </Link>
-                </div>
               </Card>
             </motion.div>
 
@@ -1084,11 +1093,6 @@ export default function CompetitionPage() {
                   {pcList('communityPartnerBenefits', 'Brand mention, Website listing').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>{b}</span></div>
                   ))}
-                </div>
-                <div className="mt-3">
-                  <Link href="/competition/sponsor?tier=COMMUNITY_PARTNER">
-                    <Button size="sm" variant="outline">Sponsor →</Button>
-                  </Link>
                 </div>
               </Card>
             </motion.div>
@@ -1107,10 +1111,7 @@ export default function CompetitionPage() {
                 </div>
                 <h4 className="font-bold text-foreground mb-1">🎤 {pcs('stageSponsorTitle', 'Stage Sponsor')}</h4>
                 <p className="text-lg font-bold text-cyan-400 mb-2">{pcs('stageSponsorPrice', '₹40,000')}</p>
-                <p className="text-sm text-muted mb-3">{pcs('stageSponsorDesc', 'Branding on main stage backdrop')}</p>
-                <Link href="/competition/sponsor?tier=STAGE">
-                  <Button size="sm" variant="outline">Sponsor →</Button>
-                </Link>
+                <p className="text-sm text-muted">{pcs('stageSponsorDesc', 'Branding on main stage backdrop')}</p>
               </Card>
 
               <Card className="p-5 border-red-400/20 text-center h-full">
@@ -1119,10 +1120,7 @@ export default function CompetitionPage() {
                 </div>
                 <h4 className="font-bold text-foreground mb-1">🎥 {pcs('mediaSponsorTitle', 'Media Sponsor')}</h4>
                 <p className="text-lg font-bold text-red-400 mb-2">{pcs('mediaSponsorPrice', '₹30,000')}</p>
-                <p className="text-sm text-muted mb-3">{pcs('mediaSponsorDesc', 'Logo in all videos and livestream')}</p>
-                <Link href="/competition/sponsor?tier=MEDIA">
-                  <Button size="sm" variant="outline">Sponsor →</Button>
-                </Link>
+                <p className="text-sm text-muted">{pcs('mediaSponsorDesc', 'Logo in all videos and livestream')}</p>
               </Card>
 
               <Card className="p-5 border-yellow-400/20 text-center h-full">
@@ -1131,10 +1129,7 @@ export default function CompetitionPage() {
                 </div>
                 <h4 className="font-bold text-foreground mb-1">🏆 {pcs('awardSponsorTitle', 'Award Sponsor')}</h4>
                 <p className="text-lg font-bold text-yellow-400 mb-2">{pcs('awardSponsorPrice', '₹20,000')}</p>
-                <p className="text-sm text-muted mb-3">{pcs('awardSponsorDesc', 'Sponsor name on winner trophies')}</p>
-                <Link href="/competition/sponsor?tier=AWARD">
-                  <Button size="sm" variant="outline">Sponsor →</Button>
-                </Link>
+                <p className="text-sm text-muted">{pcs('awardSponsorDesc', 'Sponsor name on winner trophies')}</p>
               </Card>
             </div>
           </motion.div>
