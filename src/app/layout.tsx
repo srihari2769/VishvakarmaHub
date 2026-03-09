@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.vishvakarmahub.com'),
   title: {
     default: "Vishvakarma Hub - From Idea to Innovation",
     template: "%s | Vishvakarma Hub",
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
     description:
       "A platform where innovators submit ideas, teams form, the public supports projects, and startups are launched.",
     type: "website",
+    url: "https://www.vishvakarmahub.com",
     locale: "en_IN",
     siteName: "Vishvakarma Hub",
   },

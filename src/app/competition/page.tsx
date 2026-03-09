@@ -232,8 +232,8 @@ export default function CompetitionPage() {
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   };
 
-  const shareUrl = 'https://vishvakarmahub.vercel.app/competition';
-  const applyUrl = 'https://vishvakarmahub.vercel.app/competition/register';
+  const shareUrl = 'https://www.vishvakarmahub.com/competition';
+  const applyUrl = 'https://www.vishvakarmahub.com/competition/register';
   const shareTitle = competition?.name || 'Vishvakarma Innovation Challenge 2026';
   const shareText = `${shareTitle} — ${competition?.tagline || "India's Biggest Startup Competition"}\n\n🚀 Register your startup and compete for amazing prizes!\n🎓 Students: ₹${competition?.studentFee || 199} | 💼 Founders: ₹${competition?.founderFee || 499}\n\nOrganized by Trinetrashakti Innovations Pvt Ltd (Startup India Recognized)\n\n🔗 Competition Page: ${shareUrl}\n✅ Apply Now: ${applyUrl}`;
 

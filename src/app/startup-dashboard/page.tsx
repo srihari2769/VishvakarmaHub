@@ -866,7 +866,7 @@ export default function StartupDashboardPage() {
                     <div className="flex-1 px-4 py-3 bg-background border border-border rounded-lg text-foreground text-sm font-mono break-all">
                       {typeof window !== 'undefined'
                         ? `${window.location.origin}/signup?ref=${referralData.referralCode}`
-                        : `https://vishvakarmahub.vercel.app/signup?ref=${referralData.referralCode}`}
+                        : `https://www.vishvakarmahub.com/signup?ref=${referralData.referralCode}`}
                     </div>
                     <Button
                       variant="outline"
