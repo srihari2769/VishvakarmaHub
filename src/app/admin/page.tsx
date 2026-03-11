@@ -205,7 +205,11 @@ export default function AdminPage() {
   const [compSaving, setCompSaving] = useState(false);
   const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'campus-partners' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
+  const [editingSponsor, setEditingSponsor] = useState<string | null>(null);
+  const [editSponsorForm, setEditSponsorForm] = useState({ tier: '', sponsorName: '', price: '', benefits: '', logo: '' });
   const [partnerForm, setPartnerForm] = useState({ partnerName: '', partnerLogo: '', partnerWebsite: '' });
+  const [editingPartner, setEditingPartner] = useState<string | null>(null);
+  const [editPartnerForm, setEditPartnerForm] = useState({ partnerName: '', partnerLogo: '', partnerWebsite: '' });
   const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
   const [editingJudge, setEditingJudge] = useState<string | null>(null);
   const [editJudgeForm, setEditJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
@@ -377,6 +381,21 @@ export default function AdminPage() {
     } catch {}
   };
 
+  const editSponsor = async (id: string) => {
+    if (!editSponsorForm.sponsorName || !editSponsorForm.price) return alert('Name and price are required');
+    try {
+      const token = localStorage.getItem('token');
+      const benefits = editSponsorForm.benefits ? editSponsorForm.benefits.split(',').map(b => b.trim()).filter(Boolean) : [];
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'edit-sponsor', sponsorId: id, tier: editSponsorForm.tier, sponsorName: editSponsorForm.sponsorName, logo: editSponsorForm.logo || undefined, price: editSponsorForm.price, benefits }),
+      });
+      const data = await res.json();
+      if (data.success) { setEditingSponsor(null); fetchCompetitionEntries(); }
+    } catch {}
+  };
+
   const addCampusPartner = async () => {
     if (!partnerForm.partnerName) return alert('Partner name is required');
     try {
@@ -401,6 +420,20 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) fetchCompetitionEntries();
+    } catch {}
+  };
+
+  const editCampusPartner = async (id: string) => {
+    if (!editPartnerForm.partnerName) return alert('Partner name is required');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'edit-campus-partner', partnerId: id, ...editPartnerForm }),
+      });
+      const data = await res.json();
+      if (data.success) { setEditingPartner(null); fetchCompetitionEntries(); }
     } catch {}
   };
 
@@ -1618,18 +1651,50 @@ export default function AdminPage() {
                       <div className="space-y-3">
                         {competitionData.sponsors.map((s) => (
                           <Card key={s.id} className="p-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
-                                {s.logo ? <img src={s.logo} alt="" className="w-full h-full object-cover" /> : <BanknotesIcon className="w-5 h-5 text-muted" />}
+                            {editingSponsor === s.id ? (
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <select className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editSponsorForm.tier} onChange={(e) => setEditSponsorForm({ ...editSponsorForm, tier: e.target.value })}>
+                                    <option value="PRESENTING">Presenting Sponsor</option>
+                                    <option value="DIAMOND">Diamond Sponsor</option>
+                                    <option value="TITLE">Title Sponsor</option>
+                                    <option value="PLATINUM">Platinum Sponsor</option>
+                                    <option value="GOLD">Gold Sponsor</option>
+                                    <option value="SILVER">Silver Sponsor</option>
+                                    <option value="STARTUP_PARTNER">Startup Partner</option>
+                                    <option value="INNOVATION_PARTNER">Innovation Partner</option>
+                                    <option value="COMMUNITY_PARTNER">Community Partner</option>
+                                    <option value="STAGE">Stage Sponsor</option>
+                                    <option value="MEDIA">Media Sponsor</option>
+                                    <option value="AWARD">Award Sponsor</option>
+                                  </select>
+                                  <input placeholder="Sponsor Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editSponsorForm.sponsorName} onChange={(e) => setEditSponsorForm({ ...editSponsorForm, sponsorName: e.target.value })} />
+                                  <input type="number" placeholder="Price (₹)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editSponsorForm.price} onChange={(e) => setEditSponsorForm({ ...editSponsorForm, price: e.target.value })} />
+                                  <input placeholder="Logo URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editSponsorForm.logo} onChange={(e) => setEditSponsorForm({ ...editSponsorForm, logo: e.target.value })} />
+                                  <input placeholder="Benefits (comma-separated)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground col-span-full" value={editSponsorForm.benefits} onChange={(e) => setEditSponsorForm({ ...editSponsorForm, benefits: e.target.value })} />
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button size="sm" onClick={() => editSponsor(s.id)}>Save</Button>
+                                  <Button size="sm" variant="outline" onClick={() => setEditingSponsor(null)}>Cancel</Button>
+                                </div>
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-foreground">{s.name}</h4>
-                                <p className="text-xs text-muted">{s.tier.replace('_', ' ')} &middot; {formatCurrency(s.price)}</p>
+                            ) : (
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                                  {s.logo ? <img src={s.logo} alt="" className="w-full h-full object-cover" /> : <BanknotesIcon className="w-5 h-5 text-muted" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-foreground">{s.name}</h4>
+                                  <p className="text-xs text-muted">{s.tier.replace('_', ' ')} &middot; {formatCurrency(s.price)}</p>
+                                </div>
+                                <button onClick={() => { setEditingSponsor(s.id); setEditSponsorForm({ tier: s.tier, sponsorName: s.name, price: String(s.price), benefits: Array.isArray(s.benefits) ? s.benefits.join(', ') : '', logo: s.logo || '' }); }} className="text-blue-400 hover:text-blue-300 p-1">
+                                  <PencilSquareIcon className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => deleteSponsor(s.id)} className="text-red-400 hover:text-red-300 p-1">
+                                  <TrashIcon className="w-4 h-4" />
+                                </button>
                               </div>
-                              <button onClick={() => deleteSponsor(s.id)} className="text-red-400 hover:text-red-300 p-1">
-                                <TrashIcon className="w-4 h-4" />
-                              </button>
-                            </div>
+                            )}
                           </Card>
                         ))}
                       </div>
@@ -1638,6 +1703,8 @@ export default function AdminPage() {
                       <h4 className="font-medium text-foreground text-sm">Add Sponsor</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <select className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={sponsorForm.tier} onChange={(e) => setSponsorForm({ ...sponsorForm, tier: e.target.value })}>
+                          <option value="PRESENTING">Presenting Sponsor</option>
+                          <option value="DIAMOND">Diamond Sponsor</option>
                           <option value="TITLE">Title Sponsor</option>
                           <option value="PLATINUM">Platinum Sponsor</option>
                           <option value="GOLD">Gold Sponsor</option>
@@ -1666,18 +1733,35 @@ export default function AdminPage() {
                       <div className="space-y-3">
                         {competitionData.campusPartners.map((cp) => (
                           <Card key={cp.id} className="p-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
-                                {cp.logo ? <img src={cp.logo} alt="" className="w-full h-full object-cover" /> : <AcademicCapIcon className="w-5 h-5 text-muted" />}
+                            {editingPartner === cp.id ? (
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <input placeholder="Institution Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editPartnerForm.partnerName} onChange={(e) => setEditPartnerForm({ ...editPartnerForm, partnerName: e.target.value })} />
+                                  <input placeholder="Logo URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editPartnerForm.partnerLogo} onChange={(e) => setEditPartnerForm({ ...editPartnerForm, partnerLogo: e.target.value })} />
+                                  <input placeholder="Website URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={editPartnerForm.partnerWebsite} onChange={(e) => setEditPartnerForm({ ...editPartnerForm, partnerWebsite: e.target.value })} />
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button size="sm" onClick={() => editCampusPartner(cp.id)}>Save</Button>
+                                  <Button size="sm" variant="outline" onClick={() => setEditingPartner(null)}>Cancel</Button>
+                                </div>
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-foreground">{cp.name}</h4>
-                                {cp.website && <p className="text-xs text-muted truncate">{cp.website}</p>}
+                            ) : (
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                                  {cp.logo ? <img src={cp.logo} alt="" className="w-full h-full object-cover" /> : <AcademicCapIcon className="w-5 h-5 text-muted" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-foreground">{cp.name}</h4>
+                                  {cp.website && <p className="text-xs text-muted truncate">{cp.website}</p>}
+                                </div>
+                                <button onClick={() => { setEditingPartner(cp.id); setEditPartnerForm({ partnerName: cp.name, partnerLogo: cp.logo || '', partnerWebsite: cp.website || '' }); }} className="text-blue-400 hover:text-blue-300 p-1">
+                                  <PencilSquareIcon className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => deleteCampusPartner(cp.id)} className="text-red-400 hover:text-red-300 p-1">
+                                  <TrashIcon className="w-4 h-4" />
+                                </button>
                               </div>
-                              <button onClick={() => deleteCampusPartner(cp.id)} className="text-red-400 hover:text-red-300 p-1">
-                                <TrashIcon className="w-4 h-4" />
-                              </button>
-                            </div>
+                            )}
                           </Card>
                         ))}
                       </div>

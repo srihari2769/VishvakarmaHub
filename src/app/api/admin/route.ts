@@ -326,6 +326,16 @@ export async function PATCH(request: NextRequest) {
         return successResponse({ message: 'Sponsor deleted' });
       }
 
+      case 'edit-sponsor': {
+        const { sponsorId: editSId, tier: editSTier, sponsorName: editSName, logo: editSLogo, price: editSPrice, benefits: editSBenefits } = body;
+        if (!editSId || !editSTier || !editSName || !editSPrice) return errorResponse('Missing sponsor fields', 400);
+        const updatedSponsor = await prisma.competitionSponsor.update({
+          where: { id: editSId },
+          data: { tier: editSTier, name: editSName, logo: editSLogo || null, price: parseFloat(editSPrice), benefits: JSON.stringify(editSBenefits || []) },
+        });
+        return successResponse(updatedSponsor);
+      }
+
       case 'add-campus-partner': {
         const { competitionId: cpCompId, partnerName, partnerLogo, partnerWebsite } = body;
         if (!cpCompId || !partnerName) return errorResponse('Missing partner fields', 400);
@@ -345,6 +355,16 @@ export async function PATCH(request: NextRequest) {
         if (!partnerId) return errorResponse('Partner ID required', 400);
         await prisma.campusPartner.delete({ where: { id: partnerId } });
         return successResponse({ message: 'Campus partner deleted' });
+      }
+
+      case 'edit-campus-partner': {
+        const { partnerId: editPId, partnerName: editPName, partnerLogo: editPLogo, partnerWebsite: editPWebsite } = body;
+        if (!editPId || !editPName) return errorResponse('Missing partner fields', 400);
+        const updatedPartner = await prisma.campusPartner.update({
+          where: { id: editPId },
+          data: { name: editPName, logo: editPLogo || null, website: editPWebsite || null },
+        });
+        return successResponse(updatedPartner);
       }
 
       case 'add-judge': {

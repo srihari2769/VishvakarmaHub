@@ -1400,80 +1400,100 @@ export default function CompetitionPage() {
       </section>
 
       {/* Sponsor Logos Marquee */}
-      {competition && competition.sponsors.filter(s => s.logo).length > 0 && (
-        <section className="py-16 px-4 sm:px-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-yellow-500/3 to-transparent" />
-          <div className="relative max-w-6xl mx-auto">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-              <Badge variant="warning" className="mb-3">🤝 Our Sponsors</Badge>
-              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Powered By</h2>
-              <p className="text-muted max-w-lg mx-auto text-sm">Backed by visionary organizations fueling India&apos;s innovation ecosystem.</p>
-            </motion.div>
-            <div className="relative overflow-hidden">
-              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
-              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
-              <div className="flex animate-marquee gap-12 items-center">
-                {[...competition.sponsors.filter(s => s.logo), ...competition.sponsors.filter(s => s.logo)].map((sponsor, i) => (
-                  <div key={`sponsor-${i}`} className="flex-shrink-0 group">
-                    <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/20 group-hover:scale-105">
-                      <img
-                        src={sponsor.logo!}
-                        alt={sponsor.name}
-                        className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all"
-                      />
-                    </div>
-                    <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{sponsor.name}</p>
+      {competition && (() => {
+        const sponsorsWithLogo = competition.sponsors.filter(s => s.logo);
+        if (sponsorsWithLogo.length === 0) return null;
+        const shouldScroll = sponsorsWithLogo.length > 4;
+        return (
+          <section className="py-16 px-4 sm:px-6 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-yellow-500/3 to-transparent" />
+            <div className="relative max-w-6xl mx-auto">
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+                <Badge variant="warning" className="mb-3">🤝 Our Sponsors</Badge>
+                <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Powered By</h2>
+                <p className="text-muted max-w-lg mx-auto text-sm">Backed by visionary organizations fueling India&apos;s innovation ecosystem.</p>
+              </motion.div>
+              {shouldScroll ? (
+                <div className="relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
+                  <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
+                  <div className="flex animate-marquee gap-12 items-center">
+                    {[...sponsorsWithLogo, ...sponsorsWithLogo].map((sponsor, i) => (
+                      <div key={`sponsor-${i}`} className="flex-shrink-0 group">
+                        <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/20 group-hover:scale-105">
+                          <img src={sponsor.logo!} alt={sponsor.name} className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all" />
+                        </div>
+                        <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{sponsor.name}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap justify-center gap-8">
+                  {sponsorsWithLogo.map((sponsor) => (
+                    <motion.div key={sponsor.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group">
+                      <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/20 group-hover:scale-105">
+                        <img src={sponsor.logo!} alt={sponsor.name} className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all" />
+                      </div>
+                      <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{sponsor.name}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        );
+      })()}
 
       {/* Campus Partners Logos Marquee */}
-      {competition && competition.campusPartners && competition.campusPartners.filter(cp => cp.logo).length > 0 && (
-        <section className="py-16 px-4 sm:px-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue/3 to-transparent" />
-          <div className="relative max-w-6xl mx-auto">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-              <Badge variant="info" className="mb-3">🏛️ Campus Partners</Badge>
-              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Campus Network</h2>
-              <p className="text-muted max-w-lg mx-auto text-sm">Leading institutions empowering the next generation of innovators.</p>
-            </motion.div>
-            <div className="relative overflow-hidden">
-              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
-              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
-              <div className="flex animate-marquee-slow gap-12 items-center">
-                {[...competition.campusPartners.filter(cp => cp.logo), ...competition.campusPartners.filter(cp => cp.logo)].map((partner, i) => (
-                  <div key={`partner-${i}`} className="flex-shrink-0 group">
-                    {partner.website ? (
-                      <a href={partner.website} target="_blank" rel="noopener noreferrer">
-                        <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-blue/30 group-hover:scale-105">
-                          <img
-                            src={partner.logo!}
-                            alt={partner.name}
-                            className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all"
-                          />
-                        </div>
-                      </a>
-                    ) : (
-                      <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-blue/30 group-hover:scale-105">
-                        <img
-                          src={partner.logo!}
-                          alt={partner.name}
-                          className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all"
-                        />
-                      </div>
-                    )}
-                    <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{partner.name}</p>
-                  </div>
-                ))}
-              </div>
+      {competition && competition.campusPartners && (() => {
+        const partnersWithLogo = competition.campusPartners.filter(cp => cp.logo);
+        if (partnersWithLogo.length === 0) return null;
+        const shouldScroll = partnersWithLogo.length > 4;
+        const renderPartnerCard = (partner: CampusPartnerData) => {
+          const card = (
+            <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-blue/30 group-hover:scale-105">
+              <img src={partner.logo!} alt={partner.name} className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all" />
             </div>
-          </div>
-        </section>
-      )}
+          );
+          return partner.website ? <a href={partner.website} target="_blank" rel="noopener noreferrer">{card}</a> : card;
+        };
+        return (
+          <section className="py-16 px-4 sm:px-6 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue/3 to-transparent" />
+            <div className="relative max-w-6xl mx-auto">
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+                <Badge variant="info" className="mb-3">🏛️ Campus Partners</Badge>
+                <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Campus Network</h2>
+                <p className="text-muted max-w-lg mx-auto text-sm">Leading institutions empowering the next generation of innovators.</p>
+              </motion.div>
+              {shouldScroll ? (
+                <div className="relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
+                  <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
+                  <div className="flex animate-marquee-slow gap-12 items-center">
+                    {[...partnersWithLogo, ...partnersWithLogo].map((partner, i) => (
+                      <div key={`partner-${i}`} className="flex-shrink-0 group">
+                        {renderPartnerCard(partner)}
+                        <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{partner.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap justify-center gap-8">
+                  {partnersWithLogo.map((partner) => (
+                    <motion.div key={partner.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group">
+                      {renderPartnerCard(partner)}
+                      <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{partner.name}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Final CTA — Urgency & Invitation */}
       <section className="py-20 px-4 sm:px-6 mb-16 relative overflow-hidden">
