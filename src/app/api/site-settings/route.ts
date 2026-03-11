@@ -20,11 +20,16 @@ export async function GET(request: NextRequest) {
     if (token) {
       const decoded = verifyToken(token);
       if (decoded && decoded.role === 'ADMIN') {
+        // Use DB keys first, fall back to env vars
+        const keyId = settings.razorpayKeyId || process.env.RAZORPAY_KEY_ID || '';
+        const keySecret = settings.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET || '';
+        const source = settings.razorpayKeyId ? 'database' : (process.env.RAZORPAY_KEY_ID ? 'environment' : 'none');
         return successResponse({
           comingSoon: settings.comingSoon,
-          razorpayKeyId: settings.razorpayKeyId || '',
-          razorpayKeySecret: settings.razorpayKeySecret ? '••••' + settings.razorpayKeySecret.slice(-4) : '',
-          hasRazorpayKeys: !!(settings.razorpayKeyId && settings.razorpayKeySecret),
+          razorpayKeyId: keyId,
+          razorpayKeySecret: keySecret ? '••••' + keySecret.slice(-4) : '',
+          hasRazorpayKeys: !!(keyId && keySecret),
+          razorpayKeySource: source,
         });
       }
     }
@@ -79,6 +84,7 @@ export async function PATCH(request: NextRequest) {
       razorpayKeyId: settings.razorpayKeyId || '',
       razorpayKeySecret: settings.razorpayKeySecret ? '••••' + settings.razorpayKeySecret.slice(-4) : '',
       hasRazorpayKeys: !!(settings.razorpayKeyId && settings.razorpayKeySecret),
+      razorpayKeySource: settings.razorpayKeyId ? 'database' : 'none',
     });
   } catch (error) {
     console.error('Site settings update error:', error);

@@ -185,6 +185,7 @@ export default function AdminPage() {
   const [razorpayKeyId, setRazorpayKeyId] = useState('');
   const [razorpayKeySecret, setRazorpayKeySecret] = useState('');
   const [razorpayHasKeys, setRazorpayHasKeys] = useState(false);
+  const [razorpayKeySource, setRazorpayKeySource] = useState<string>('none');
   const [razorpaySaving, setRazorpaySaving] = useState(false);
   const [competitionSeeded, setCompetitionSeeded] = useState(false);
   const [seedingCompetition, setSeedingCompetition] = useState(false);
@@ -242,6 +243,7 @@ export default function AdminPage() {
           setRazorpayKeyId(data.data.razorpayKeyId);
           setRazorpayKeySecret(data.data.razorpayKeySecret);
           setRazorpayHasKeys(data.data.hasRazorpayKeys);
+          setRazorpayKeySource(data.data.razorpayKeySource || 'none');
         }
       }
     } catch {}
@@ -2213,7 +2215,7 @@ export default function AdminPage() {
                   {razorpayHasKeys && (
                     <div className="flex items-center gap-2 text-green-400 text-xs mb-3">
                       <CheckCircleIcon className="w-4 h-4" />
-                      Keys configured
+                      Keys configured {razorpayKeySource === 'environment' ? <span className="text-yellow-400">(from environment variables)</span> : <span>(from database)</span>}
                     </div>
                   )}
                   <div className="space-y-3">
@@ -2259,6 +2261,7 @@ export default function AdminPage() {
                             setRazorpayKeyId(data.data.razorpayKeyId);
                             setRazorpayKeySecret(data.data.razorpayKeySecret);
                             setRazorpayHasKeys(data.data.hasRazorpayKeys);
+                            setRazorpayKeySource(data.data.razorpayKeySource || 'database');
                             alert('Razorpay keys updated successfully!');
                           } else {
                             alert(data.error || 'Failed to update keys');
