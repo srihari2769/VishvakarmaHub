@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse, getTokenFromRequest } from '@/lib/utils';
 import { verifyToken } from '@/lib/auth';
+import { getRazorpayKeys } from '@/lib/razorpay';
 
 export const maxDuration = 30;
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify signature
-    const secret = process.env.RAZORPAY_KEY_SECRET || '';
+    const { keySecret: secret } = await getRazorpayKeys();
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)

@@ -406,9 +406,11 @@ model ContactSubmission {
 // ==================== SITE SETTINGS ====================
 
 model SiteSettings {
-  id              String   @id @default("global")
-  comingSoon      Boolean  @default(false)
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default("global")
+  comingSoon        Boolean  @default(false)
+  razorpayKeyId     String?
+  razorpayKeySecret String?
+  updatedAt         DateTime @updatedAt
 
   @@map("site_settings")
 }

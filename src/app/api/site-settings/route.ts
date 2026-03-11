@@ -5,8 +5,8 @@ import { verifyToken } from '@/lib/auth';
 
 export const maxDuration = 30;
 
-// GET - anyone can check coming soon status
-export async function GET() {
+// GET - anyone can check coming soon status; admins get full settings
+export async function GET(request: NextRequest) {
   try {
     let settings = await prisma.siteSettings.findUnique({ where: { id: 'global' } });
     if (!settings) {
@@ -14,6 +14,21 @@ export async function GET() {
         data: { id: 'global', comingSoon: false },
       });
     }
+
+    // Check if admin — if so, include Razorpay key info
+    const token = getTokenFromRequest(request);
+    if (token) {
+      const decoded = verifyToken(token);
+      if (decoded && decoded.role === 'ADMIN') {
+        return successResponse({
+          comingSoon: settings.comingSoon,
+          razorpayKeyId: settings.razorpayKeyId || '',
+          razorpayKeySecret: settings.razorpayKeySecret ? '••••' + settings.razorpayKeySecret.slice(-4) : '',
+          hasRazorpayKeys: !!(settings.razorpayKeyId && settings.razorpayKeySecret),
+        });
+      }
+    }
+
     return successResponse({ comingSoon: settings.comingSoon });
   } catch (error) {
     console.error('Site settings fetch error:', error);
@@ -33,19 +48,38 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { comingSoon } = body;
+    const { comingSoon, razorpayKeyId, razorpayKeySecret } = body;
 
-    if (typeof comingSoon !== 'boolean') {
-      return errorResponse('comingSoon must be a boolean', 400);
+    const updateData: Record<string, unknown> = {};
+
+    if (typeof comingSoon === 'boolean') {
+      updateData.comingSoon = comingSoon;
+    }
+
+    if (typeof razorpayKeyId === 'string') {
+      updateData.razorpayKeyId = razorpayKeyId.trim();
+    }
+
+    if (typeof razorpayKeySecret === 'string' && razorpayKeySecret.trim() && !razorpayKeySecret.startsWith('••••')) {
+      updateData.razorpayKeySecret = razorpayKeySecret.trim();
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return errorResponse('No valid fields to update', 400);
     }
 
     const settings = await prisma.siteSettings.upsert({
       where: { id: 'global' },
-      update: { comingSoon },
-      create: { id: 'global', comingSoon },
+      update: updateData,
+      create: { id: 'global', comingSoon: false, ...updateData },
     });
 
-    return successResponse({ comingSoon: settings.comingSoon });
+    return successResponse({
+      comingSoon: settings.comingSoon,
+      razorpayKeyId: settings.razorpayKeyId || '',
+      razorpayKeySecret: settings.razorpayKeySecret ? '••••' + settings.razorpayKeySecret.slice(-4) : '',
+      hasRazorpayKeys: !!(settings.razorpayKeyId && settings.razorpayKeySecret),
+    });
   } catch (error) {
     console.error('Site settings update error:', error);
     return errorResponse('Failed to update site settings', 500);

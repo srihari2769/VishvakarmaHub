@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/lib/utils';
+import { getRazorpayKeys } from '@/lib/razorpay';
 
 // POST /api/payments/razorpay/verify — Verify Razorpay payment via webhook signature
 export async function POST(request: NextRequest) {
@@ -13,7 +14,8 @@ export async function POST(request: NextRequest) {
       return errorResponse('Missing signature', 400);
     }
 
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_SECRET || '';
+    const { keySecret } = await getRazorpayKeys();
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || keySecret;
 
     const expectedSignature = crypto
       .createHmac('sha256', secret)

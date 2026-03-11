@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
-import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/lib/utils';
+import { createRazorpayInstance, getRazorpayKeys } from '@/lib/razorpay';
 
 export const maxDuration = 30;
 
@@ -72,10 +72,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Create Razorpay order
-    const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID!,
-      key_secret: process.env.RAZORPAY_KEY_SECRET!,
-    });
+    const razorpay = await createRazorpayInstance();
+    const { keyId: rzpKeyId } = await getRazorpayKeys();
 
     const order = await razorpay.orders.create({
       amount: Math.round(fee * 100),
@@ -101,7 +99,7 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
       amount: fee,
       currency: 'INR',
-      keyId: process.env.RAZORPAY_KEY_ID,
+      keyId: rzpKeyId,
       competitionName: competition.name,
       prefill: {
         name: name.trim(),
@@ -126,7 +124,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify signature
-    const secret = process.env.RAZORPAY_KEY_SECRET || '';
+    const { keySecret: secret } = await getRazorpayKeys();
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)

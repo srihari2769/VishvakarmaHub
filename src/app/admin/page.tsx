@@ -25,6 +25,7 @@ import {
   TrophyIcon,
   PencilSquareIcon,
   TicketIcon,
+  CreditCardIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -181,6 +182,10 @@ export default function AdminPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'startup' | 'user'; id: string; name: string } | null>(null);
   const [comingSoon, setComingSoon] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(false);
+  const [razorpayKeyId, setRazorpayKeyId] = useState('');
+  const [razorpayKeySecret, setRazorpayKeySecret] = useState('');
+  const [razorpayHasKeys, setRazorpayHasKeys] = useState(false);
+  const [razorpaySaving, setRazorpaySaving] = useState(false);
   const [competitionSeeded, setCompetitionSeeded] = useState(false);
   const [seedingCompetition, setSeedingCompetition] = useState(false);
   const [competitionData, setCompetitionData] = useState<CompetitionData | null>(null);
@@ -226,9 +231,19 @@ export default function AdminPage() {
 
   const fetchSiteSettings = async () => {
     try {
-      const res = await fetch('/api/site-settings');
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/site-settings', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
-      if (data.success) setComingSoon(data.data.comingSoon);
+      if (data.success) {
+        setComingSoon(data.data.comingSoon);
+        if (data.data.razorpayKeyId !== undefined) {
+          setRazorpayKeyId(data.data.razorpayKeyId);
+          setRazorpayKeySecret(data.data.razorpayKeySecret);
+          setRazorpayHasKeys(data.data.hasRazorpayKeys);
+        }
+      }
     } catch {}
   };
 
@@ -2179,6 +2194,81 @@ export default function AdminPage() {
                     <span className={`text-sm font-medium ${comingSoon ? 'text-orange' : 'text-muted'}`}>
                       {comingSoon ? 'ENABLED — Site is in Coming Soon mode' : 'DISABLED — Site is live'}
                     </span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Razorpay Payment Gateway */}
+            <Card className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                  <CreditCardIcon className="w-5 h-5 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground mb-1">Razorpay Payment Gateway</h3>
+                  <p className="text-sm text-muted mb-4">
+                    Manage your Razorpay API keys for processing payments. Keys are stored securely and used across all payment flows.
+                  </p>
+                  {razorpayHasKeys && (
+                    <div className="flex items-center gap-2 text-green-400 text-xs mb-3">
+                      <CheckCircleIcon className="w-4 h-4" />
+                      Keys configured
+                    </div>
+                  )}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-muted mb-1">Key ID</label>
+                      <input
+                        type="text"
+                        className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground font-mono"
+                        placeholder="rzp_live_xxxxxxxxxxxxxxx"
+                        value={razorpayKeyId}
+                        onChange={(e) => setRazorpayKeyId(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-muted mb-1">Key Secret</label>
+                      <input
+                        type="password"
+                        className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground font-mono"
+                        placeholder="Enter new secret to update"
+                        value={razorpayKeySecret}
+                        onChange={(e) => setRazorpayKeySecret(e.target.value)}
+                      />
+                      <p className="text-[10px] text-muted mt-1">Leave unchanged to keep existing secret. Only enter a new value to update.</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      disabled={razorpaySaving || !razorpayKeyId.trim()}
+                      onClick={async () => {
+                        setRazorpaySaving(true);
+                        try {
+                          const token = localStorage.getItem('token');
+                          const payload: Record<string, string> = { razorpayKeyId: razorpayKeyId.trim() };
+                          if (razorpayKeySecret && !razorpayKeySecret.startsWith('••••')) {
+                            payload.razorpayKeySecret = razorpayKeySecret.trim();
+                          }
+                          const res = await fetch('/api/site-settings', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                            body: JSON.stringify(payload),
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            setRazorpayKeyId(data.data.razorpayKeyId);
+                            setRazorpayKeySecret(data.data.razorpayKeySecret);
+                            setRazorpayHasKeys(data.data.hasRazorpayKeys);
+                            alert('Razorpay keys updated successfully!');
+                          } else {
+                            alert(data.error || 'Failed to update keys');
+                          }
+                        } catch { alert('Failed to save'); }
+                        setRazorpaySaving(false);
+                      }}
+                    >
+                      {razorpaySaving ? 'Saving...' : 'Save Razorpay Keys'}
+                    </Button>
                   </div>
                 </div>
               </div>
