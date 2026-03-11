@@ -13,6 +13,7 @@ export async function GET() {
       include: {
         judges: true,
         sponsors: { orderBy: { price: 'desc' } },
+        campusPartners: { orderBy: { createdAt: 'asc' } },
         entries: {
           where: {
             status: {

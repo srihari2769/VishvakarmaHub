@@ -464,6 +464,7 @@ model Competition {
   entries         CompetitionEntry[]
   judges          CompetitionJudge[]
   sponsors        CompetitionSponsor[]
+  campusPartners  CampusPartner[]
   citizenPasses   CitizenPass[]
 
   createdAt       DateTime          @default(now())
@@ -486,6 +487,19 @@ model CompetitionSponsor {
   createdAt       DateTime @default(now())
 
   @@map("competition_sponsors")
+}
+
+model CampusPartner {
+  id              String   @id @default(cuid())
+  name            String
+  logo            String?
+
+  competitionId   String
+  competition     Competition @relation(fields: [competitionId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@map("campus_partners")
 }
 
 model CompetitionEntry {

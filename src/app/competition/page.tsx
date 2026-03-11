@@ -41,6 +41,12 @@ interface SponsorData {
   benefits: string;
 }
 
+interface CampusPartnerData {
+  id: string;
+  name: string;
+  logo: string | null;
+}
+
 interface CompetitionData {
   id: string;
   name: string;
@@ -62,6 +68,7 @@ interface CompetitionData {
   entries: CompetitionEntryData[];
   judges: JudgeData[];
   sponsors: SponsorData[];
+  campusPartners: CampusPartnerData[];
   _count: { entries: number };
 }
 
@@ -855,77 +862,75 @@ export default function CompetitionPage() {
         </div>
       </section>
 
-      {/* Sponsors Section */}
-      {competition?.sponsors && competition.sponsors.length > 0 && (
+      {/* Sponsors & Partners Logo Strips */}
+      {((competition?.sponsors && competition.sponsors.length > 0) || (competition?.campusPartners && competition.campusPartners.length > 0)) && (
         <section className="py-16 px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-3">Our Sponsors</h2>
-              <p className="text-muted max-w-xl mx-auto">Backed by industry leaders driving innovation forward</p>
+              <h2 className="text-3xl font-bold text-foreground mb-3">Our Sponsors & Partners</h2>
+              <p className="text-muted max-w-xl mx-auto">Backed by industry leaders and academic institutions driving innovation forward</p>
             </motion.div>
 
-            {competition.sponsors.filter(s => s.tier === 'TITLE').length > 0 && (
-              <div className="mb-10">
-                <h3 className="text-center text-sm font-semibold text-yellow-400 uppercase tracking-widest mb-6">Title Sponsors</h3>
-                <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-                  {competition.sponsors.filter(s => s.tier === 'TITLE').map((s) => (
-                    <motion.div key={s.id} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}>
-                      <Card className="p-6 border-yellow-400/20 text-center">
-                        <div className="w-20 h-20 rounded-2xl bg-yellow-400/10 flex items-center justify-center mx-auto mb-4 overflow-hidden">
-                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-2" /> : <StarIcon className="w-10 h-10 text-yellow-400" />}
-                        </div>
-                        <h4 className="text-lg font-bold text-foreground">{s.name}</h4>
-                        <Badge variant="warning">Title Sponsor</Badge>
-                        {s.benefits && (
-                          <div className="mt-3 space-y-1 text-sm text-muted text-left">
-                            {(() => { try { return JSON.parse(s.benefits); } catch { return s.benefits.split(','); } })().map((b: string, i: number) => (
-                              <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" /><span>{b.trim()}</span></div>
-                            ))}
+            {/* Sponsor logo strips by tier */}
+            {(() => {
+              const tierConfig: { tier: string; label: string; color: string; borderColor: string; bgColor: string; size: string }[] = [
+                { tier: 'TITLE', label: 'Title Sponsors', color: 'text-yellow-400', borderColor: 'border-yellow-400/30', bgColor: 'bg-yellow-400/5', size: 'w-24 h-24' },
+                { tier: 'PRESENTING', label: 'Presenting Sponsors', color: 'text-rose-400', borderColor: 'border-rose-400/30', bgColor: 'bg-rose-400/5', size: 'w-20 h-20' },
+                { tier: 'DIAMOND', label: 'Diamond Sponsors', color: 'text-sky-400', borderColor: 'border-sky-400/30', bgColor: 'bg-sky-400/5', size: 'w-20 h-20' },
+                { tier: 'PLATINUM', label: 'Platinum Sponsors', color: 'text-purple', borderColor: 'border-purple/30', bgColor: 'bg-purple/5', size: 'w-18 h-18' },
+                { tier: 'GOLD', label: 'Gold Sponsors', color: 'text-orange-400', borderColor: 'border-orange-400/30', bgColor: 'bg-orange-400/5', size: 'w-16 h-16' },
+                { tier: 'SILVER', label: 'Silver Sponsors', color: 'text-gray-300', borderColor: 'border-gray-300/30', bgColor: 'bg-gray-300/5', size: 'w-14 h-14' },
+                { tier: 'STARTUP_PARTNER', label: 'Startup Partners', color: 'text-blue-400', borderColor: 'border-blue-400/30', bgColor: 'bg-blue-400/5', size: 'w-14 h-14' },
+                { tier: 'INNOVATION_PARTNER', label: 'Innovation Partners', color: 'text-green-400', borderColor: 'border-green-400/30', bgColor: 'bg-green-400/5', size: 'w-14 h-14' },
+                { tier: 'COMMUNITY_PARTNER', label: 'Community Partners', color: 'text-pink-400', borderColor: 'border-pink-400/30', bgColor: 'bg-pink-400/5', size: 'w-14 h-14' },
+                { tier: 'STAGE', label: 'Stage Sponsors', color: 'text-cyan-400', borderColor: 'border-cyan-400/30', bgColor: 'bg-cyan-400/5', size: 'w-14 h-14' },
+                { tier: 'MEDIA', label: 'Media Partners', color: 'text-red-400', borderColor: 'border-red-400/30', bgColor: 'bg-red-400/5', size: 'w-14 h-14' },
+                { tier: 'AWARD', label: 'Award Sponsors', color: 'text-yellow-400', borderColor: 'border-yellow-400/30', bgColor: 'bg-yellow-400/5', size: 'w-14 h-14' },
+              ];
+              return tierConfig.map(({ tier, label, color, borderColor, bgColor, size }) => {
+                const sponsors = competition!.sponsors.filter(s => s.tier === tier);
+                if (sponsors.length === 0) return null;
+                return (
+                  <motion.div key={tier} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="mb-10">
+                    <h3 className={`text-center text-sm font-semibold ${color} uppercase tracking-widest mb-6`}>{label}</h3>
+                    <div className="flex flex-wrap items-center justify-center gap-6">
+                      {sponsors.map((s) => (
+                        <div key={s.id} className={`flex flex-col items-center gap-2 group`}>
+                          <div className={`${size} rounded-2xl ${bgColor} ${borderColor} border flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105`}>
+                            {s.logo ? (
+                              <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-2" />
+                            ) : (
+                              <span className={`text-lg font-bold ${color}`}>{s.name.charAt(0)}</span>
+                            )}
                           </div>
+                          <span className="text-xs text-muted text-center max-w-[100px] truncate">{s.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                );
+              });
+            })()}
+
+            {/* Campus Partners */}
+            {competition?.campusPartners && competition.campusPartners.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="mb-10">
+                <h3 className="text-center text-sm font-semibold text-emerald-400 uppercase tracking-widest mb-6">Campus Partners</h3>
+                <div className="flex flex-wrap items-center justify-center gap-6">
+                  {competition.campusPartners.map((p) => (
+                    <div key={p.id} className="flex flex-col items-center gap-2 group">
+                      <div className="w-16 h-16 rounded-2xl bg-emerald-400/5 border border-emerald-400/30 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                        {p.logo ? (
+                          <img src={p.logo} alt={p.name} className="w-full h-full object-contain p-2" />
+                        ) : (
+                          <AcademicCapIcon className="w-8 h-8 text-emerald-400" />
                         )}
-                      </Card>
-                    </motion.div>
+                      </div>
+                      <span className="text-xs text-muted text-center max-w-[100px] truncate">{p.name}</span>
+                    </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {competition.sponsors.filter(s => s.tier === 'GOLD').length > 0 && (
-              <div className="mb-10">
-                <h3 className="text-center text-sm font-semibold text-orange-400 uppercase tracking-widest mb-6">Gold Sponsors</h3>
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                  {competition.sponsors.filter(s => s.tier === 'GOLD').map((s) => (
-                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-                      <Card className="p-5 border-orange-400/20 text-center">
-                        <div className="w-14 h-14 rounded-xl bg-orange-400/10 flex items-center justify-center mx-auto mb-3 overflow-hidden">
-                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-7 h-7 text-orange-400" />}
-                        </div>
-                        <h4 className="font-semibold text-foreground">{s.name}</h4>
-                        <p className="text-xs text-orange-400 mt-1">Gold Sponsor</p>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').length > 0 && (
-              <div>
-                <h3 className="text-center text-sm font-semibold text-blue-400 uppercase tracking-widest mb-6">Startup Partners</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                  {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').map((s) => (
-                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-                      <Card className="p-4 border-blue-400/20 text-center">
-                        <div className="w-12 h-12 rounded-lg bg-blue-400/10 flex items-center justify-center mx-auto mb-2 overflow-hidden">
-                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-6 h-6 text-blue-400" />}
-                        </div>
-                        <h4 className="text-sm font-semibold text-foreground">{s.name}</h4>
-                        <p className="text-xs text-blue-400 mt-0.5">Startup Partner</p>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+              </motion.div>
             )}
           </div>
         </section>

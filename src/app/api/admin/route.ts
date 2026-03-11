@@ -158,6 +158,7 @@ export async function GET(request: NextRequest) {
             },
             judges: { orderBy: { createdAt: 'asc' } },
             sponsors: { orderBy: { price: 'desc' } },
+            campusPartners: { orderBy: { createdAt: 'asc' } },
             citizenPasses: { orderBy: { createdAt: 'desc' } },
             _count: { select: { entries: true, citizenPasses: true } },
           },
@@ -323,6 +324,26 @@ export async function PATCH(request: NextRequest) {
         if (!sponsorId) return errorResponse('Sponsor ID required', 400);
         await prisma.competitionSponsor.delete({ where: { id: sponsorId } });
         return successResponse({ message: 'Sponsor deleted' });
+      }
+
+      case 'add-campus-partner': {
+        const { competitionId: cpCompId, partnerName, partnerLogo } = body;
+        if (!cpCompId || !partnerName) return errorResponse('Competition ID and partner name are required', 400);
+        const partner = await prisma.campusPartner.create({
+          data: {
+            name: partnerName,
+            logo: partnerLogo || null,
+            competitionId: cpCompId,
+          },
+        });
+        return successResponse(partner, 201);
+      }
+
+      case 'delete-campus-partner': {
+        const { partnerId } = body;
+        if (!partnerId) return errorResponse('Partner ID required', 400);
+        await prisma.campusPartner.delete({ where: { id: partnerId } });
+        return successResponse({ message: 'Campus partner deleted' });
       }
 
       case 'add-judge': {
