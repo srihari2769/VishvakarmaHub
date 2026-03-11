@@ -76,6 +76,27 @@ body {
   animation: progressFill 1.5s ease-out forwards;
 }
 
+/* Sponsor marquee scroll */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+  width: max-content;
+}
+
+.animate-marquee-slow {
+  animation: marquee 35s linear infinite;
+  width: max-content;
+}
+
+.animate-marquee:hover,
+.animate-marquee-slow:hover {
+  animation-play-state: paused;
+}
+
 /* Particle grid background */
 .grid-bg {
   background-image:

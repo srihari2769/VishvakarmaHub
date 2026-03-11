@@ -493,6 +493,7 @@ model CampusPartner {
   id              String   @id @default(cuid())
   name            String
   logo            String?
+  website         String?
 
   competitionId   String
   competition     Competition @relation(fields: [competitionId], references: [id])

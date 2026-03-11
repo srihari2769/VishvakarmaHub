@@ -160,6 +160,7 @@ interface CampusPartnerItem {
   id: string;
   name: string;
   logo: string | null;
+  website: string | null;
 }
 
 interface ContactSubmission {
@@ -202,9 +203,9 @@ export default function AdminPage() {
   const [compEditMode, setCompEditMode] = useState(false);
   const [compForm, setCompForm] = useState<Record<string, string | number>>({});
   const [compSaving, setCompSaving] = useState(false);
-  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
+  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'campus-partners' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
-  const [campusPartnerForm, setCampusPartnerForm] = useState({ partnerName: '', partnerLogo: '' });
+  const [partnerForm, setPartnerForm] = useState({ partnerName: '', partnerLogo: '', partnerWebsite: '' });
   const [judgeForm, setJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
   const [editingJudge, setEditingJudge] = useState<string | null>(null);
   const [editJudgeForm, setEditJudgeForm] = useState({ judgeName: '', judgeTitle: '', judgeOrganization: '', judgeAvatar: '' });
@@ -377,29 +378,17 @@ export default function AdminPage() {
   };
 
   const addCampusPartner = async () => {
-    if (!campusPartnerForm.partnerName) return alert('Partner name is required');
+    if (!partnerForm.partnerName) return alert('Partner name is required');
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/admin', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          action: 'add-campus-partner',
-          competitionId: competitionData?.id,
-          partnerName: campusPartnerForm.partnerName,
-          partnerLogo: campusPartnerForm.partnerLogo || undefined,
-        }),
+        body: JSON.stringify({ action: 'add-campus-partner', competitionId: competitionData?.id, ...partnerForm }),
       });
       const data = await res.json();
-      if (data.success) {
-        setCampusPartnerForm({ partnerName: '', partnerLogo: '' });
-        fetchCompetitionEntries();
-      } else {
-        alert(data.error || 'Failed to add campus partner');
-      }
-    } catch {
-      alert('Failed to add campus partner');
-    }
+      if (data.success) { setPartnerForm({ partnerName: '', partnerLogo: '', partnerWebsite: '' }); fetchCompetitionEntries(); }
+    } catch {}
   };
 
   const deleteCampusPartner = async (id: string) => {
@@ -1406,7 +1395,7 @@ export default function AdminPage() {
 
                 {/* Sub-tabs */}
                 <div className="flex gap-1 bg-card rounded-lg p-1 flex-wrap">
-                  {(['entries', 'details', 'sponsors', 'judges', 'citizen-passes', 'page-content'] as const).map((st) => (
+                  {(['entries', 'details', 'sponsors', 'campus-partners', 'judges', 'citizen-passes', 'page-content'] as const).map((st) => (
                     <button
                       key={st}
                       onClick={() => { setCompSubTab(st); if (st === 'page-content') initPageContentForm(); }}
@@ -1414,7 +1403,7 @@ export default function AdminPage() {
                         compSubTab === st ? 'bg-blue text-white' : 'text-muted hover:text-foreground'
                       }`}
                     >
-                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st}
+                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st === 'campus-partners' ? 'Campus Partners' : st}
                     </button>
                   ))}
                 </div>
@@ -1667,39 +1656,41 @@ export default function AdminPage() {
                       </div>
                       <Button size="sm" onClick={addSponsor}>Add Sponsor</Button>
                     </Card>
+                  </div>
+                )}
 
-                    {/* Campus Partners Section */}
-                    <div className="border-t border-border pt-4 mt-4">
-                      <h3 className="text-lg font-semibold text-foreground mb-4">Campus Partners</h3>
-                      {competitionData.campusPartners && competitionData.campusPartners.length > 0 && (
-                        <div className="space-y-3 mb-4">
-                          {competitionData.campusPartners.map((p) => (
-                            <Card key={p.id} className="p-4">
-                              <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
-                                  {p.logo ? <img src={p.logo} alt="" className="w-full h-full object-contain" /> : <AcademicCapIcon className="w-5 h-5 text-muted" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-medium text-foreground">{p.name}</h4>
-                                  <p className="text-xs text-muted">Campus Partner</p>
-                                </div>
-                                <button onClick={() => deleteCampusPartner(p.id)} className="text-red-400 hover:text-red-300 p-1">
-                                  <TrashIcon className="w-4 h-4" />
-                                </button>
+                {/* Campus Partners Sub-tab */}
+                {compSubTab === 'campus-partners' && (
+                  <div className="space-y-4">
+                    {competitionData.campusPartners && competitionData.campusPartners.length > 0 && (
+                      <div className="space-y-3">
+                        {competitionData.campusPartners.map((cp) => (
+                          <Card key={cp.id} className="p-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-lg bg-card-hover flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {cp.logo ? <img src={cp.logo} alt="" className="w-full h-full object-cover" /> : <AcademicCapIcon className="w-5 h-5 text-muted" />}
                               </div>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
-                      <Card className="p-4 space-y-3">
-                        <h4 className="font-medium text-foreground text-sm">Add Campus Partner</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <input placeholder="Partner Name (e.g. IIT Delhi)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={campusPartnerForm.partnerName} onChange={(e) => setCampusPartnerForm({ ...campusPartnerForm, partnerName: e.target.value })} />
-                          <input placeholder="Logo URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={campusPartnerForm.partnerLogo} onChange={(e) => setCampusPartnerForm({ ...campusPartnerForm, partnerLogo: e.target.value })} />
-                        </div>
-                        <Button size="sm" onClick={addCampusPartner}>Add Campus Partner</Button>
-                      </Card>
-                    </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-foreground">{cp.name}</h4>
+                                {cp.website && <p className="text-xs text-muted truncate">{cp.website}</p>}
+                              </div>
+                              <button onClick={() => deleteCampusPartner(cp.id)} className="text-red-400 hover:text-red-300 p-1">
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-medium text-foreground text-sm">Add Campus Partner</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input placeholder="Institution Name" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={partnerForm.partnerName} onChange={(e) => setPartnerForm({ ...partnerForm, partnerName: e.target.value })} />
+                        <input placeholder="Logo URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={partnerForm.partnerLogo} onChange={(e) => setPartnerForm({ ...partnerForm, partnerLogo: e.target.value })} />
+                        <input placeholder="Website URL (optional)" className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={partnerForm.partnerWebsite} onChange={(e) => setPartnerForm({ ...partnerForm, partnerWebsite: e.target.value })} />
+                      </div>
+                      <Button size="sm" onClick={addCampusPartner}>Add Campus Partner</Button>
+                    </Card>
                   </div>
                 )}
 

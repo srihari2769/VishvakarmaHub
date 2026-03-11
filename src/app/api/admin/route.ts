@@ -327,12 +327,13 @@ export async function PATCH(request: NextRequest) {
       }
 
       case 'add-campus-partner': {
-        const { competitionId: cpCompId, partnerName, partnerLogo } = body;
-        if (!cpCompId || !partnerName) return errorResponse('Competition ID and partner name are required', 400);
+        const { competitionId: cpCompId, partnerName, partnerLogo, partnerWebsite } = body;
+        if (!cpCompId || !partnerName) return errorResponse('Missing partner fields', 400);
         const partner = await prisma.campusPartner.create({
           data: {
             name: partnerName,
             logo: partnerLogo || null,
+            website: partnerWebsite || null,
             competitionId: cpCompId,
           },
         });
