@@ -284,157 +284,162 @@ export default function CompetitionPage() {
     : PHASE_INFO.REGISTRATION;
 
   return (
-    <div className="min-h-screen">
-      {/* Floating Invitation Banner */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-purple via-blue to-cyan-500 py-3 px-4 text-center shadow-2xl shadow-purple/20">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-          <div className="flex items-center gap-2">
-            <MegaphoneIcon className="w-5 h-5 text-white animate-bounce" />
-            <span className="text-white font-bold text-sm sm:text-base">
-              {pcs('bannerText', "You're Invited! India's Biggest Startup Competition is LIVE")}
-            </span>
+    <div className="min-h-screen relative">
+
+      {/* ═══ FLOATING CTA BANNER ═══ */}
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple via-blue to-cyan-500" />
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-sm" />
+          <div className="relative max-w-5xl mx-auto py-3.5 px-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2">
+              <MegaphoneIcon className="w-5 h-5 text-white animate-bounce" />
+              <span className="text-white font-bold text-sm sm:text-base tracking-wide">
+                {pcs('bannerText', "You're Invited! India's Biggest Startup Competition is LIVE")}
+              </span>
+            </div>
+            <Link href="/competition/register">
+              <button className="px-6 py-2 bg-white text-purple font-bold rounded-full text-sm hover:bg-white/90 hover:scale-105 transition-all shadow-xl shadow-black/20 whitespace-nowrap">
+                {pcs('bannerButtonText', "Register Now — From ₹199 Only!")}
+              </button>
+            </Link>
           </div>
-          <Link href="/competition/register">
-            <button className="px-5 py-1.5 bg-white text-purple font-bold rounded-full text-sm hover:bg-white/90 transition-colors whitespace-nowrap">
-              {pcs('bannerButtonText', "Register Now — From ₹199 Only!")}
-            </button>
-          </Link>
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-20 overflow-hidden">
-        {/* Animated background effects */}
-        <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-blue/5 to-transparent" />
-        <div className="absolute top-10 left-1/4 w-[500px] h-[500px] bg-purple/15 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-blue/15 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute top-40 right-10 w-[300px] h-[300px] bg-cyan-400/10 rounded-full blur-[100px]" />
-        {/* Floating particles */}
-        <div className="absolute top-32 left-[10%] w-2 h-2 bg-purple rounded-full animate-ping" />
-        <div className="absolute top-48 right-[15%] w-2 h-2 bg-blue rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
-        <div className="absolute top-64 left-[60%] w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-28 left-[75%] w-1.5 h-1.5 bg-yellow-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }} />
+      {/* ═══════════════════════════════════════════ */}
+      {/* ═══ ACT I — THE GRAND OPENING (HERO) ═══ */}
+      {/* ═══════════════════════════════════════════ */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Multi-layered aurora background */}
+        <div className="absolute inset-0 aurora-bg" />
+        <div className="absolute inset-0 grid-bg opacity-20" />
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            {/* Live badge */}
+        {/* Cinematic lighting — floating orbs */}
+        <div className="absolute top-10 left-[8%] w-[700px] h-[700px] bg-purple/20 rounded-full blur-[200px] animate-float-slow" />
+        <div className="absolute bottom-10 right-[10%] w-[600px] h-[600px] bg-blue/15 rounded-full blur-[180px] animate-float-slow" style={{ animationDelay: '3s' }} />
+        <div className="absolute top-1/3 right-[20%] w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[150px] animate-float-slow" style={{ animationDelay: '6s' }} />
+        <div className="absolute bottom-1/3 left-[25%] w-[350px] h-[350px] bg-amber-500/[0.07] rounded-full blur-[140px] animate-float-slow" style={{ animationDelay: '4s' }} />
+
+        {/* Floating particles */}
+        <div className="absolute top-32 left-[12%] w-2 h-2 bg-purple/60 rounded-full animate-ping" />
+        <div className="absolute top-48 right-[18%] w-1.5 h-1.5 bg-blue/50 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute top-72 left-[65%] w-1 h-1 bg-cyan-400/40 rounded-full animate-ping" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-56 left-[80%] w-1.5 h-1.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute bottom-40 left-[20%] w-1 h-1 bg-purple/30 rounded-full animate-ping" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-60 right-[30%] w-1.5 h-1.5 bg-blue/40 rounded-full animate-ping" style={{ animationDelay: '2.5s' }} />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 text-center pt-32 pb-24">
+          {/* Live status badge — premium glass */}
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: 'easeOut' }}>
             <motion.div
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-purple/20 to-blue/20 border border-purple/30 text-purple text-sm font-bold mb-6 backdrop-blur-sm"
+              animate={{ scale: [1, 1.03, 1] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass border-purple/20 mb-10"
             >
               <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
               </span>
-              {pcs('heroBadgeText', 'Registrations Open — Join Now!')}
+              <span className="text-sm font-semibold text-purple/90 tracking-[0.15em] uppercase">{pcs('heroBadgeText', 'Registrations Open — Join Now!')}</span>
             </motion.div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-foreground mb-6 leading-[1.1] tracking-tight">
-              <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                {pcs('heroTitleLine1', "India's Biggest")}
-              </motion.span>
-              <br />
-              <motion.span
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="bg-gradient-to-r from-purple via-blue to-cyan-400 bg-clip-text text-transparent"
-              >
-                {pcs('heroTitleLine2', 'Startup Competition')}
-              </motion.span>
-            </h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="text-xl sm:text-2xl text-muted max-w-3xl mx-auto mb-4"
-            >
-              {pcs('heroDescription', 'We invite students, founders, engineers, and innovators from every corner of India to showcase their groundbreaking ideas on the national stage.')}
-            </motion.p>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="text-lg text-purple font-medium mb-10 italic"
-            >
-              &ldquo;{pcs('heroQuote', 'Your idea deserves the spotlight. This is your moment.')}&rdquo;
-            </motion.p>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-              className="flex flex-wrap gap-4 justify-center mb-12"
-            >
-              <Link href="/competition/register">
-                <Button size="lg">
-                  <FireIcon className="w-5 h-5 mr-2 inline" />
-                  Register Your Startup
-                  <ArrowRightIcon className="w-4 h-4 ml-2 inline" />
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button variant="outline" size="lg">
-                  Create Account
-                </Button>
-              </Link>
-            </motion.div>
-
-            {/* Countdown Timer */}
-            {countdownLabel && (countdown.days > 0 || countdown.hours > 0 || countdown.minutes > 0 || countdown.seconds > 0) && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.2 }}
-                className="mb-12"
-              >
-                <p className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">{countdownLabel}</p>
-                <div className="flex justify-center gap-3 sm:gap-5">
-                  {[
-                    { value: countdown.days, label: 'Days' },
-                    { value: countdown.hours, label: 'Hours' },
-                    { value: countdown.minutes, label: 'Minutes' },
-                    { value: countdown.seconds, label: 'Seconds' },
-                  ].map((t) => (
-                    <div
-                      key={t.label}
-                      className="bg-gradient-to-b from-card to-card/50 border border-border/50 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 backdrop-blur-sm min-w-[72px]"
-                    >
-                      <p className="text-3xl sm:text-4xl font-black bg-gradient-to-b from-foreground to-muted bg-clip-text text-transparent">
-                        {String(t.value).padStart(2, '0')}
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-muted font-medium uppercase tracking-wider">{t.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Phase badge */}
-            {competition && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
-                <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold ${phaseInfo.bg} ${phaseInfo.color}`}>
-                  <SparklesIcon className="w-4 h-4" />
-                  {phaseInfo.label}
-                </div>
-              </motion.div>
-            )}
           </motion.div>
 
-          {/* Share Button */}
-          <motion.div
+          {/* Title — cinematic massive */}
+          <motion.h1
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="text-5xl sm:text-7xl lg:text-8xl xl:text-[9rem] font-black leading-[0.9] tracking-[-0.04em] mb-8"
+          >
+            <span className="block text-foreground drop-shadow-[0_0_40px_rgba(139,92,246,0.15)]">
+              {pcs('heroTitleLine1', "India's Biggest")}
+            </span>
+            <span className="block text-shimmer mt-2">
+              {pcs('heroTitleLine2', 'Startup Competition')}
+            </span>
+          </motion.h1>
+
+          {/* Description */}
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="text-xl sm:text-2xl lg:text-3xl text-muted/70 max-w-4xl mx-auto mb-6 leading-relaxed font-light"
+          >
+            {pcs('heroDescription', 'We invite students, founders, engineers, and innovators from every corner of India to showcase their groundbreaking ideas on the national stage.')}
+          </motion.p>
+
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.6 }}
-            className="mt-8 relative inline-block"
+            transition={{ delay: 0.8 }}
+            className="text-lg sm:text-xl text-purple/70 font-medium mb-14 italic"
           >
+            &ldquo;{pcs('heroQuote', 'Your idea deserves the spotlight. This is your moment.')}&rdquo;
+          </motion.p>
+
+          {/* CTA Buttons — premium */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            className="flex flex-wrap gap-5 justify-center mb-16"
+          >
+            <Link href="/competition/register">
+              <button className="group relative px-10 py-5 bg-gradient-to-r from-purple to-blue rounded-2xl text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-purple/25">
+                <span className="relative z-10 flex items-center gap-2">
+                  <FireIcon className="w-5 h-5" />
+                  Register Your Startup
+                  <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue to-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </button>
+            </Link>
+            <Link href="/signup">
+              <button className="px-10 py-5 rounded-2xl text-foreground font-bold text-lg glass border-white/10 hover:border-purple/30 hover:bg-white/5 transition-all duration-300">
+                Create Account
+              </button>
+            </Link>
+          </motion.div>
+
+          {/* Countdown Timer — cinematic glass */}
+          {countdownLabel && (countdown.days > 0 || countdown.hours > 0 || countdown.minutes > 0 || countdown.seconds > 0) && (
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.2 }}>
+              <p className="text-xs font-bold text-muted/50 uppercase tracking-[0.3em] mb-6">{countdownLabel}</p>
+              <div className="flex justify-center gap-4 sm:gap-6">
+                {[
+                  { value: countdown.days, label: 'Days' },
+                  { value: countdown.hours, label: 'Hours' },
+                  { value: countdown.minutes, label: 'Minutes' },
+                  { value: countdown.seconds, label: 'Seconds' },
+                ].map((t) => (
+                  <div key={t.label} className="glass-premium rounded-2xl px-5 sm:px-8 py-4 sm:py-6 min-w-[80px] sm:min-w-[100px] border-glow-animate">
+                    <p className="text-4xl sm:text-5xl font-black bg-gradient-to-b from-foreground via-foreground/90 to-muted/40 bg-clip-text text-transparent tabular-nums">
+                      {String(t.value).padStart(2, '0')}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-muted/40 font-semibold uppercase tracking-[0.2em] mt-1">{t.label}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Phase badge */}
+          {competition && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="mt-12">
+              <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm glass ${phaseInfo.color}`}>
+                <SparklesIcon className="w-4 h-4" />
+                {phaseInfo.label}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Share Button */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.7 }} className="mt-10 relative inline-block">
             <button
               onClick={() => setShowShareMenu(!showShareMenu)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-card border border-border/50 text-muted hover:text-foreground hover:border-purple/40 transition-all text-sm font-medium"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass text-muted/60 hover:text-foreground hover:border-purple/30 transition-all text-sm font-medium"
             >
               <ShareIcon className="w-4 h-4" />
               Share This Event
@@ -444,9 +449,9 @@ export default function CompetitionPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                className="absolute top-full mt-3 left-1/2 -translate-x-1/2 z-50 bg-card border border-border rounded-2xl p-5 shadow-2xl shadow-black/40 min-w-[300px]"
+                className="absolute top-full mt-3 left-1/2 -translate-x-1/2 z-50 glass-premium rounded-2xl p-5 shadow-2xl shadow-black/50 min-w-[300px]"
               >
-                <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-3">Share via</p>
+                <p className="text-xs text-muted/50 uppercase tracking-[0.2em] font-semibold mb-3">Share via</p>
                 <div className="grid grid-cols-3 gap-2 mb-3">
                   {shareLinks.map((link) => (
                     <a
@@ -471,71 +476,38 @@ export default function CompetitionPage() {
                 </div>
                 <button
                   onClick={() => setShowShareMenu(false)}
-                  className="w-full text-xs text-muted hover:text-foreground py-1.5 transition-colors"
+                  className="w-full text-xs text-muted/50 hover:text-foreground py-1.5 transition-colors"
                 >
                   Close
                 </button>
               </motion.div>
             )}
           </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto"
-          >
-            {[
-              { label: 'Registrations', value: competition?._count?.entries || 0, icon: RocketLaunchIcon, color: 'text-purple' },
-              { label: 'Top Selected', value: pcn('topSelected', 200), icon: StarIcon, color: 'text-yellow-400' },
-              { label: 'Finalists', value: pcn('finalistCount', 20), icon: TrophyIcon, color: 'text-orange-400' },
-              { label: 'Pitch Duration', value: pcs('pitchDuration', '5 min'), icon: ClockIcon, color: 'text-blue' },
-            ].map((stat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.1 }}
-              >
-                <Card className="p-5 text-center border border-border/50 hover:border-purple/30 transition-all hover:shadow-lg hover:shadow-purple/5">
-                  <stat.icon className={`w-7 h-7 ${stat.color} mx-auto mb-2`} />
-                  <p className="text-3xl font-black text-foreground">{stat.value}</p>
-                  <p className="text-xs text-muted font-medium">{stat.label}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
         </div>
+
+        {/* Bottom gradient fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#0B0F1A] to-transparent" />
       </section>
 
-      {/* Invitation Message Banner */}
-      <section className="py-12 px-4 sm:px-6">
+      {/* ═══ STATS STRIP — Floating Glass Bar ═══ */}
+      <section className="relative -mt-24 z-10 px-4 sm:px-6 pb-24">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="relative bg-gradient-to-r from-purple/10 via-blue/10 to-cyan-400/10 rounded-3xl p-8 sm:p-12 border border-purple/20 overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-40 h-40 bg-purple/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-40 h-40 bg-blue/10 rounded-full blur-3xl" />
-            <div className="relative text-center">
-              <HeartIcon className="w-10 h-10 text-purple mx-auto mb-4" />
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
-                {pcs('invitationTitle', 'Dear Innovators, This is Your Invitation')}
-              </h2>
-              <p className="text-lg text-muted max-w-3xl mx-auto mb-4 leading-relaxed">
-                {pcs('invitationDescription', "Whether you're a college student with a brilliant idea, a founder building the next big thing, or an engineer who wants to solve real problems — Vishvakarma Innovation Challenge 2026 is the platform where your startup journey begins.")}
-              </p>
-              <p className="text-base text-muted max-w-2xl mx-auto mb-6">
-                {pcs('invitationSubtext', 'We believe every idea matters. No matter how big or small, your innovation can change the world. Join thousands of dreamers who are turning ideas into reality.')}
-              </p>
-              <div className="flex flex-wrap justify-center gap-6 text-sm">
-                {pcList('invitationHighlights', 'Open to all Indians, Starting at just ₹199, National stage exposure, Meet investors & mentors').map((h, i) => (
-                  <div key={i} className="flex items-center gap-2 text-green-400">
-                    <CheckCircleIcon className="w-5 h-5" />
-                    <span>{h}</span>
-                  </div>
+          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+            <div className="glass-premium rounded-3xl p-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { label: 'Registrations', value: competition?._count?.entries || 0, icon: RocketLaunchIcon, gradient: 'from-purple/20 to-purple/5', color: 'text-purple' },
+                  { label: 'Top Selected', value: pcn('topSelected', 200), icon: StarIcon, gradient: 'from-amber-400/20 to-amber-400/5', color: 'text-amber-400' },
+                  { label: 'Finalists', value: pcn('finalistCount', 20), icon: TrophyIcon, gradient: 'from-orange-400/20 to-orange-400/5', color: 'text-orange-400' },
+                  { label: 'Pitch Duration', value: pcs('pitchDuration', '5 min'), icon: ClockIcon, gradient: 'from-blue/20 to-blue/5', color: 'text-blue' },
+                ].map((stat, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
+                    <div className={`bg-gradient-to-b ${stat.gradient} rounded-2xl p-6 sm:p-8 text-center`}>
+                      <stat.icon className={`w-7 h-7 ${stat.color} mx-auto mb-3 opacity-70`} />
+                      <p className="text-3xl sm:text-4xl font-black text-foreground">{stat.value}</p>
+                      <p className="text-[10px] text-muted/50 font-semibold uppercase tracking-[0.15em] mt-1">{stat.label}</p>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -543,76 +515,139 @@ export default function CompetitionPage() {
         </div>
       </section>
 
-      {/* Prizes & Rewards */}
-      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-yellow-400/5 to-transparent">
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════════════════ */}
+      {/* ═══ ACT II — THE INVITATION ═══ */}
+      {/* ═══════════════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="absolute inset-0 spotlight" />
         <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">{pcs('prizeSectionTitle', 'What You Win')}</h2>
-            <p className="text-muted max-w-xl mx-auto">{pcs('prizeSectionSubtitle', 'More than just prizes — a launchpad for your startup career')}</p>
+          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+            <div className="glass-premium rounded-[2rem] p-10 sm:p-16 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-60 h-60 bg-purple/8 rounded-full blur-[80px]" />
+              <div className="absolute bottom-0 right-0 w-60 h-60 bg-blue/8 rounded-full blur-[80px]" />
+              <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-purple/30 to-transparent" />
+              <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue/20 to-transparent" />
+
+              <div className="relative text-center">
+                <HeartIcon className="w-12 h-12 text-purple/50 mx-auto mb-6" />
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-6 leading-tight">
+                  {pcs('invitationTitle', 'Dear Innovators, This is Your Invitation')}
+                </h2>
+                <p className="text-lg sm:text-xl text-muted/60 max-w-3xl mx-auto mb-6 leading-relaxed font-light">
+                  {pcs('invitationDescription', "Whether you're a college student with a brilliant idea, a founder building the next big thing, or an engineer who wants to solve real problems — Vishvakarma Innovation Challenge 2026 is the platform where your startup journey begins.")}
+                </p>
+                <p className="text-base text-muted/40 max-w-2xl mx-auto mb-10">
+                  {pcs('invitationSubtext', 'We believe every idea matters. No matter how big or small, your innovation can change the world. Join thousands of dreamers who are turning ideas into reality.')}
+                </p>
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm">
+                  {pcList('invitationHighlights', 'Open to all Indians, Starting at just ₹199, National stage exposure, Meet investors & mentors').map((h, i) => (
+                    <div key={i} className="flex items-center gap-2 text-green-400/70">
+                      <CheckCircleIcon className="w-5 h-5" />
+                      <span>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ═══ ACT III — THE PRIZES (Award Ceremony) ═══ */}
+      {/* ═══════════════════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="absolute inset-0 spotlight-gold" />
+        <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-amber-500/[0.04] rounded-full blur-[250px] -translate-y-1/2" />
+        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-purple/[0.04] rounded-full blur-[200px] -translate-y-1/2" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-20">
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <TrophyIcon className="w-16 h-16 text-amber-400/50 mx-auto mb-6" />
+            </motion.div>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground mb-4">
+              {pcs('prizeSectionTitle', 'What You Win')}
+            </h2>
+            <p className="text-lg text-muted/50 max-w-xl mx-auto">{pcs('prizeSectionSubtitle', 'More than just prizes — a launchpad for your startup career')}</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {/* 1st Place */}
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="p-6 text-center border-yellow-400/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-400 to-orange-400" />
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400/20 to-orange-400/20 flex items-center justify-center mx-auto mb-4">
-                  <TrophyIcon className="w-8 h-8 text-yellow-400" />
+          {/* Prize Cards — Award Ceremony Layout */}
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12">
+            {/* 1st Place — Gold Crown */}
+            <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.7 }} className="md:-mt-8">
+              <div className="glass-gold rounded-3xl p-8 sm:p-10 text-center relative overflow-hidden card-cinematic h-full gold-glow-animate">
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-amber-400/[0.06] to-transparent" />
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400/25 to-orange-500/15 flex items-center justify-center mx-auto mb-6 border border-amber-400/20">
+                    <TrophyIcon className="w-12 h-12 text-amber-400" />
+                  </div>
+                  <div className="mb-4">
+                    <span className="gold-shimmer text-xs font-black tracking-[0.3em] uppercase">1st Place</span>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-2">{pcs('firstPrizeTitle', 'Grand Winner')}</h3>
+                  <p className="text-sm text-muted/40 mb-8">{pcs('firstPrizeSubtitle', 'The top startup takes it all')}</p>
+                  <div className="space-y-3 text-sm text-left">
+                    {pcList('firstPrizeBenefits', 'Cash prize + Trophy, Investor pitch meetings, 1-year incubation support, Media & PR coverage').map((b, i) => (
+                      <div key={i} className="flex items-center gap-3"><StarIcon className="w-4 h-4 text-amber-400/70 flex-shrink-0" /><span className="text-foreground/70">{b}</span></div>
+                    ))}
+                  </div>
                 </div>
-                <Badge variant="warning">1st Place</Badge>
-                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('firstPrizeTitle', 'Grand Winner')}</h3>
-                <p className="text-sm text-muted mb-4">{pcs('firstPrizeSubtitle', 'The top startup takes it all')}</p>
-                <div className="space-y-2 text-sm text-left">
-                  {pcList('firstPrizeBenefits', 'Cash prize + Trophy, Investor pitch meetings, 1-year incubation support, Media & PR coverage').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2 text-yellow-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">{b}</span></div>
-                  ))}
-                </div>
-              </Card>
+              </div>
             </motion.div>
 
-            {/* 2nd Place */}
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="p-6 text-center border-gray-300/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-gray-300 to-gray-400" />
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300/20 to-gray-400/20 flex items-center justify-center mx-auto mb-4">
-                  <TrophyIcon className="w-8 h-8 text-gray-300" />
+            {/* 2nd Place — Silver */}
+            <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2, duration: 0.7 }}>
+              <div className="glass-premium rounded-3xl p-8 sm:p-10 text-center relative overflow-hidden border-gray-400/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-gray-400 to-transparent" />
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-gray-300/15 to-gray-400/10 flex items-center justify-center mx-auto mb-6 border border-gray-400/15">
+                    <TrophyIcon className="w-10 h-10 text-gray-300" />
+                  </div>
+                  <Badge variant="default">2nd Place</Badge>
+                  <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('secondPrizeTitle', 'Runner Up')}</h3>
+                  <p className="text-sm text-muted/40 mb-8">{pcs('secondPrizeSubtitle', 'Outstanding innovation runner')}</p>
+                  <div className="space-y-3 text-sm text-left">
+                    {pcList('secondPrizeBenefits', 'Cash prize + Trophy, Mentorship program, Networking access').map((b, i) => (
+                      <div key={i} className="flex items-center gap-3"><StarIcon className="w-4 h-4 text-gray-400/70 flex-shrink-0" /><span className="text-foreground/70">{b}</span></div>
+                    ))}
+                  </div>
                 </div>
-                <Badge variant="default">2nd Place</Badge>
-                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('secondPrizeTitle', 'Runner Up')}</h3>
-                <p className="text-sm text-muted mb-4">{pcs('secondPrizeSubtitle', 'Outstanding innovation runner')}</p>
-                <div className="space-y-2 text-sm text-left">
-                  {pcList('secondPrizeBenefits', 'Cash prize + Trophy, Mentorship program, Networking access').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2 text-gray-400"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">{b}</span></div>
-                  ))}
-                </div>
-              </Card>
+              </div>
             </motion.div>
 
-            {/* 3rd Place */}
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Card className="p-6 text-center border-orange-700/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-600 to-orange-700" />
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600/20 to-orange-700/20 flex items-center justify-center mx-auto mb-4">
-                  <TrophyIcon className="w-8 h-8 text-orange-600" />
+            {/* 3rd Place — Bronze */}
+            <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.7 }}>
+              <div className="glass-premium rounded-3xl p-8 sm:p-10 text-center relative overflow-hidden border-orange-600/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-orange-600 to-transparent" />
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-orange-600/15 to-orange-700/10 flex items-center justify-center mx-auto mb-6 border border-orange-600/15">
+                    <TrophyIcon className="w-10 h-10 text-orange-600" />
+                  </div>
+                  <Badge variant="info">3rd Place</Badge>
+                  <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('thirdPrizeTitle', 'Second Runner Up')}</h3>
+                  <p className="text-sm text-muted/40 mb-8">{pcs('thirdPrizeSubtitle', 'Remarkable innovation')}</p>
+                  <div className="space-y-3 text-sm text-left">
+                    {pcList('thirdPrizeBenefits', 'Cash prize + Trophy, Platform spotlight, Certificate of excellence').map((b, i) => (
+                      <div key={i} className="flex items-center gap-3"><StarIcon className="w-4 h-4 text-orange-600/70 flex-shrink-0" /><span className="text-foreground/70">{b}</span></div>
+                    ))}
+                  </div>
                 </div>
-                <Badge variant="info">3rd Place</Badge>
-                <h3 className="text-2xl font-black text-foreground mt-3 mb-2">{pcs('thirdPrizeTitle', 'Second Runner Up')}</h3>
-                <p className="text-sm text-muted mb-4">{pcs('thirdPrizeSubtitle', 'Remarkable innovation')}</p>
-                <div className="space-y-2 text-sm text-left">
-                  {pcList('thirdPrizeBenefits', 'Cash prize + Trophy, Platform spotlight, Certificate of excellence').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2 text-orange-600"><StarIcon className="w-4 h-4 flex-shrink-0" /><span className="text-foreground">{b}</span></div>
-                  ))}
-                </div>
-              </Card>
+              </div>
             </motion.div>
           </div>
 
           {/* All Participants Benefits */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-            <Card className="p-6 border-purple/20">
-              <div className="text-center mb-4">
-                <GlobeAltIcon className="w-8 h-8 text-purple mx-auto mb-2" />
-                <h3 className="text-lg font-bold text-foreground">Every Participant Gets</h3>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="glass rounded-3xl p-8 sm:p-10 border-purple/10">
+              <div className="text-center mb-6">
+                <GlobeAltIcon className="w-10 h-10 text-purple/40 mx-auto mb-3" />
+                <h3 className="text-xl font-bold text-foreground">Every Participant Gets</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
                 {(() => {
@@ -620,151 +655,171 @@ export default function CompetitionPage() {
                   return pcList('participantBenefits', 'Certificate of Participation, Networking with Founders, Startup Visibility, Mentorship Access').map((label, i) => {
                     const Icon = icons[i % icons.length];
                     return (
-                      <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-purple/5">
-                        <Icon className="w-6 h-6 text-purple" />
-                        <span className="text-muted font-medium text-xs">{label}</span>
+                      <div key={i} className="flex flex-col items-center gap-3 p-5 rounded-2xl bg-purple/[0.04] border border-purple/10">
+                        <Icon className="w-7 h-7 text-purple/50" />
+                        <span className="text-muted/50 font-medium text-xs">{label}</span>
                       </div>
                     );
                   });
                 })()}
               </div>
-            </Card>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Competition Phases Timeline */}
-      <section className="py-16 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Competition Phases</h2>
-            <p className="text-muted max-w-xl mx-auto">From registration to the final pitch — here&apos;s how the competition works</p>
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═════════════════════════════════════════════════════ */}
+      {/* ═══ ACT IV — COMPETITION PHASES ═══ */}
+      {/* ═════════════════════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="absolute inset-0 spotlight" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-20">
+            <CalendarDaysIcon className="w-14 h-14 text-blue/40 mx-auto mb-6" />
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Competition Phases</h2>
+            <p className="text-lg text-muted/50 max-w-xl mx-auto">From registration to the final pitch — here&apos;s how the journey unfolds</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
             {/* Phase 1 */}
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}>
-              <Card className={`p-6 h-full border-l-4 ${phase === 'REGISTRATION' ? 'border-l-green-400' : 'border-l-border'}`}>
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${phase === 'REGISTRATION' ? 'bg-green-400/10 text-green-400' : 'bg-card text-muted'}`}>
-                    <RocketLaunchIcon className="w-5 h-5" />
+            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <div className={`glass-premium rounded-3xl p-8 h-full relative overflow-hidden card-cinematic ${phase === 'REGISTRATION' ? 'border-green-400/20' : ''}`}>
+                {phase === 'REGISTRATION' && <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent" />}
+                <div className="flex items-start gap-5">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${phase === 'REGISTRATION' ? 'bg-green-400/10 text-green-400' : 'bg-white/5 text-muted/40'}`}>
+                    <RocketLaunchIcon className="w-7 h-7" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold text-foreground">Phase 1 — Startup Registration</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-bold text-foreground">Phase 1 — Registration</h3>
                       {phase === 'REGISTRATION' && <Badge variant="success">ACTIVE</Badge>}
                     </div>
-                    <p className="text-xs text-muted mb-3">Duration: 30 days{competition && ` (${formatDate(competition.registrationStart)} – ${formatDate(competition.registrationEnd)})`}</p>
-                    <p className="text-sm text-muted mb-3">Open to students, engineers, founders, innovators, and researchers. Submit your startup via the Vishvakarma Hub startup wizard.</p>
-                    <div className="text-xs text-muted">
-                      <span className="font-medium text-foreground">Required:</span> Startup idea, problem statement, solution, market potential, product stage
+                    <p className="text-xs text-muted/40 mb-4">Duration: 30 days{competition && ` (${formatDate(competition.registrationStart)} – ${formatDate(competition.registrationEnd)})`}</p>
+                    <p className="text-sm text-muted/50 mb-4">Open to students, engineers, founders, innovators, and researchers. Submit your startup via the Vishvakarma Hub wizard.</p>
+                    <div className="text-xs text-muted/40">
+                      <span className="font-medium text-foreground/70">Required:</span> Startup idea, problem statement, solution, market potential, product stage
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             </motion.div>
 
             {/* Phase 2 */}
-            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }}>
-              <Card className={`p-6 h-full border-l-4 ${phase === 'SCREENING' ? 'border-l-yellow-400' : 'border-l-border'}`}>
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${phase === 'SCREENING' ? 'bg-yellow-400/10 text-yellow-400' : 'bg-card text-muted'}`}>
-                    <ChartBarIcon className="w-5 h-5" />
+            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <div className={`glass-premium rounded-3xl p-8 h-full relative overflow-hidden card-cinematic ${phase === 'SCREENING' ? 'border-yellow-400/20' : ''}`}>
+                {phase === 'SCREENING' && <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />}
+                <div className="flex items-start gap-5">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${phase === 'SCREENING' ? 'bg-yellow-400/10 text-yellow-400' : 'bg-white/5 text-muted/40'}`}>
+                    <ChartBarIcon className="w-7 h-7" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold text-foreground">Phase 2 — Manual + Jury Screening</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-bold text-foreground">Phase 2 — Jury Screening</h3>
                       {phase === 'SCREENING' && <Badge variant="warning">ACTIVE</Badge>}
                     </div>
-                    <p className="text-xs text-muted mb-3">Top 200 startups selected</p>
+                    <p className="text-xs text-muted/40 mb-4">Top 200 startups selected</p>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       {pcList('screeningCriteria', 'Innovation:30%, Market Potential:30%, Execution Feasibility:20%, Impact:20%').map((c) => {
                         const [label, weight] = c.split(':').map(s => s.trim());
                         return (
-                          <div key={label} className="flex justify-between px-3 py-1.5 rounded-lg bg-background/50">
-                            <span className="text-muted text-xs">{label}</span>
-                            <span className="text-foreground font-semibold text-xs">{weight}</span>
+                          <div key={label} className="flex justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/5">
+                            <span className="text-muted/50 text-xs">{label}</span>
+                            <span className="text-foreground/70 font-semibold text-xs">{weight}</span>
                           </div>
                         );
                       })}
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             </motion.div>
 
             {/* Phase 3 */}
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}>
-              <Card className={`p-6 h-full border-l-4 ${phase === 'VOTING' ? 'border-l-blue-400' : 'border-l-border'}`}>
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${phase === 'VOTING' ? 'bg-blue-400/10 text-blue-400' : 'bg-card text-muted'}`}>
-                    <HandThumbUpIcon className="w-5 h-5" />
+            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}>
+              <div className={`glass-premium rounded-3xl p-8 h-full relative overflow-hidden card-cinematic ${phase === 'VOTING' ? 'border-blue-400/20' : ''}`}>
+                {phase === 'VOTING' && <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent" />}
+                <div className="flex items-start gap-5">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${phase === 'VOTING' ? 'bg-blue-400/10 text-blue-400' : 'bg-white/5 text-muted/40'}`}>
+                    <HandThumbUpIcon className="w-7 h-7" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold text-foreground">Phase 3 — Public Voting</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-bold text-foreground">Phase 3 — Public Voting</h3>
                       {phase === 'VOTING' && <Badge variant="info">ACTIVE</Badge>}
                     </div>
-                    <p className="text-xs text-muted mb-3">Community-driven engagement{competition && ` (Ends: ${formatDate(competition.votingEnd)})`}</p>
-                    <p className="text-sm text-muted mb-2">Top startups are displayed publicly. The community can support through:</p>
+                    <p className="text-xs text-muted/40 mb-4">Community-driven engagement{competition && ` (Ends: ${formatDate(competition.votingEnd)})`}</p>
+                    <p className="text-sm text-muted/50 mb-3">Top startups are displayed publicly. The community supports through:</p>
                     <div className="flex flex-wrap gap-2">
                       {['Upvotes', 'Comments', 'Bookmarking', 'Funding Interest'].map((a) => (
-                        <span key={a} className="px-2 py-1 text-xs rounded-full bg-blue/10 text-blue border border-blue/20">{a}</span>
+                        <span key={a} className="px-3 py-1.5 text-xs rounded-full bg-blue/[0.08] text-blue/80 border border-blue/15">{a}</span>
                       ))}
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             </motion.div>
 
             {/* Phase 4 */}
-            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }}>
-              <Card className={`p-6 h-full border-l-4 ${phase === 'FINALS' ? 'border-l-purple-400' : 'border-l-border'}`}>
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${phase === 'FINALS' ? 'bg-purple/10 text-purple' : 'bg-card text-muted'}`}>
-                    <PresentationChartBarIcon className="w-5 h-5" />
+            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}>
+              <div className={`glass-premium rounded-3xl p-8 h-full relative overflow-hidden card-cinematic ${phase === 'FINALS' ? 'border-purple/20' : ''}`}>
+                {phase === 'FINALS' && <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-purple to-transparent" />}
+                <div className="flex items-start gap-5">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${phase === 'FINALS' ? 'bg-purple/10 text-purple' : 'bg-white/5 text-muted/40'}`}>
+                    <PresentationChartBarIcon className="w-7 h-7" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold text-foreground">Phase 4 — Final Pitch Round</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-bold text-foreground">Phase 4 — Final Pitch</h3>
                       {phase === 'FINALS' && <Badge variant="info">ACTIVE</Badge>}
                     </div>
-                    <p className="text-xs text-muted mb-3">Top 20 startups present online{competition && ` (${formatDate(competition.finalsDate)})`}</p>
-                    <p className="text-sm text-muted mb-2">5-minute pitch to a panel of judges:</p>
+                    <p className="text-xs text-muted/40 mb-4">Top 20 startups present online{competition && ` (${formatDate(competition.finalsDate)})`}</p>
+                    <p className="text-sm text-muted/50 mb-3">5-minute pitch to a panel of judges:</p>
                     <div className="flex flex-wrap gap-2">
                       {['Founders', 'Investors', 'Industry Experts'].map((j) => (
-                        <span key={j} className="px-2 py-1 text-xs rounded-full bg-purple/10 text-purple border border-purple/20">{j}</span>
+                        <span key={j} className="px-3 py-1.5 text-xs rounded-full bg-purple/[0.08] text-purple/80 border border-purple/15">{j}</span>
                       ))}
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Who Can Participate */}
-      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-purple/5 to-transparent">
-        <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Who Can Participate?</h2>
-            <p className="text-muted">Open to all innovators across India</p>
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════════ */}
+      {/* ═══ ACT V — WHO CAN PARTICIPATE ═══ */}
+      {/* ═══════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="absolute inset-0 spotlight" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-16">
+            <UserGroupIcon className="w-14 h-14 text-purple/40 mx-auto mb-6" />
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Who Can Participate?</h2>
+            <p className="text-lg text-muted/50">Open to all innovators across India</p>
           </motion.div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-6">
             {(() => {
               const icons = [AcademicCapIcon, RocketLaunchIcon, LightBulbIcon, SparklesIcon, ChartBarIcon];
               return pcList('participantCategories', 'Students:College & university students, Engineers:Technical professionals, Founders:Early-stage founders, Innovators:Creative problem solvers, Researchers:Academic researchers').map((item, i) => {
                 const [label, desc] = item.split(':').map(s => s.trim());
                 const Icon = icons[i % icons.length];
                 return (
-                  <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                    <Card className="p-4 text-center h-full hover:border-purple/30 transition-colors">
-                      <Icon className="w-8 h-8 text-purple mx-auto mb-2" />
-                      <p className="text-sm font-semibold text-foreground">{label}</p>
-                      <p className="text-xs text-muted mt-1">{desc}</p>
-                    </Card>
+                  <motion.div key={label} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} viewport={{ once: true }}>
+                    <div className="glass-premium rounded-2xl p-6 text-center h-full card-cinematic">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple/15 to-blue/10 flex items-center justify-center mx-auto mb-4">
+                        <Icon className="w-7 h-7 text-purple/60" />
+                      </div>
+                      <p className="text-sm font-bold text-foreground">{label}</p>
+                      <p className="text-xs text-muted/40 mt-2">{desc}</p>
+                    </div>
                   </motion.div>
                 );
               });
@@ -773,478 +828,558 @@ export default function CompetitionPage() {
         </div>
       </section>
 
-      {/* Participation Fees */}
-      <section className="py-16 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Participation Fees</h2>
-            <p className="text-muted max-w-xl mx-auto">Affordable entry for students and founders alike</p>
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════════════ */}
+      {/* ═══ ACT VI — PARTICIPATION FEES ═══ */}
+      {/* ═══════════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="absolute inset-0 spotlight" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-20">
+            <BoltIcon className="w-14 h-14 text-purple/40 mx-auto mb-6" />
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Participation Fees</h2>
+            <p className="text-lg text-muted/50 max-w-xl mx-auto">Affordable entry for students and founders alike</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-              <Card className="p-6 text-center border-blue/20 hover:border-blue/40 transition-colors h-full">
-                <AcademicCapIcon className="w-12 h-12 text-blue mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-foreground mb-2">Student</h3>
-                <p className="text-3xl font-bold text-blue mb-2">₹{competition?.studentFee || 199}</p>
-                <p className="text-sm text-muted">Valid college/university ID required</p>
-                <div className="mt-4 space-y-2 text-sm text-muted text-left">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Full competition access</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Mentorship sessions</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Certificate of participation</span></div>
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
+            {/* Student */}
+            <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0 }}>
+              <div className="glass-premium rounded-3xl p-8 text-center relative overflow-hidden border-blue/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-blue to-transparent" />
+                <div className="w-16 h-16 rounded-2xl bg-blue/10 flex items-center justify-center mx-auto mb-6">
+                  <AcademicCapIcon className="w-8 h-8 text-blue" />
                 </div>
-              </Card>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="p-6 text-center border-purple/20 hover:border-purple/40 transition-colors h-full">
-                <LightBulbIcon className="w-12 h-12 text-purple mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-foreground mb-2">Founder / Professional</h3>
-                <p className="text-3xl font-bold text-purple mb-2">₹{competition?.founderFee || 499}</p>
-                <p className="text-sm text-muted">For entrepreneurs and working professionals</p>
-                <div className="mt-4 space-y-2 text-sm text-muted text-left">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Full competition access</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Investor networking opportunity</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Priority pitch slot</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Certificate of participation</span></div>
-                </div>
-              </Card>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="p-6 text-center border-emerald-400/20 hover:border-emerald-400/40 transition-colors h-full">
-                <TicketIcon className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-foreground mb-2">Visitor Entry</h3>
-                <p className="text-3xl font-bold text-emerald-400 mb-2">₹99</p>
-                <p className="text-sm text-muted">For anyone who wants to attend the event</p>
-                <div className="mt-4 space-y-2 text-sm text-muted text-left">
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Event access pass</span></div>
-                  <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Innovation showcase viewing</span></div>
-                </div>
-                <Link href="/competition/citizen-pass">
-                  <Button className="w-full mt-4" variant="outline">Get Entry Pass</Button>
-                </Link>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Exhibition Booths */}
-      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-blue/5 to-transparent">
-        <div className="max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Exhibition Booths</h2>
-            <p className="text-muted max-w-xl mx-auto">Showcase your product at the Vishvakarma Innovation Expo</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-            <Card className="p-8 border-cyan-400/20 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-cyan-400/10 to-transparent rounded-bl-full" />
-              <div className="relative">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                  <div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">{pcs('boothTitle', 'Standard Exhibition Booth')}</h3>
-                    <p className="text-muted mb-4">{competition?.boothDescription || '6x6 ft branded booth space with table, chairs, power outlet, and Wi-Fi. Perfect for product demos and live showcases.'}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {pcList('boothFeatures', 'Product Demo Space, Branded Backdrop, Power & Wi-Fi, Visitor Footfall').map((f) => (
-                        <span key={f} className="px-3 py-1 text-xs rounded-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">{f}</span>
-                      ))}
+                <h3 className="text-lg font-bold text-foreground mb-3">Student</h3>
+                <p className="text-4xl font-black text-blue mb-2">₹{competition?.studentFee || 199}</p>
+                <p className="text-sm text-muted/40 mb-6">Valid college/university ID required</p>
+                <div className="space-y-3 text-sm text-left">
+                  {['Full competition access', 'Mentorship sessions', 'Certificate of participation'].map((b, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <CheckCircleIcon className="w-4 h-4 text-green-400/60 flex-shrink-0" />
+                      <span className="text-muted/50">{b}</span>
                     </div>
-                  </div>
-                  <div className="text-center md:text-right flex-shrink-0">
-                    <p className="text-4xl font-bold text-cyan-400">₹{(competition?.boothPrice || 5000).toLocaleString('en-IN')}</p>
-                    <p className="text-sm text-muted">per booth</p>
-                  </div>
+                  ))}
                 </div>
               </div>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Sponsors Section */}
-      {competition?.sponsors && competition.sponsors.length > 0 && (
-        <section className="py-16 px-4 sm:px-6">
-          <div className="max-w-5xl mx-auto">
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-3">Our Sponsors</h2>
-              <p className="text-muted max-w-xl mx-auto">Backed by industry leaders driving innovation forward</p>
             </motion.div>
 
-            {competition.sponsors.filter(s => s.tier === 'TITLE').length > 0 && (
-              <div className="mb-10">
-                <h3 className="text-center text-sm font-semibold text-yellow-400 uppercase tracking-widest mb-6">Title Sponsors</h3>
-                <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-                  {competition.sponsors.filter(s => s.tier === 'TITLE').map((s) => (
-                    <motion.div key={s.id} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}>
-                      <Card className="p-6 border-yellow-400/20 text-center">
-                        <div className="w-20 h-20 rounded-2xl bg-yellow-400/10 flex items-center justify-center mx-auto mb-4 overflow-hidden">
-                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-2" /> : <StarIcon className="w-10 h-10 text-yellow-400" />}
-                        </div>
-                        <h4 className="text-lg font-bold text-foreground">{s.name}</h4>
-                        <Badge variant="warning">Title Sponsor</Badge>
-                        {s.benefits && (
-                          <div className="mt-3 space-y-1 text-sm text-muted text-left">
-                            {(() => { try { return JSON.parse(s.benefits); } catch { return s.benefits.split(','); } })().map((b: string, i: number) => (
-                              <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" /><span>{b.trim()}</span></div>
-                            ))}
-                          </div>
-                        )}
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {competition.sponsors.filter(s => s.tier === 'GOLD').length > 0 && (
-              <div className="mb-10">
-                <h3 className="text-center text-sm font-semibold text-orange-400 uppercase tracking-widest mb-6">Gold Sponsors</h3>
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                  {competition.sponsors.filter(s => s.tier === 'GOLD').map((s) => (
-                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-                      <Card className="p-5 border-orange-400/20 text-center">
-                        <div className="w-14 h-14 rounded-xl bg-orange-400/10 flex items-center justify-center mx-auto mb-3 overflow-hidden">
-                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-7 h-7 text-orange-400" />}
-                        </div>
-                        <h4 className="font-semibold text-foreground">{s.name}</h4>
-                        <p className="text-xs text-orange-400 mt-1">Gold Sponsor</p>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').length > 0 && (
-              <div>
-                <h3 className="text-center text-sm font-semibold text-blue-400 uppercase tracking-widest mb-6">Startup Partners</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                  {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').map((s) => (
-                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-                      <Card className="p-4 border-blue-400/20 text-center">
-                        <div className="w-12 h-12 rounded-lg bg-blue-400/10 flex items-center justify-center mx-auto mb-2 overflow-hidden">
-                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-6 h-6 text-blue-400" />}
-                        </div>
-                        <h4 className="text-sm font-semibold text-foreground">{s.name}</h4>
-                        <p className="text-xs text-blue-400 mt-0.5">Startup Partner</p>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Sponsor Packages */}
-      <section className="py-16 px-4 sm:px-6 bg-gradient-to-b from-transparent via-purple/5 to-transparent">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Become a Sponsor</h2>
-            <p className="text-muted max-w-xl mx-auto">Partner with us and get unparalleled visibility in India&apos;s biggest startup competition</p>
-          </motion.div>
-
-          {/* Title Sponsor — Featured */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="mb-8">
-            <Card className="p-8 border-yellow-400/30 relative overflow-hidden">
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400" />
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-yellow-400/10 to-transparent rounded-bl-full" />
-              <div className="relative flex flex-col md:flex-row md:items-start gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400/20 to-orange-400/20 flex items-center justify-center">
-                    <StarIcon className="w-8 h-8 text-yellow-400" />
+            {/* Founder — Featured */}
+            <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
+              <div className="glass-premium rounded-3xl p-8 text-center relative overflow-hidden border-purple/20 card-cinematic h-full md:-mt-4">
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-purple to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-purple/[0.04] to-transparent" />
+                <div className="relative">
+                  <Badge variant="info" className="mb-4">Most Popular</Badge>
+                  <div className="w-16 h-16 rounded-2xl bg-purple/10 flex items-center justify-center mx-auto mb-6">
+                    <LightBulbIcon className="w-8 h-8 text-purple" />
                   </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-xl font-bold text-foreground">Title Sponsor</h3>
-                    <Badge variant="warning">Most Premium</Badge>
-                  </div>
-                  <p className="text-2xl font-bold text-yellow-400 mb-4">{pcs('titleSponsorPrice', '₹5,00,000')}</p>
-                  <div className="grid sm:grid-cols-2 gap-2 text-sm text-muted">
-                    {pcList('titleSponsorBenefits', 'Event named \u201cpowered by [Sponsor]\u201d, Logo on stage backdrop, 5–10 min keynote speech, Premium branding across website, Media coverage mention, Startup exhibition booth, Direct access to top startups').map((b, i) => (
-                      <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" /><span>{b}</span></div>
+                  <h3 className="text-lg font-bold text-foreground mb-3">Founder / Professional</h3>
+                  <p className="text-4xl font-black text-purple mb-2">₹{competition?.founderFee || 499}</p>
+                  <p className="text-sm text-muted/40 mb-6">For entrepreneurs and professionals</p>
+                  <div className="space-y-3 text-sm text-left">
+                    {['Full competition access', 'Investor networking opportunity', 'Priority pitch slot', 'Certificate of participation'].map((b, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <CheckCircleIcon className="w-4 h-4 text-green-400/60 flex-shrink-0" />
+                        <span className="text-muted/50">{b}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
-            </Card>
+            </motion.div>
+
+            {/* Visitor */}
+            <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
+              <div className="glass-premium rounded-3xl p-8 text-center relative overflow-hidden border-emerald-400/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
+                <div className="w-16 h-16 rounded-2xl bg-emerald-400/10 flex items-center justify-center mx-auto mb-6">
+                  <TicketIcon className="w-8 h-8 text-emerald-400" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-3">Visitor Entry</h3>
+                <p className="text-4xl font-black text-emerald-400 mb-2">₹99</p>
+                <p className="text-sm text-muted/40 mb-6">For anyone who wants to attend</p>
+                <div className="space-y-3 text-sm text-left mb-6">
+                  {['Event access pass', 'Innovation showcase viewing'].map((b, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <CheckCircleIcon className="w-4 h-4 text-green-400/60 flex-shrink-0" />
+                      <span className="text-muted/50">{b}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/competition/citizen-pass">
+                  <button className="w-full px-4 py-3 rounded-xl glass border-emerald-400/20 text-emerald-400 font-semibold text-sm hover:bg-emerald-400/10 transition-all">
+                    Get Entry Pass
+                  </button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════════════ */}
+      {/* ═══ EXHIBITION BOOTHS ═══ */}
+      {/* ═══════════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="max-w-5xl mx-auto relative">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Exhibition Booths</h2>
+            <p className="text-lg text-muted/50 max-w-xl mx-auto">Showcase your product at the Vishvakarma Innovation Expo</p>
           </motion.div>
 
-          {/* Presenting + Diamond — Row */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-              <Card className="p-6 border-rose-400/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-rose-400 via-pink-400 to-rose-400" />
-                <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-rose-400/10 to-transparent rounded-bl-full" />
-                <StarIcon className="w-10 h-10 text-rose-400 mb-3" />
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-bold text-foreground">Presenting Sponsor</h3>
-                  <Badge variant="danger">Premium</Badge>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="glass-premium rounded-3xl p-10 sm:p-14 relative overflow-hidden border-cyan-400/15">
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
+              <div className="absolute top-0 right-0 w-60 h-60 bg-gradient-to-bl from-cyan-400/[0.06] to-transparent rounded-bl-full" />
+              <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+                <div>
+                  <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-4">{pcs('boothTitle', 'Standard Exhibition Booth')}</h3>
+                  <p className="text-muted/50 mb-6 leading-relaxed">{competition?.boothDescription || '6x6 ft branded booth space with table, chairs, power outlet, and Wi-Fi. Perfect for product demos and live showcases.'}</p>
+                  <div className="flex flex-wrap gap-3">
+                    {pcList('boothFeatures', 'Product Demo Space, Branded Backdrop, Power & Wi-Fi, Visitor Footfall').map((f) => (
+                      <span key={f} className="px-4 py-2 text-xs rounded-full bg-cyan-400/[0.08] text-cyan-400/80 border border-cyan-400/15 font-medium">{f}</span>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-2xl font-bold text-rose-400 mb-4">{pcs('presentingSponsorPrice', '₹3,00,000')}</p>
-                <div className="space-y-2 text-sm text-muted">
-                  {pcList('presentingSponsorBenefits', 'Co-branded event title, Logo on stage backdrop, 5 min keynote slot, Premium branding on website, Media coverage mention, VIP booth at exhibition').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-rose-400 flex-shrink-0" /><span>{b}</span></div>
-                  ))}
+                <div className="text-center md:text-right flex-shrink-0">
+                  <p className="text-5xl font-black text-cyan-400">₹{(competition?.boothPrice || 5000).toLocaleString('en-IN')}</p>
+                  <p className="text-sm text-muted/40 mt-1">per booth</p>
                 </div>
-              </Card>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="p-6 border-sky-400/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-400 via-blue-400 to-sky-400" />
-                <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-sky-400/10 to-transparent rounded-bl-full" />
-                <StarIcon className="w-10 h-10 text-sky-400 mb-3" />
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-bold text-foreground">Diamond Sponsor</h3>
-                  <Badge variant="info">Elite</Badge>
-                </div>
-                <p className="text-2xl font-bold text-sky-400 mb-4">{pcs('diamondSponsorPrice', '₹2,00,000')}</p>
-                <div className="space-y-2 text-sm text-muted">
-                  {pcList('diamondSponsorBenefits', 'Logo on event banners and stage, Featured website section, Social media promotion, Exhibition booth, VIP networking access, Award ceremony mention').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-sky-400 flex-shrink-0" /><span>{b}</span></div>
-                  ))}
-                </div>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Platinum + Gold — Row */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-              <Card className="p-6 border-purple/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple to-violet-400" />
-                <StarIcon className="w-10 h-10 text-purple mb-3" />
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-bold text-foreground">Platinum Sponsor</h3>
-                  <Badge variant="info">Popular</Badge>
-                </div>
-                <p className="text-2xl font-bold text-purple mb-4">{pcs('platinumSponsorPrice', '₹1,00,000')}</p>
-                <div className="space-y-2 text-sm text-muted">
-                  {pcList('platinumSponsorBenefits', 'Logo on event banners, Featured website placement, Social media promotion, Booth at startup exhibition, VIP networking access').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>{b}</span></div>
-                  ))}
-                </div>
-              </Card>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="p-6 border-orange-400/30 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-400 to-yellow-500" />
-                <StarIcon className="w-10 h-10 text-orange-400 mb-3" />
-                <h3 className="text-lg font-bold text-foreground mb-1">Gold Sponsor</h3>
-                <p className="text-2xl font-bold text-orange-400 mb-4">{pcs('goldSponsorPrice', '₹50,000')}</p>
-                <div className="space-y-2 text-sm text-muted">
-                  {pcList('goldSponsorBenefits', 'Logo on website, Social media promotion, Startup booth, Event mention during ceremony').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>{b}</span></div>
-                  ))}
-                </div>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Silver + Startup Partner + Innovation Partner + Community Partner */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-              <Card className="p-5 border-gray-300/20 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-gray-300 to-gray-400" />
-                <StarIcon className="w-8 h-8 text-gray-300 mb-2" />
-                <h3 className="text-base font-bold text-foreground mb-1">Silver Sponsor</h3>
-                <p className="text-xl font-bold text-gray-300 mb-3">{pcs('silverSponsorPrice', '₹35,000')}</p>
-                <div className="space-y-1.5 text-sm text-muted">
-                  {pcList('silverSponsorBenefits', 'Logo on sponsor section, Event promotion mention, Networking access').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>{b}</span></div>
-                  ))}
-                </div>
-              </Card>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="p-5 border-blue-400/20 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 to-cyan-400" />
-                <RocketLaunchIcon className="w-8 h-8 text-blue-400 mb-2" />
-                <h3 className="text-base font-bold text-foreground mb-1">Startup Partner</h3>
-                <p className="text-xl font-bold text-blue-400 mb-3">{pcs('startupPartnerPrice', '₹25,000')}</p>
-                <div className="space-y-1.5 text-sm text-muted">
-                  {pcList('startupPartnerBenefits', 'Logo on competition page, Social media mention, Access to startup database').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>{b}</span></div>
-                  ))}
-                </div>
-              </Card>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="p-5 border-green-400/20 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-green-400 to-emerald-400" />
-                <LightBulbIcon className="w-8 h-8 text-green-400 mb-2" />
-                <h3 className="text-base font-bold text-foreground mb-1">Innovation Partner</h3>
-                <p className="text-xl font-bold text-green-400 mb-3">{pcs('innovationPartnerPrice', '₹15,000')}</p>
-                <div className="space-y-1.5 text-sm text-muted">
-                  {pcList('innovationPartnerBenefits', 'Logo on event website, Social media posts mention').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>{b}</span></div>
-                  ))}
-                </div>
-              </Card>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Card className="p-5 border-pink-400/20 relative overflow-hidden h-full">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-pink-400 to-rose-400" />
-                <HeartIcon className="w-8 h-8 text-pink-400 mb-2" />
-                <h3 className="text-base font-bold text-foreground mb-1">Community Partner</h3>
-                <p className="text-xl font-bold text-pink-400 mb-3">{pcs('communityPartnerPrice', '₹10,000')}</p>
-                <div className="space-y-1.5 text-sm text-muted">
-                  {pcList('communityPartnerBenefits', 'Brand mention, Website listing').map((b, i) => (
-                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>{b}</span></div>
-                  ))}
-                </div>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Special Sponsorship Opportunities */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-foreground mb-1">Special Sponsorship Opportunities</h3>
-              <p className="text-sm text-muted">High-value niche sponsorships for maximum brand impact</p>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-5">
-              <Card className="p-5 border-cyan-400/20 text-center h-full">
-                <div className="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center mx-auto mb-3">
-                  <MicrophoneIcon className="w-6 h-6 text-cyan-400" />
-                </div>
-                <h4 className="font-bold text-foreground mb-1">🎤 {pcs('stageSponsorTitle', 'Stage Sponsor')}</h4>
-                <p className="text-lg font-bold text-cyan-400 mb-2">{pcs('stageSponsorPrice', '₹40,000')}</p>
-                <p className="text-sm text-muted">{pcs('stageSponsorDesc', 'Branding on main stage backdrop')}</p>
-              </Card>
-
-              <Card className="p-5 border-red-400/20 text-center h-full">
-                <div className="w-12 h-12 rounded-full bg-red-400/10 flex items-center justify-center mx-auto mb-3">
-                  <VideoCameraIcon className="w-6 h-6 text-red-400" />
-                </div>
-                <h4 className="font-bold text-foreground mb-1">🎥 {pcs('mediaSponsorTitle', 'Media Sponsor')}</h4>
-                <p className="text-lg font-bold text-red-400 mb-2">{pcs('mediaSponsorPrice', '₹30,000')}</p>
-                <p className="text-sm text-muted">{pcs('mediaSponsorDesc', 'Logo in all videos and livestream')}</p>
-              </Card>
-
-              <Card className="p-5 border-yellow-400/20 text-center h-full">
-                <div className="w-12 h-12 rounded-full bg-yellow-400/10 flex items-center justify-center mx-auto mb-3">
-                  <TrophyIcon className="w-6 h-6 text-yellow-400" />
-                </div>
-                <h4 className="font-bold text-foreground mb-1">🏆 {pcs('awardSponsorTitle', 'Award Sponsor')}</h4>
-                <p className="text-lg font-bold text-yellow-400 mb-2">{pcs('awardSponsorPrice', '₹20,000')}</p>
-                <p className="text-sm text-muted">{pcs('awardSponsorDesc', 'Sponsor name on winner trophies')}</p>
-              </Card>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Register Section */}
-      {competition?.currentPhase === 'REGISTRATION' && (
-        <section className="py-16 px-4 sm:px-6">
-          <div className="max-w-3xl mx-auto">
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
-              <Card className="p-8 border-purple/20 text-center">
-                <RocketLaunchIcon className="w-12 h-12 text-purple mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  {registrationLive ? 'Register Your Startup' : 'Registration Opens Soon'}
-                </h2>
-                <p className="text-muted mb-6">
-                  {registrationLive
-                    ? 'Submit your approved startup to compete in the Vishvakarma Innovation Challenge 2026'
-                    : `Registration opens on ${formatDate(competition.registrationStart)}. Get your startup ready!`}
-                </p>
-                {registrationLive ? (
-                  <Link href="/competition/register">
-                    <Button size="lg">
-                      <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
-                      Register Now
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link href="/submit-idea">
-                    <Button size="lg" variant="outline">
-                      <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
-                      Prepare Your Startup
-                    </Button>
-                  </Link>
-                )}
-                <div className="mt-6 pt-6 border-t border-border">
-                  <p className="text-xs text-muted">
-                    {registrationLive
-                      ? <>Registration closes on {formatDate(competition.registrationEnd)} • <span className="text-purple font-medium">{daysLeft(competition.registrationEnd)} days remaining</span></>
-                      : <>Registration opens on {formatDate(competition.registrationStart)} • <span className="text-cyan-400 font-medium">{daysLeft(competition.registrationStart)} days to go</span></>}
-                  </p>
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════════ */}
+      {/* ═══ OUR SPONSORS (Existing) ═══ */}
+      {/* ═══════════════════════════════════════ */}
+      {competition?.sponsors && competition.sponsors.length > 0 && (
+        <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+          <div className="absolute inset-0 spotlight-gold" />
+
+          <div className="max-w-6xl mx-auto relative">
+            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-16">
+              <StarIcon className="w-14 h-14 text-amber-400/40 mx-auto mb-6" />
+              <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Our Sponsors</h2>
+              <p className="text-lg text-muted/50 max-w-xl mx-auto">Backed by industry leaders driving innovation forward</p>
+            </motion.div>
+
+            {/* Title Sponsors */}
+            {competition.sponsors.filter(s => s.tier === 'TITLE').length > 0 && (
+              <div className="mb-14">
+                <h3 className="text-center text-xs font-bold text-amber-400/60 uppercase tracking-[0.3em] mb-8">Title Sponsors</h3>
+                <div className="grid sm:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
+                  {competition.sponsors.filter(s => s.tier === 'TITLE').map((s) => (
+                    <motion.div key={s.id} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
+                      <div className="glass-gold rounded-3xl p-8 text-center card-cinematic gold-glow-animate">
+                        <div className="w-24 h-24 rounded-3xl bg-amber-400/10 flex items-center justify-center mx-auto mb-5 overflow-hidden border border-amber-400/15">
+                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-3" /> : <StarIcon className="w-12 h-12 text-amber-400" />}
+                        </div>
+                        <h4 className="text-xl font-black text-foreground">{s.name}</h4>
+                        <div className="mt-2 mb-4"><span className="gold-shimmer text-xs font-bold tracking-[0.2em] uppercase">Title Sponsor</span></div>
+                        {s.benefits && (
+                          <div className="space-y-2 text-sm text-left">
+                            {(() => { try { return JSON.parse(s.benefits); } catch { return s.benefits.split(','); } })().map((b: string, i: number) => (
+                              <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-amber-400/60 flex-shrink-0" /><span className="text-muted/50">{b.trim()}</span></div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </Card>
+              </div>
+            )}
+
+            {/* Platinum Sponsors */}
+            {competition.sponsors.filter(s => s.tier === 'PLATINUM').length > 0 && (
+              <div className="mb-14">
+                <h3 className="text-center text-xs font-bold text-purple/60 uppercase tracking-[0.3em] mb-8">Platinum Sponsors</h3>
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {competition.sponsors.filter(s => s.tier === 'PLATINUM').map((s) => (
+                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                      <div className="glass-premium rounded-2xl p-6 text-center border-purple/15 card-cinematic">
+                        <div className="w-16 h-16 rounded-2xl bg-purple/10 flex items-center justify-center mx-auto mb-4 overflow-hidden border border-purple/15">
+                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-2" /> : <StarIcon className="w-8 h-8 text-purple" />}
+                        </div>
+                        <h4 className="font-bold text-foreground">{s.name}</h4>
+                        <p className="text-xs text-purple/60 mt-1 font-medium">Platinum Sponsor</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Gold Sponsors */}
+            {competition.sponsors.filter(s => s.tier === 'GOLD').length > 0 && (
+              <div className="mb-14">
+                <h3 className="text-center text-xs font-bold text-orange-400/60 uppercase tracking-[0.3em] mb-8">Gold Sponsors</h3>
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+                  {competition.sponsors.filter(s => s.tier === 'GOLD').map((s) => (
+                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                      <div className="glass-premium rounded-2xl p-5 text-center border-orange-400/15 card-cinematic">
+                        <div className="w-14 h-14 rounded-xl bg-orange-400/10 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-7 h-7 text-orange-400" />}
+                        </div>
+                        <h4 className="font-semibold text-foreground">{s.name}</h4>
+                        <p className="text-xs text-orange-400/60 mt-1">Gold Sponsor</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Startup Partners */}
+            {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').length > 0 && (
+              <div>
+                <h3 className="text-center text-xs font-bold text-blue/60 uppercase tracking-[0.3em] mb-8">Startup Partners</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                  {competition.sponsors.filter(s => s.tier === 'STARTUP_PARTNER').map((s) => (
+                    <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                      <div className="glass rounded-xl p-4 text-center border-blue/10 card-cinematic">
+                        <div className="w-12 h-12 rounded-lg bg-blue/10 flex items-center justify-center mx-auto mb-2 overflow-hidden">
+                          {s.logo ? <img src={s.logo} alt={s.name} className="w-full h-full object-contain p-1" /> : <StarIcon className="w-6 h-6 text-blue" />}
+                        </div>
+                        <h4 className="text-sm font-semibold text-foreground">{s.name}</h4>
+                        <p className="text-xs text-blue/50 mt-0.5">Startup Partner</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════════════════ */}
+      {/* ═══ BECOME A SPONSOR (Packages) ═══ */}
+      {/* ═══════════════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="absolute inset-0 spotlight" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple/[0.04] rounded-full blur-[200px]" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue/[0.04] rounded-full blur-[200px]" />
+
+        <div className="max-w-7xl mx-auto relative">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-20">
+            <StarIcon className="w-14 h-14 text-purple/40 mx-auto mb-6" />
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Become a Sponsor</h2>
+            <p className="text-lg text-muted/50 max-w-2xl mx-auto">Partner with us and get unparalleled visibility in India&apos;s biggest startup competition</p>
+          </motion.div>
+
+          {/* Title Sponsor — Hero Card */}
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10">
+            <div className="glass-gold rounded-3xl p-10 sm:p-14 relative overflow-hidden gold-glow-animate">
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+              <div className="absolute top-0 right-0 w-60 h-60 bg-gradient-to-bl from-amber-400/[0.06] to-transparent rounded-bl-full" />
+              <div className="relative flex flex-col md:flex-row md:items-start gap-8">
+                <div className="flex-shrink-0">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-400/20 to-orange-400/15 flex items-center justify-center border border-amber-400/20">
+                    <StarIcon className="w-10 h-10 text-amber-400" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-2xl font-black text-foreground">Title Sponsor</h3>
+                    <Badge variant="warning">Most Premium</Badge>
+                  </div>
+                  <p className="text-3xl font-black gold-shimmer mb-6">{pcs('titleSponsorPrice', '₹5,00,000')}</p>
+                  <div className="grid sm:grid-cols-2 gap-3 text-sm text-muted/50">
+                    {pcList('titleSponsorBenefits', 'Event named \u201cpowered by [Sponsor]\u201d, Logo on stage backdrop, 5–10 min keynote speech, Premium branding across website, Media coverage mention, Startup exhibition booth, Direct access to top startups').map((b, i) => (
+                      <div key={i} className="flex items-center gap-2.5"><CheckCircleIcon className="w-4 h-4 text-amber-400/60 flex-shrink-0" /><span>{b}</span></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Presenting + Diamond */}
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <div className="glass-premium rounded-3xl p-8 relative overflow-hidden border-rose-400/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-rose-400 to-transparent" />
+                <StarIcon className="w-10 h-10 text-rose-400/60 mb-4" />
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-xl font-black text-foreground">Presenting Sponsor</h3>
+                  <Badge variant="danger">Premium</Badge>
+                </div>
+                <p className="text-2xl font-black text-rose-400 mb-6">{pcs('presentingSponsorPrice', '₹3,00,000')}</p>
+                <div className="space-y-2.5 text-sm text-muted/50">
+                  {pcList('presentingSponsorBenefits', 'Co-branded event title, Logo on stage backdrop, 5 min keynote slot, Premium branding on website, Media coverage mention, VIP booth at exhibition').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2.5"><CheckCircleIcon className="w-4 h-4 text-rose-400/60 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
+              <div className="glass-premium rounded-3xl p-8 relative overflow-hidden border-sky-400/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-sky-400 to-transparent" />
+                <StarIcon className="w-10 h-10 text-sky-400/60 mb-4" />
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-xl font-black text-foreground">Diamond Sponsor</h3>
+                  <Badge variant="info">Elite</Badge>
+                </div>
+                <p className="text-2xl font-black text-sky-400 mb-6">{pcs('diamondSponsorPrice', '₹2,00,000')}</p>
+                <div className="space-y-2.5 text-sm text-muted/50">
+                  {pcList('diamondSponsorBenefits', 'Logo on event banners and stage, Featured website section, Social media promotion, Exhibition booth, VIP networking access, Award ceremony mention').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2.5"><CheckCircleIcon className="w-4 h-4 text-sky-400/60 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Platinum + Gold */}
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <div className="glass-premium rounded-3xl p-8 relative overflow-hidden border-purple/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-purple to-transparent" />
+                <StarIcon className="w-10 h-10 text-purple/60 mb-4" />
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-xl font-black text-foreground">Platinum Sponsor</h3>
+                  <Badge variant="info">Popular</Badge>
+                </div>
+                <p className="text-2xl font-black text-purple mb-6">{pcs('platinumSponsorPrice', '₹1,00,000')}</p>
+                <div className="space-y-2.5 text-sm text-muted/50">
+                  {pcList('platinumSponsorBenefits', 'Logo on event banners, Featured website placement, Social media promotion, Booth at startup exhibition, VIP networking access').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2.5"><CheckCircleIcon className="w-4 h-4 text-purple/60 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
+              <div className="glass-premium rounded-3xl p-8 relative overflow-hidden border-orange-400/15 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-orange-400 to-transparent" />
+                <StarIcon className="w-10 h-10 text-orange-400/60 mb-4" />
+                <h3 className="text-xl font-black text-foreground mb-2">Gold Sponsor</h3>
+                <p className="text-2xl font-black text-orange-400 mb-6">{pcs('goldSponsorPrice', '₹50,000')}</p>
+                <div className="space-y-2.5 text-sm text-muted/50">
+                  {pcList('goldSponsorBenefits', 'Logo on website, Social media promotion, Startup booth, Event mention during ceremony').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2.5"><CheckCircleIcon className="w-4 h-4 text-orange-400/60 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Silver + Partners Row */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <div className="glass-premium rounded-2xl p-6 relative overflow-hidden border-gray-400/10 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-gray-400 to-transparent" />
+                <StarIcon className="w-8 h-8 text-gray-300/50 mb-3" />
+                <h3 className="text-base font-bold text-foreground mb-1">Silver Sponsor</h3>
+                <p className="text-xl font-black text-gray-300 mb-4">{pcs('silverSponsorPrice', '₹35,000')}</p>
+                <div className="space-y-2 text-sm text-muted/50">
+                  {pcList('silverSponsorBenefits', 'Logo on sponsor section, Event promotion mention, Networking access').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-gray-400/50 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.05 }}>
+              <div className="glass-premium rounded-2xl p-6 relative overflow-hidden border-blue/10 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-blue to-transparent" />
+                <RocketLaunchIcon className="w-8 h-8 text-blue/50 mb-3" />
+                <h3 className="text-base font-bold text-foreground mb-1">Startup Partner</h3>
+                <p className="text-xl font-black text-blue mb-4">{pcs('startupPartnerPrice', '₹25,000')}</p>
+                <div className="space-y-2 text-sm text-muted/50">
+                  {pcList('startupPartnerBenefits', 'Logo on competition page, Social media mention, Access to startup database').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-blue/50 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
+              <div className="glass-premium rounded-2xl p-6 relative overflow-hidden border-green-400/10 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-green-400 to-transparent" />
+                <LightBulbIcon className="w-8 h-8 text-green-400/50 mb-3" />
+                <h3 className="text-base font-bold text-foreground mb-1">Innovation Partner</h3>
+                <p className="text-xl font-black text-green-400 mb-4">{pcs('innovationPartnerPrice', '₹15,000')}</p>
+                <div className="space-y-2 text-sm text-muted/50">
+                  {pcList('innovationPartnerBenefits', 'Logo on event website, Social media posts mention').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-green-400/50 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
+              <div className="glass-premium rounded-2xl p-6 relative overflow-hidden border-pink-400/10 card-cinematic h-full">
+                <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-pink-400 to-transparent" />
+                <HeartIcon className="w-8 h-8 text-pink-400/50 mb-3" />
+                <h3 className="text-base font-bold text-foreground mb-1">Community Partner</h3>
+                <p className="text-xl font-black text-pink-400 mb-4">{pcs('communityPartnerPrice', '₹10,000')}</p>
+                <div className="space-y-2 text-sm text-muted/50">
+                  {pcList('communityPartnerBenefits', 'Brand mention, Website listing').map((b, i) => (
+                    <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-3.5 h-3.5 text-pink-400/50 flex-shrink-0" /><span>{b}</span></div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Special Sponsorships */}
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-black text-foreground mb-2">Special Sponsorship Opportunities</h3>
+              <p className="text-sm text-muted/40">High-value niche sponsorships for maximum brand impact</p>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-6">
+              <div className="glass-premium rounded-2xl p-6 text-center border-cyan-400/10 card-cinematic h-full">
+                <div className="w-14 h-14 rounded-2xl bg-cyan-400/10 flex items-center justify-center mx-auto mb-4">
+                  <MicrophoneIcon className="w-7 h-7 text-cyan-400/70" />
+                </div>
+                <h4 className="font-bold text-foreground mb-1">🎤 {pcs('stageSponsorTitle', 'Stage Sponsor')}</h4>
+                <p className="text-xl font-black text-cyan-400 mb-3">{pcs('stageSponsorPrice', '₹40,000')}</p>
+                <p className="text-sm text-muted/40">{pcs('stageSponsorDesc', 'Branding on main stage backdrop')}</p>
+              </div>
+
+              <div className="glass-premium rounded-2xl p-6 text-center border-red-400/10 card-cinematic h-full">
+                <div className="w-14 h-14 rounded-2xl bg-red-400/10 flex items-center justify-center mx-auto mb-4">
+                  <VideoCameraIcon className="w-7 h-7 text-red-400/70" />
+                </div>
+                <h4 className="font-bold text-foreground mb-1">🎥 {pcs('mediaSponsorTitle', 'Media Sponsor')}</h4>
+                <p className="text-xl font-black text-red-400 mb-3">{pcs('mediaSponsorPrice', '₹30,000')}</p>
+                <p className="text-sm text-muted/40">{pcs('mediaSponsorDesc', 'Logo in all videos and livestream')}</p>
+              </div>
+
+              <div className="glass-premium rounded-2xl p-6 text-center border-amber-400/10 card-cinematic h-full">
+                <div className="w-14 h-14 rounded-2xl bg-amber-400/10 flex items-center justify-center mx-auto mb-4">
+                  <TrophyIcon className="w-7 h-7 text-amber-400/70" />
+                </div>
+                <h4 className="font-bold text-foreground mb-1">🏆 {pcs('awardSponsorTitle', 'Award Sponsor')}</h4>
+                <p className="text-xl font-black text-amber-400 mb-3">{pcs('awardSponsorPrice', '₹20,000')}</p>
+                <p className="text-sm text-muted/40">{pcs('awardSponsorDesc', 'Sponsor name on winner trophies')}</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="section-divider max-w-4xl mx-auto" />
+
+      {/* ═══════════════════════════════════ */}
+      {/* ═══ REGISTER YOUR STARTUP ═══ */}
+      {/* ═══════════════════════════════════ */}
+      {competition?.currentPhase === 'REGISTRATION' && (
+        <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+          <div className="absolute inset-0 spotlight" />
+          <div className="max-w-4xl mx-auto relative">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <div className="glass-premium rounded-[2rem] p-12 sm:p-16 text-center relative overflow-hidden border-purple/15">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-purple to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-purple/[0.04] to-transparent" />
+                <div className="relative">
+                  <RocketLaunchIcon className="w-16 h-16 text-purple/50 mx-auto mb-6" />
+                  <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-4">
+                    {registrationLive ? 'Register Your Startup' : 'Registration Opens Soon'}
+                  </h2>
+                  <p className="text-lg text-muted/50 mb-8 max-w-2xl mx-auto">
+                    {registrationLive
+                      ? 'Submit your approved startup to compete in the Vishvakarma Innovation Challenge 2026'
+                      : `Registration opens on ${formatDate(competition.registrationStart)}. Get your startup ready!`}
+                  </p>
+                  {registrationLive ? (
+                    <Link href="/competition/register">
+                      <button className="group relative px-10 py-5 bg-gradient-to-r from-purple to-blue rounded-2xl text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-purple/25">
+                        <span className="relative z-10 flex items-center gap-2">
+                          <RocketLaunchIcon className="w-5 h-5" />
+                          Register Now
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue to-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </button>
+                    </Link>
+                  ) : (
+                    <Link href="/submit-idea">
+                      <button className="px-10 py-5 rounded-2xl text-foreground font-bold text-lg glass border-purple/20 hover:bg-purple/10 transition-all">
+                        <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
+                        Prepare Your Startup
+                      </button>
+                    </Link>
+                  )}
+                  <div className="mt-8 pt-6 border-t border-white/5">
+                    <p className="text-xs text-muted/40">
+                      {registrationLive
+                        ? <>Registration closes on {formatDate(competition.registrationEnd)} · <span className="text-purple font-medium">{daysLeft(competition.registrationEnd)} days remaining</span></>
+                        : <>Registration opens on {formatDate(competition.registrationStart)} · <span className="text-cyan-400 font-medium">{daysLeft(competition.registrationStart)} days to go</span></>}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </section>
       )}
 
-      {/* Voting Section (Phase 3) */}
+      {/* ═══════════════════════════ */}
+      {/* ═══ VOTING SECTION ═══ */}
+      {/* ═══════════════════════════ */}
       {competition?.currentPhase === 'VOTING' && competition.entries.length > 0 && (
-        <section className="py-16 px-4 sm:px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-3">Vote for Your Favorites</h2>
-              <p className="text-muted">Support the startups you believe in — every vote counts!</p>
+        <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+          <div className="absolute inset-0 spotlight" />
+          <div className="max-w-7xl mx-auto relative">
+            <div className="text-center mb-16">
+              <HandThumbUpIcon className="w-14 h-14 text-blue/40 mx-auto mb-6" />
+              <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Vote for Your Favorites</h2>
+              <p className="text-lg text-muted/50">Support the startups you believe in — every vote counts!</p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {competition.entries.map((entry) => (
-                <motion.div key={entry.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-                  <Card className="overflow-hidden h-full">
-                    <div className="h-40 bg-gradient-to-br from-purple/20 via-blue/10 to-transparent relative overflow-hidden">
+                <motion.div key={entry.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                  <div className="glass-premium rounded-3xl overflow-hidden card-cinematic h-full">
+                    <div className="h-44 bg-gradient-to-br from-purple/20 via-blue/10 to-transparent relative overflow-hidden">
                       {(entry.startup.thumbnail || entry.startup.logo) ? (
-                        <img
-                          src={entry.startup.thumbnail || entry.startup.logo!}
-                          alt={entry.startup.title}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={entry.startup.thumbnail || entry.startup.logo!} alt={entry.startup.title} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-4xl font-bold text-purple/30">{entry.startup.title[0]}</span>
+                          <span className="text-5xl font-black text-purple/20">{entry.startup.title[0]}</span>
                         </div>
                       )}
                     </div>
-                    <div className="p-5">
+                    <div className="p-6">
                       <Link href={`/startup/${entry.startup.slug}`}>
-                        <h3 className="text-lg font-bold text-foreground hover:text-purple transition-colors mb-1">{entry.startup.title}</h3>
+                        <h3 className="text-lg font-bold text-foreground hover:text-purple transition-colors mb-2">{entry.startup.title}</h3>
                       </Link>
-                      <p className="text-sm text-muted mb-3 line-clamp-2">{entry.startup.shortDescription}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-2 py-0.5 text-xs rounded-full bg-purple/10 text-purple border border-purple/20">{entry.startup.category}</span>
-                        <span className="px-2 py-0.5 text-xs rounded-full bg-blue/10 text-blue border border-blue/20">{entry.startup.productStage.replace('_', ' ')}</span>
+                      <p className="text-sm text-muted/50 mb-4 line-clamp-2">{entry.startup.shortDescription}</p>
+                      <div className="flex flex-wrap gap-2 mb-5">
+                        <span className="px-3 py-1 text-xs rounded-full bg-purple/[0.08] text-purple/70 border border-purple/15">{entry.startup.category}</span>
+                        <span className="px-3 py-1 text-xs rounded-full bg-blue/[0.08] text-blue/70 border border-blue/15">{entry.startup.productStage.replace('_', ' ')}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted">by {entry.startup.founder.firstName} {entry.startup.founder.lastName}</span>
-                        </div>
+                        <span className="text-sm text-muted/40">by {entry.startup.founder.firstName} {entry.startup.founder.lastName}</span>
                         <button
                           onClick={() => handleVote(entry.id)}
                           disabled={!isAuthenticated || voting === entry.id}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                             votedEntries.has(entry.id)
-                              ? 'bg-purple text-white'
-                              : 'bg-purple/10 text-purple hover:bg-purple/20 border border-purple/20'
+                              ? 'bg-purple text-white shadow-lg shadow-purple/20'
+                              : 'glass text-purple/80 hover:bg-purple/10 border-purple/15'
                           } disabled:opacity-50`}
                         >
-                          {votedEntries.has(entry.id) ? (
-                            <HandThumbUpSolid className="w-4 h-4" />
-                          ) : (
-                            <HandThumbUpIcon className="w-4 h-4" />
-                          )}
+                          {votedEntries.has(entry.id) ? <HandThumbUpSolid className="w-4 h-4" /> : <HandThumbUpIcon className="w-4 h-4" />}
                           {entry.upvotes}
                         </button>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -1252,51 +1387,60 @@ export default function CompetitionPage() {
         </section>
       )}
 
-      {/* Judges Section */}
+      {/* ═══════════════════════ */}
+      {/* ═══ JUDGES ═══ */}
+      {/* ═══════════════════════ */}
       {competition?.judges && competition.judges.length > 0 && (
-        <section className="py-16 px-4 sm:px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-3">Our Judges</h2>
-              <p className="text-muted">Industry leaders evaluating your innovations</p>
+        <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+          <div className="absolute inset-0 spotlight" />
+          <div className="max-w-6xl mx-auto relative">
+            <div className="text-center mb-16">
+              <UserGroupIcon className="w-14 h-14 text-purple/40 mx-auto mb-6" />
+              <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">Our Judges</h2>
+              <p className="text-lg text-muted/50">Industry leaders evaluating your innovations</p>
             </div>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {competition.judges.map((judge) => (
-                <Card key={judge.id} className="p-5 text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple/20 to-blue/20 flex items-center justify-center mx-auto mb-3 overflow-hidden">
-                    {judge.avatar ? (
-                      <img src={judge.avatar} alt={judge.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xl font-bold text-purple">{judge.name[0]}</span>
-                    )}
+              {competition.judges.map((judge, i) => (
+                <motion.div key={judge.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} viewport={{ once: true }}>
+                  <div className="glass-premium rounded-3xl p-6 text-center card-cinematic">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple/15 to-blue/10 flex items-center justify-center mx-auto mb-4 overflow-hidden border border-purple/15">
+                      {judge.avatar ? (
+                        <img src={judge.avatar} alt={judge.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-2xl font-black text-purple/50">{judge.name[0]}</span>
+                      )}
+                    </div>
+                    <p className="font-bold text-foreground">{judge.name}</p>
+                    <p className="text-xs text-muted/40 mt-1">{judge.title}</p>
+                    <p className="text-xs text-purple/50 font-medium">{judge.organization}</p>
                   </div>
-                  <p className="font-semibold text-foreground">{judge.name}</p>
-                  <p className="text-xs text-muted">{judge.title}</p>
-                  <p className="text-xs text-purple">{judge.organization}</p>
-                </Card>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Timeline */}
-      <section className="py-20 px-4 sm:px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple/5 to-transparent" />
-        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-purple/8 rounded-full blur-[150px] -translate-y-1/2" />
-        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-blue/8 rounded-full blur-[150px] -translate-y-1/2" />
+      <div className="section-divider max-w-4xl mx-auto" />
 
-        <div className="relative max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="text-center mb-14">
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ═══ EVENT TIMELINE — Cinematic Vertical ═══ */}
+      {/* ══════════════════════════════════════════════════ */}
+      <section className="py-28 sm:py-36 px-4 sm:px-6 cinematic-section">
+        <div className="absolute inset-0 spotlight" />
+        <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-purple/[0.04] rounded-full blur-[200px] -translate-y-1/2" />
+        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-blue/[0.04] rounded-full blur-[200px] -translate-y-1/2" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-20">
             <Badge variant="info" className="mb-4">📅 Mark Your Calendar</Badge>
-            <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">Event Timeline</h2>
-            <p className="text-muted max-w-xl mx-auto">From registration to the grand finale — here&apos;s your roadmap to innovation glory.</p>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground mb-4">Event Timeline</h2>
+            <p className="text-lg text-muted/50 max-w-xl mx-auto">From registration to the grand finale — your roadmap to innovation glory.</p>
           </motion.div>
 
           {/* Desktop Timeline */}
           <div className="hidden md:block relative">
-            {/* Central Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2 bg-gradient-to-b from-green-400 via-purple to-blue/30" />
+            <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-gradient-to-b from-green-400/40 via-purple/30 to-blue/20" />
 
             {competition && [
               { label: 'Registration Opens', date: competition.registrationStart, phase: 'REGISTRATION', icon: '🚀', desc: 'Submit your startup and secure your spot' },
@@ -1311,37 +1455,34 @@ export default function CompetitionPage() {
               return (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
+                  initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
+                  transition={{ delay: i * 0.1, duration: 0.6 }}
                   viewport={{ once: true }}
-                  className={`relative flex items-center mb-12 last:mb-0 ${isLeft ? 'justify-start' : 'justify-end'}`}
+                  className={`relative flex items-center mb-16 last:mb-0 ${isLeft ? 'justify-start' : 'justify-end'}`}
                 >
-                  {/* Center dot */}
                   <div className="absolute left-1/2 -translate-x-1/2 z-10">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg border-2 ${
-                      isPast ? 'bg-green-400/20 border-green-400 shadow-green-400/20' :
-                      isCurrent ? 'bg-purple/20 border-purple shadow-purple/20' :
-                      'bg-card border-border'
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl border-2 ${
+                      isPast ? 'bg-green-400/15 border-green-400/40 shadow-lg shadow-green-400/10' :
+                      isCurrent ? 'bg-purple/15 border-purple/40 shadow-lg shadow-purple/10 border-glow-animate' :
+                      'bg-white/[0.03] border-white/10'
                     }`}>
-                      {isPast ? <CheckCircleIcon className="w-6 h-6 text-green-400" /> : <span>{item.icon}</span>}
+                      {isPast ? <CheckCircleIcon className="w-7 h-7 text-green-400" /> : <span>{item.icon}</span>}
                     </div>
                   </div>
 
-                  {/* Card */}
-                  <div className={`w-[calc(50%-3rem)] ${isLeft ? 'pr-4 text-right' : 'pl-4 ml-auto text-left'}`}>
-                    <div className={`p-5 rounded-2xl border backdrop-blur-sm transition-all hover:scale-[1.02] ${
-                      isCurrent ? 'bg-purple/10 border-purple/30 shadow-lg shadow-purple/10' :
-                      isPast ? 'bg-green-400/5 border-green-400/20' :
-                      'bg-card/50 border-border/50'
+                  <div className={`w-[calc(50%-3.5rem)] ${isLeft ? 'pr-6 text-right' : 'pl-6 ml-auto text-left'}`}>
+                    <div className={`glass-premium p-6 rounded-2xl transition-all hover:scale-[1.02] ${
+                      isCurrent ? 'border-purple/20 shadow-lg shadow-purple/5' :
+                      isPast ? 'border-green-400/10' : ''
                     }`}>
-                      <p className={`text-sm font-bold uppercase tracking-wider mb-1 ${
-                        isCurrent ? 'text-purple' : isPast ? 'text-green-400' : 'text-muted'
+                      <p className={`text-sm font-black uppercase tracking-[0.15em] mb-1 ${
+                        isCurrent ? 'text-purple' : isPast ? 'text-green-400/70' : 'text-muted/40'
                       }`}>{item.label}</p>
-                      <p className="text-lg font-bold text-foreground">{formatDate(item.date)}</p>
-                      <p className="text-xs text-muted mt-1">{item.desc}</p>
+                      <p className="text-xl font-black text-foreground">{formatDate(item.date)}</p>
+                      <p className="text-xs text-muted/40 mt-1.5">{item.desc}</p>
                       {isCurrent && (
-                        <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple/20 text-purple border border-purple/30 animate-pulse">
+                        <span className="inline-block mt-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] bg-purple/15 text-purple border border-purple/20 animate-pulse">
                           Current Phase
                         </span>
                       )}
@@ -1370,24 +1511,24 @@ export default function CompetitionPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
                   viewport={{ once: true }}
-                  className="flex gap-4 items-start"
+                  className="flex gap-5 items-start"
                 >
                   <div className="flex flex-col items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base border-2 flex-shrink-0 ${
-                      isPast ? 'bg-green-400/20 border-green-400' :
-                      isCurrent ? 'bg-purple/20 border-purple' :
-                      'bg-card border-border'
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-base border-2 flex-shrink-0 ${
+                      isPast ? 'bg-green-400/15 border-green-400/40' :
+                      isCurrent ? 'bg-purple/15 border-purple/40 border-glow-animate' :
+                      'bg-white/[0.03] border-white/10'
                     }`}>
                       {isPast ? <CheckCircleIcon className="w-5 h-5 text-green-400" /> : <span>{item.icon}</span>}
                     </div>
-                    {i < 4 && <div className={`w-0.5 h-16 ${isPast ? 'bg-gradient-to-b from-green-400/40 to-green-400/10' : isCurrent ? 'bg-gradient-to-b from-purple/40 to-purple/10' : 'bg-border'}`} />}
+                    {i < 4 && <div className={`w-px h-16 ${isPast ? 'bg-gradient-to-b from-green-400/30 to-green-400/5' : isCurrent ? 'bg-gradient-to-b from-purple/30 to-purple/5' : 'bg-white/5'}`} />}
                   </div>
-                  <div className="pb-6 pt-1">
-                    <p className={`font-bold text-sm uppercase tracking-wider ${isCurrent ? 'text-purple' : isPast ? 'text-green-400' : 'text-muted'}`}>{item.label}</p>
-                    <p className="text-base font-semibold text-foreground">{formatDate(item.date)}</p>
-                    <p className="text-xs text-muted mt-0.5">{item.desc}</p>
+                  <div className="pb-8 pt-1">
+                    <p className={`font-black text-sm uppercase tracking-[0.15em] ${isCurrent ? 'text-purple' : isPast ? 'text-green-400/70' : 'text-muted/40'}`}>{item.label}</p>
+                    <p className="text-lg font-bold text-foreground">{formatDate(item.date)}</p>
+                    <p className="text-xs text-muted/40 mt-1">{item.desc}</p>
                     {isCurrent && (
-                      <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple/20 text-purple border border-purple/30 animate-pulse">
+                      <span className="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] bg-purple/15 text-purple border border-purple/20 animate-pulse">
                         Current Phase
                       </span>
                     )}
@@ -1399,43 +1540,45 @@ export default function CompetitionPage() {
         </div>
       </section>
 
-      {/* Sponsor Logos Marquee */}
+      {/* ════════════════════════════════════════ */}
+      {/* ═══ SPONSOR LOGOS MARQUEE ═══ */}
+      {/* ════════════════════════════════════════ */}
       {competition && (() => {
         const sponsorsWithLogo = competition.sponsors.filter(s => s.logo);
         if (sponsorsWithLogo.length === 0) return null;
         const shouldScroll = sponsorsWithLogo.length > 4;
         return (
-          <section className="py-16 px-4 sm:px-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-yellow-500/3 to-transparent" />
+          <section className="py-24 px-4 sm:px-6 cinematic-section">
+            <div className="absolute inset-0 spotlight-gold" />
             <div className="relative max-w-6xl mx-auto">
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-                <Badge variant="warning" className="mb-3">🤝 Our Sponsors</Badge>
-                <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Powered By</h2>
-                <p className="text-muted max-w-lg mx-auto text-sm">Backed by visionary organizations fueling India&apos;s innovation ecosystem.</p>
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+                <Badge variant="warning" className="mb-4">🤝 Our Sponsors</Badge>
+                <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-3">Powered By</h2>
+                <p className="text-muted/40 max-w-lg mx-auto text-sm">Backed by visionary organizations fueling India&apos;s innovation ecosystem.</p>
               </motion.div>
               {shouldScroll ? (
                 <div className="relative overflow-hidden">
-                  <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
-                  <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
-                  <div className="flex animate-marquee gap-12 items-center">
+                  <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
+                  <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
+                  <div className="flex animate-marquee gap-14 items-center">
                     {[...sponsorsWithLogo, ...sponsorsWithLogo].map((sponsor, i) => (
                       <div key={`sponsor-${i}`} className="flex-shrink-0 group">
-                        <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/20 group-hover:scale-105">
+                        <div className="w-40 h-24 sm:w-48 sm:h-28 rounded-2xl glass-premium flex items-center justify-center p-5 transition-all duration-500 group-hover:bg-white/[0.06] group-hover:border-white/15 group-hover:scale-105">
                           <img src={sponsor.logo!} alt={sponsor.name} className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all" />
                         </div>
-                        <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{sponsor.name}</p>
+                        <p className="text-[10px] text-muted/30 text-center mt-2 font-semibold uppercase tracking-[0.2em]">{sponsor.name}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-wrap justify-center gap-8">
+                <div className="flex flex-wrap justify-center gap-10">
                   {sponsorsWithLogo.map((sponsor) => (
                     <motion.div key={sponsor.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group">
-                      <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/20 group-hover:scale-105">
+                      <div className="w-40 h-24 sm:w-48 sm:h-28 rounded-2xl glass-premium flex items-center justify-center p-5 transition-all duration-500 group-hover:bg-white/[0.06] group-hover:border-white/15 group-hover:scale-105">
                         <img src={sponsor.logo!} alt={sponsor.name} className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all" />
                       </div>
-                      <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{sponsor.name}</p>
+                      <p className="text-[10px] text-muted/30 text-center mt-2 font-semibold uppercase tracking-[0.2em]">{sponsor.name}</p>
                     </motion.div>
                   ))}
                 </div>
@@ -1445,47 +1588,49 @@ export default function CompetitionPage() {
         );
       })()}
 
-      {/* Campus Partners Logos Marquee */}
+      {/* ════════════════════════════════════════════ */}
+      {/* ═══ CAMPUS PARTNERS LOGOS MARQUEE ═══ */}
+      {/* ════════════════════════════════════════════ */}
       {competition && competition.campusPartners && (() => {
         const partnersWithLogo = competition.campusPartners.filter(cp => cp.logo);
         if (partnersWithLogo.length === 0) return null;
         const shouldScroll = partnersWithLogo.length > 4;
         const renderPartnerCard = (partner: CampusPartnerData) => {
           const card = (
-            <div className="w-36 h-20 sm:w-44 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:bg-white/10 group-hover:border-blue/30 group-hover:scale-105">
+            <div className="w-40 h-24 sm:w-48 sm:h-28 rounded-2xl glass-premium flex items-center justify-center p-5 transition-all duration-500 group-hover:bg-white/[0.06] group-hover:border-blue/20 group-hover:scale-105">
               <img src={partner.logo!} alt={partner.name} className="max-w-full max-h-full object-contain filter brightness-90 group-hover:brightness-110 transition-all" />
             </div>
           );
           return partner.website ? <a href={partner.website} target="_blank" rel="noopener noreferrer">{card}</a> : card;
         };
         return (
-          <section className="py-16 px-4 sm:px-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue/3 to-transparent" />
+          <section className="py-24 px-4 sm:px-6 cinematic-section">
+            <div className="absolute inset-0 spotlight" />
             <div className="relative max-w-6xl mx-auto">
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-                <Badge variant="info" className="mb-3">🏛️ Campus Partners</Badge>
-                <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Campus Network</h2>
-                <p className="text-muted max-w-lg mx-auto text-sm">Leading institutions empowering the next generation of innovators.</p>
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+                <Badge variant="info" className="mb-4">🏛️ Campus Partners</Badge>
+                <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-3">Campus Network</h2>
+                <p className="text-muted/40 max-w-lg mx-auto text-sm">Leading institutions empowering the next generation of innovators.</p>
               </motion.div>
               {shouldScroll ? (
                 <div className="relative overflow-hidden">
-                  <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
-                  <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
-                  <div className="flex animate-marquee-slow gap-12 items-center">
+                  <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#0B0F1A] to-transparent z-10" />
+                  <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#0B0F1A] to-transparent z-10" />
+                  <div className="flex animate-marquee-slow gap-14 items-center">
                     {[...partnersWithLogo, ...partnersWithLogo].map((partner, i) => (
                       <div key={`partner-${i}`} className="flex-shrink-0 group">
                         {renderPartnerCard(partner)}
-                        <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{partner.name}</p>
+                        <p className="text-[10px] text-muted/30 text-center mt-2 font-semibold uppercase tracking-[0.2em]">{partner.name}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-wrap justify-center gap-8">
+                <div className="flex flex-wrap justify-center gap-10">
                   {partnersWithLogo.map((partner) => (
                     <motion.div key={partner.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group">
                       {renderPartnerCard(partner)}
-                      <p className="text-[10px] text-muted text-center mt-2 font-medium uppercase tracking-wider">{partner.name}</p>
+                      <p className="text-[10px] text-muted/30 text-center mt-2 font-semibold uppercase tracking-[0.2em]">{partner.name}</p>
                     </motion.div>
                   ))}
                 </div>
@@ -1495,27 +1640,31 @@ export default function CompetitionPage() {
         );
       })()}
 
-      {/* Final CTA — Urgency & Invitation */}
-      <section className="py-20 px-4 sm:px-6 mb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-purple/10 via-blue/5 to-transparent" />
-        <div className="absolute bottom-0 left-1/3 w-[500px] h-[400px] bg-purple/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/3 w-[500px] h-[400px] bg-blue/10 rounded-full blur-[120px]" />
-        <div className="relative max-w-4xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* ═══ FINALE — EPIC CINEMATIC CLOSING CTA ═══ */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      <section className="py-32 sm:py-44 px-4 sm:px-6 mb-16 cinematic-section">
+        <div className="absolute inset-0 aurora-bg opacity-50" />
+        <div className="absolute bottom-0 left-1/4 w-[700px] h-[500px] bg-purple/10 rounded-full blur-[200px]" />
+        <div className="absolute bottom-0 right-1/4 w-[700px] h-[500px] bg-blue/10 rounded-full blur-[200px]" />
+        <div className="absolute top-1/3 left-1/2 w-[400px] h-[400px] bg-amber-400/[0.04] rounded-full blur-[180px] -translate-x-1/2" />
+
+        <div className="relative max-w-5xl mx-auto text-center">
+          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
             <motion.div
               animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="inline-block mb-6"
+              transition={{ duration: 3, repeat: Infinity }}
+              className="inline-block mb-8"
             >
-              <FireIcon className="w-16 h-16 text-orange-400" />
+              <FireIcon className="w-20 h-20 text-orange-400/60" />
             </motion.div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4">
+            <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-foreground mb-6 leading-[0.95]">
               {pcs('ctaTitle', "Don't Just Watch.")}{' '}
-              <span className="bg-gradient-to-r from-purple to-blue bg-clip-text text-transparent">{pcs('ctaHighlight', 'Be Part of It.')}</span>
+              <span className="text-shimmer">{pcs('ctaHighlight', 'Be Part of It.')}</span>
             </h2>
 
-            <p className="text-lg sm:text-xl text-muted mb-3 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl lg:text-2xl text-muted/50 mb-4 max-w-3xl mx-auto leading-relaxed font-light">
               {pcs('ctaDescription', "This is more than a competition \u2014 it's a movement. Join the next generation of Indian innovators and put your startup on the national map.")}
             </p>
 
@@ -1523,7 +1672,7 @@ export default function CompetitionPage() {
               <motion.p
                 animate={{ opacity: [1, 0.5, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="text-lg font-bold text-orange-400 mb-8"
+                className="text-lg font-bold text-orange-400/80 mb-10"
               >
                 {registrationLive
                   ? `⚡ Hurry! Only ${countdown.days} days, ${countdown.hours} hours left to register!`
@@ -1531,38 +1680,46 @@ export default function CompetitionPage() {
               </motion.p>
             )}
 
-            <div className="flex flex-wrap gap-4 justify-center mb-8">
+            <div className="flex flex-wrap gap-5 justify-center mb-10">
               {competition?.currentPhase === 'REGISTRATION' ? (
                 <>
                   <Link href="/competition/register">
-                    <Button size="lg">
-                      <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
-                      Register Now — From ₹199 Only
-                      <ArrowRightIcon className="w-4 h-4 ml-2 inline" />
-                    </Button>
+                    <button className="group relative px-10 py-5 bg-gradient-to-r from-purple to-blue rounded-2xl text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-purple/25">
+                      <span className="relative z-10 flex items-center gap-2">
+                        <RocketLaunchIcon className="w-5 h-5" />
+                        Register Now — From ₹199 Only
+                        <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue to-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </button>
                   </Link>
                   <Link href="/signup">
-                    <Button variant="outline" size="lg">Create Account</Button>
+                    <button className="px-10 py-5 rounded-2xl text-foreground font-bold text-lg glass border-white/10 hover:border-purple/30 hover:bg-white/5 transition-all">
+                      Create Account
+                    </button>
                   </Link>
                 </>
               ) : (
                 <Link href="/explore">
-                  <Button size="lg">Explore Startups</Button>
+                  <button className="group relative px-10 py-5 bg-gradient-to-r from-purple to-blue rounded-2xl text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-purple/25">
+                    <span className="relative z-10">Explore Startups</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue to-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </button>
                 </Link>
               )}
             </div>
 
-            <p className="text-sm text-muted">
-              {pcs('ctaFooter', "No idea is too small. No dream is too big.")} <span className="text-purple font-semibold">{pcs('ctaFooterHighlight', "We're waiting for you.")}</span>
+            <p className="text-sm text-muted/40">
+              {pcs('ctaFooter', "No idea is too small. No dream is too big.")} <span className="text-purple/60 font-semibold">{pcs('ctaFooterHighlight', "We're waiting for you.")}</span>
             </p>
 
-            <div className="mt-8 pt-6 border-t border-border/30">
-              <p className="text-sm text-muted">
+            <div className="mt-10 pt-8 border-t border-white/5">
+              <p className="text-sm text-muted/40">
                 Vishvakarma Hub Platform &amp; Event is conducted by{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple to-blue font-bold">Trinetrashakti Innovations Private Limited</span>
+                <span className="text-shimmer font-bold">Trinetrashakti Innovations Private Limited</span>
               </p>
-              <p className="text-xs text-muted/70 mt-1">
-                Recognized by <span className="text-green-400 font-semibold">Startup India</span>, Government of India
+              <p className="text-xs text-muted/30 mt-1.5">
+                Recognized by <span className="text-green-400/60 font-semibold">Startup India</span>, Government of India
               </p>
             </div>
           </motion.div>
