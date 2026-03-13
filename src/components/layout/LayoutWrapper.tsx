@@ -14,7 +14,12 @@ export function LayoutWrapper({ header, footer, children }: LayoutWrapperProps) 
   const isComingSoon = pathname === '/coming-soon';
 
   if (isComingSoon) {
-    return <main className="flex-1">{children}</main>;
+    return (
+      <>
+        {header}
+        <main className="flex-1">{children}</main>
+      </>
+    );
   }
 
   return (

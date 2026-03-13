@@ -15,13 +15,23 @@ const navLinks = [
   { href: '/how-it-works', label: 'How It Works' },
 ];
 
+const comingSoonNavLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/competition', label: 'Competition' },
+];
+
 export default function Header() {
   const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isComingSoon, setIsComingSoon] = useState(false);
 
   useEffect(() => {
     checkAuth();
+    fetch('/api/site-settings')
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setIsComingSoon(d.data.comingSoon === true); })
+      .catch(() => {});
   }, [checkAuth]);
 
   useEffect(() => {
@@ -61,7 +71,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
+            {(isComingSoon ? comingSoonNavLinks : navLinks).map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -74,35 +84,57 @@ export default function Header() {
 
           {/* Right Side */}
           <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <Link href="/submit-idea">
-                  <Button size="sm">Submit Idea</Button>
-                </Link>
-                <Link href="/notifications" className="relative p-2 text-muted hover:text-foreground transition-colors">
-                  <BellIcon className="w-5 h-5" />
-                </Link>
-                <Link href="/profile" title="Profile Settings">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white text-sm font-semibold cursor-pointer hover:ring-2 hover:ring-blue/50 transition-all">
-                    {user?.firstName?.[0]?.toUpperCase() || 'U'}
-                  </div>
-                </Link>
-                <Link href={getDashboardLink()} className="text-sm text-muted hover:text-foreground transition-colors">
-                  Dashboard
-                </Link>
-                <button onClick={logout} className="text-sm text-muted hover:text-danger transition-colors">
-                  Logout
-                </button>
-              </>
+            {isComingSoon ? (
+              isAuthenticated ? (
+                <>
+                  <Link href="/competition/dashboard">
+                    <Button variant="ghost" size="sm">Dashboard</Button>
+                  </Link>
+                  <button onClick={logout} className="text-sm text-muted hover:text-danger transition-colors">
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/competition/login">
+                    <Button variant="ghost" size="sm">Login</Button>
+                  </Link>
+                  <Link href="/competition/register">
+                    <Button size="sm">Register</Button>
+                  </Link>
+                </>
+              )
             ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" size="sm">Login</Button>
-                </Link>
-                <Link href="/signup">
-                  <Button size="sm">Get Started</Button>
-                </Link>
-              </>
+              isAuthenticated ? (
+                <>
+                  <Link href="/submit-idea">
+                    <Button size="sm">Submit Idea</Button>
+                  </Link>
+                  <Link href="/notifications" className="relative p-2 text-muted hover:text-foreground transition-colors">
+                    <BellIcon className="w-5 h-5" />
+                  </Link>
+                  <Link href="/profile" title="Profile Settings">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white text-sm font-semibold cursor-pointer hover:ring-2 hover:ring-blue/50 transition-all">
+                      {user?.firstName?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                  </Link>
+                  <Link href={getDashboardLink()} className="text-sm text-muted hover:text-foreground transition-colors">
+                    Dashboard
+                  </Link>
+                  <button onClick={logout} className="text-sm text-muted hover:text-danger transition-colors">
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm">Login</Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button size="sm">Get Started</Button>
+                  </Link>
+                </>
+              )
             )}
           </div>
 
@@ -123,7 +155,7 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl">
             <div className="py-4 space-y-2">
-              {navLinks.map((link) => (
+              {(isComingSoon ? comingSoonNavLinks : navLinks).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -134,33 +166,58 @@ export default function Header() {
                 </Link>
               ))}
               <div className="border-t border-border pt-4 px-4 space-y-2">
-                {isAuthenticated ? (
-                  <>
-                    <Link href="/submit-idea" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button className="w-full" size="sm">Submit Idea</Button>
-                    </Link>
-                    <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full" size="sm">Profile</Button>
-                    </Link>
-                    <Link href={getDashboardLink()} onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full" size="sm">Dashboard</Button>
-                    </Link>
-                    <button
-                      onClick={() => { logout(); setIsMobileMenuOpen(false); }}
-                      className="w-full text-left px-4 py-2 text-sm text-danger"
-                    >
-                      Logout
-                    </button>
-                  </>
+                {isComingSoon ? (
+                  isAuthenticated ? (
+                    <>
+                      <Link href="/competition/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full" size="sm">Dashboard</Button>
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                        className="w-full text-left px-4 py-2 text-sm text-danger"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/competition/login" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full" size="sm">Login</Button>
+                      </Link>
+                      <Link href="/competition/register" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button className="w-full" size="sm">Register</Button>
+                      </Link>
+                    </>
+                  )
                 ) : (
-                  <>
-                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full" size="sm">Login</Button>
-                    </Link>
-                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button className="w-full" size="sm">Get Started</Button>
-                    </Link>
-                  </>
+                  isAuthenticated ? (
+                    <>
+                      <Link href="/submit-idea" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button className="w-full" size="sm">Submit Idea</Button>
+                      </Link>
+                      <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full" size="sm">Profile</Button>
+                      </Link>
+                      <Link href={getDashboardLink()} onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full" size="sm">Dashboard</Button>
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                        className="w-full text-left px-4 py-2 text-sm text-danger"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full" size="sm">Login</Button>
+                      </Link>
+                      <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button className="w-full" size="sm">Get Started</Button>
+                      </Link>
+                    </>
+                  )
                 )}
               </div>
             </div>
