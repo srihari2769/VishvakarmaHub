@@ -28,6 +28,7 @@ import {
   CreditCardIcon,
   AcademicCapIcon,
   UserGroupIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -171,14 +172,26 @@ interface CompetitionParticipantItem {
   participantType: string;
   college: string | null;
   company: string | null;
+  designation: string | null;
   city: string;
   state: string;
   teamName: string | null;
   teamSize: number;
+  teamMembers: { name: string; email: string; role?: string }[] | null;
   ideaTitle: string | null;
+  ideaDescription: string | null;
   ideaCategory: string | null;
+  problemStatement: string | null;
+  solution: string | null;
+  targetAudience: string | null;
+  uniqueness: string | null;
+  productStage: string | null;
+  pitchDeck: string | null;
+  demoVideo: string | null;
   totalFee: number | null;
   paymentStatus: string;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
   status: string;
   createdAt: string;
   user: { firstName: string; lastName: string; email: string };
@@ -226,6 +239,7 @@ export default function AdminPage() {
   const [compSaving, setCompSaving] = useState(false);
   const [compSubTab, setCompSubTab] = useState<'entries' | 'participants' | 'details' | 'sponsors' | 'campus-partners' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
   const [participantStatusLoading, setParticipantStatusLoading] = useState<string | null>(null);
+  const [selectedParticipant, setSelectedParticipant] = useState<CompetitionParticipantItem | null>(null);
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
   const [editingSponsor, setEditingSponsor] = useState<string | null>(null);
   const [editSponsorForm, setEditSponsorForm] = useState({ tier: '', sponsorName: '', price: '', benefits: '', logo: '' });
@@ -354,6 +368,52 @@ export default function AdminPage() {
       if (data.success) fetchCompetitionEntries();
     } catch {}
     setParticipantStatusLoading(null);
+  };
+
+  const exportParticipantsCSV = () => {
+    if (!competitionData?.participants?.length) return;
+    const headers = ['Name', 'Email', 'Phone', 'Type', 'College/Company', 'Designation', 'City', 'State', 'Team Name', 'Team Size', 'Team Members', 'Idea Title', 'Category', 'Idea Description', 'Problem Statement', 'Solution', 'Target Audience', 'Uniqueness', 'Product Stage', 'Pitch Deck', 'Demo Video', 'Total Fee', 'Payment Status', 'Razorpay Payment ID', 'Status', 'Registered On'];
+    const escape = (val: string | null | undefined) => {
+      if (!val) return '';
+      const s = String(val).replace(/"/g, '""');
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
+    };
+    const rows = competitionData.participants.map((p) => [
+      escape(`${p.user.firstName} ${p.user.lastName}`),
+      escape(p.user.email),
+      escape(p.phone),
+      escape(p.participantType),
+      escape(p.participantType === 'STUDENT' ? p.college : p.company),
+      escape(p.designation),
+      escape(p.city),
+      escape(p.state),
+      escape(p.teamName),
+      String(p.teamSize),
+      escape(p.teamMembers ? p.teamMembers.map((m: { name: string; email: string; role?: string }) => `${m.name} (${m.email}${m.role ? `, ${m.role}` : ''})`).join('; ') : ''),
+      escape(p.ideaTitle),
+      escape(p.ideaCategory),
+      escape(p.ideaDescription),
+      escape(p.problemStatement),
+      escape(p.solution),
+      escape(p.targetAudience),
+      escape(p.uniqueness),
+      escape(p.productStage),
+      escape(p.pitchDeck),
+      escape(p.demoVideo),
+      p.totalFee != null ? String(p.totalFee) : '',
+      escape(p.paymentStatus),
+      escape(p.razorpayPaymentId),
+      escape(p.status),
+      new Date(p.createdAt).toLocaleDateString(),
+    ]);
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `competition-participants-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const saveCompetitionDetails = async () => {
@@ -1571,6 +1631,14 @@ export default function AdminPage() {
                             <p className="text-xs text-muted">Revenue</p>
                           </Card>
                         </div>
+
+                        {/* Download CSV button */}
+                        <div className="flex justify-end mb-3">
+                          <Button size="sm" variant="ghost" onClick={exportParticipantsCSV}>
+                            <ArrowDownTrayIcon className="w-4 h-4 mr-1" /> Download CSV
+                          </Button>
+                        </div>
+
                         <div className="space-y-3">
                           {competitionData.participants.map((p) => (
                             <Card key={p.id} className="p-4">
@@ -1583,19 +1651,27 @@ export default function AdminPage() {
                                   <p className="text-xs text-muted">{p.user.email} &middot; {p.phone}</p>
                                   <p className="text-xs text-muted mt-0.5">
                                     {p.participantType === 'STUDENT' ? `Student — ${p.college}` : `Professional${p.company ? ` — ${p.company}` : ''}`}
+                                    {p.designation && ` · ${p.designation}`}
                                     {' '}&middot; {p.city}, {p.state}
                                   </p>
                                   {p.ideaTitle && (
                                     <p className="text-xs text-blue mt-0.5">💡 {p.ideaTitle} ({p.ideaCategory}) &middot; Team: {p.teamSize}</p>
                                   )}
                                 </div>
-                                <div className="text-right flex-shrink-0 space-y-1">
-                                  <Badge variant={p.paymentStatus === 'PAID' ? 'success' : 'danger'}>
-                                    {p.paymentStatus === 'PAID' ? `₹${p.totalFee} Paid` : 'Unpaid'}
-                                  </Badge>
-                                  <p className="text-xs text-muted">{new Date(p.createdAt).toLocaleDateString()}</p>
-                                </div>
-                                <div className="flex-shrink-0">
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <button
+                                    className="p-1.5 rounded-md hover:bg-card-hover text-muted hover:text-foreground transition-colors"
+                                    title="View Details"
+                                    onClick={() => setSelectedParticipant(p)}
+                                  >
+                                    <EyeIcon className="w-4 h-4" />
+                                  </button>
+                                  <div className="text-right space-y-1">
+                                    <Badge variant={p.paymentStatus === 'PAID' ? 'success' : 'danger'}>
+                                      {p.paymentStatus === 'PAID' ? `₹${p.totalFee} Paid` : 'Unpaid'}
+                                    </Badge>
+                                    <p className="text-xs text-muted">{new Date(p.createdAt).toLocaleDateString()}</p>
+                                  </div>
                                   <select
                                     className="text-xs bg-card border border-border rounded px-2 py-1.5 text-foreground"
                                     value={p.status}
@@ -1616,6 +1692,143 @@ export default function AdminPage() {
                           ))}
                         </div>
                       </>
+                    )}
+
+                    {/* Participant Detail Modal */}
+                    {selectedParticipant && (
+                      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedParticipant(null)}>
+                        <div className="bg-card rounded-xl border border-border w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                          <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-purple/20 flex items-center justify-center text-sm font-bold text-purple">
+                                {selectedParticipant.user.firstName[0]}{selectedParticipant.user.lastName[0]}
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-foreground">{selectedParticipant.user.firstName} {selectedParticipant.user.lastName}</h3>
+                                <p className="text-xs text-muted">{selectedParticipant.user.email}</p>
+                              </div>
+                            </div>
+                            <button onClick={() => setSelectedParticipant(null)} className="p-1 hover:bg-card-hover rounded-md">
+                              <XMarkIcon className="w-5 h-5 text-muted" />
+                            </button>
+                          </div>
+
+                          <div className="p-4 space-y-5">
+                            {/* Profile Info */}
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground mb-2 border-b border-border pb-1">Profile Information</h4>
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div><span className="text-muted">Phone:</span> <span className="text-foreground">{selectedParticipant.phone}</span></div>
+                                <div><span className="text-muted">Type:</span> <span className="text-foreground">{selectedParticipant.participantType}</span></div>
+                                {selectedParticipant.college && <div><span className="text-muted">College:</span> <span className="text-foreground">{selectedParticipant.college}</span></div>}
+                                {selectedParticipant.company && <div><span className="text-muted">Company:</span> <span className="text-foreground">{selectedParticipant.company}</span></div>}
+                                {selectedParticipant.designation && <div><span className="text-muted">Designation:</span> <span className="text-foreground">{selectedParticipant.designation}</span></div>}
+                                <div><span className="text-muted">City:</span> <span className="text-foreground">{selectedParticipant.city}</span></div>
+                                <div><span className="text-muted">State:</span> <span className="text-foreground">{selectedParticipant.state}</span></div>
+                                <div><span className="text-muted">Registered:</span> <span className="text-foreground">{new Date(selectedParticipant.createdAt).toLocaleString()}</span></div>
+                              </div>
+                            </div>
+
+                            {/* Idea Submission */}
+                            {selectedParticipant.ideaTitle ? (
+                              <div>
+                                <h4 className="text-sm font-semibold text-foreground mb-2 border-b border-border pb-1">Idea Submission</h4>
+                                <div className="space-y-3 text-sm">
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div><span className="text-muted">Title:</span> <span className="text-foreground font-medium">{selectedParticipant.ideaTitle}</span></div>
+                                    <div><span className="text-muted">Category:</span> <span className="text-foreground">{selectedParticipant.ideaCategory}</span></div>
+                                    <div><span className="text-muted">Product Stage:</span> <span className="text-foreground">{selectedParticipant.productStage || 'N/A'}</span></div>
+                                  </div>
+                                  {selectedParticipant.ideaDescription && (
+                                    <div>
+                                      <p className="text-muted mb-1">Description:</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.ideaDescription}</p>
+                                    </div>
+                                  )}
+                                  {selectedParticipant.problemStatement && (
+                                    <div>
+                                      <p className="text-muted mb-1">Problem Statement:</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.problemStatement}</p>
+                                    </div>
+                                  )}
+                                  {selectedParticipant.solution && (
+                                    <div>
+                                      <p className="text-muted mb-1">Solution:</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.solution}</p>
+                                    </div>
+                                  )}
+                                  {selectedParticipant.targetAudience && (
+                                    <div>
+                                      <p className="text-muted mb-1">Target Audience:</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.targetAudience}</p>
+                                    </div>
+                                  )}
+                                  {selectedParticipant.uniqueness && (
+                                    <div>
+                                      <p className="text-muted mb-1">What makes it unique:</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.uniqueness}</p>
+                                    </div>
+                                  )}
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {selectedParticipant.pitchDeck && (
+                                      <div>
+                                        <span className="text-muted">Pitch Deck:</span>{' '}
+                                        <a href={selectedParticipant.pitchDeck} target="_blank" rel="noopener noreferrer" className="text-blue hover:underline">View</a>
+                                      </div>
+                                    )}
+                                    {selectedParticipant.demoVideo && (
+                                      <div>
+                                        <span className="text-muted">Demo Video:</span>{' '}
+                                        <a href={selectedParticipant.demoVideo} target="_blank" rel="noopener noreferrer" className="text-blue hover:underline">Watch</a>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div>
+                                <h4 className="text-sm font-semibold text-foreground mb-2 border-b border-border pb-1">Idea Submission</h4>
+                                <p className="text-sm text-muted italic">No idea submitted yet.</p>
+                              </div>
+                            )}
+
+                            {/* Team Info */}
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground mb-2 border-b border-border pb-1">Team ({selectedParticipant.teamSize} member{selectedParticipant.teamSize > 1 ? 's' : ''})</h4>
+                              {selectedParticipant.teamName && <p className="text-sm text-foreground mb-2">Team Name: <span className="font-medium">{selectedParticipant.teamName}</span></p>}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm bg-background rounded p-2">
+                                  <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center text-xs font-bold text-gold">👑</div>
+                                  <div>
+                                    <p className="text-foreground font-medium">{selectedParticipant.user.firstName} {selectedParticipant.user.lastName} <span className="text-xs text-muted">(Leader)</span></p>
+                                    <p className="text-xs text-muted">{selectedParticipant.user.email}</p>
+                                  </div>
+                                </div>
+                                {selectedParticipant.teamMembers && selectedParticipant.teamMembers.map((m: { name: string; email: string; role?: string }, i: number) => (
+                                  <div key={i} className="flex items-center gap-2 text-sm bg-background rounded p-2">
+                                    <div className="w-7 h-7 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan">{m.name[0]}</div>
+                                    <div>
+                                      <p className="text-foreground">{m.name} {m.role && <span className="text-xs text-muted">({m.role})</span>}</p>
+                                      <p className="text-xs text-muted">{m.email}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Payment Info */}
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground mb-2 border-b border-border pb-1">Payment</h4>
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div><span className="text-muted">Total Fee:</span> <span className="text-foreground font-medium">{selectedParticipant.totalFee != null ? `₹${selectedParticipant.totalFee}` : 'N/A'}</span></div>
+                                <div><span className="text-muted">Status:</span> <Badge variant={selectedParticipant.paymentStatus === 'PAID' ? 'success' : 'danger'}>{selectedParticipant.paymentStatus}</Badge></div>
+                                {selectedParticipant.razorpayOrderId && <div><span className="text-muted">Order ID:</span> <span className="text-foreground text-xs font-mono">{selectedParticipant.razorpayOrderId}</span></div>}
+                                {selectedParticipant.razorpayPaymentId && <div><span className="text-muted">Payment ID:</span> <span className="text-foreground text-xs font-mono">{selectedParticipant.razorpayPaymentId}</span></div>}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </>
                 )}
