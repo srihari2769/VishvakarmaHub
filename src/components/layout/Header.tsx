@@ -15,16 +15,19 @@ const navLinks = [
   { href: '/how-it-works', label: 'How It Works' },
 ];
 
-const comingSoonNavLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/competition', label: 'Competition' },
-];
+const comingSoonAllowed = ['/', '/competition'];
 
 export default function Header() {
   const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isComingSoon, setIsComingSoon] = useState(false);
+  const [comingSoonToast, setComingSoonToast] = useState(false);
+
+  const showComingSoonToast = () => {
+    setComingSoonToast(true);
+    setTimeout(() => setComingSoonToast(false), 2000);
+  };
 
   useEffect(() => {
     checkAuth();
@@ -71,15 +74,27 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {(isComingSoon ? comingSoonNavLinks : navLinks).map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-muted hover:text-foreground transition-colors duration-200"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const blocked = isComingSoon && !comingSoonAllowed.includes(link.href);
+              return blocked ? (
+                <button
+                  key={link.href}
+                  onClick={showComingSoonToast}
+                  className="text-sm text-muted/50 hover:text-muted transition-colors duration-200 cursor-default relative group"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] bg-amber-500/90 text-black px-1.5 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Coming Soon</span>
+                </button>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted hover:text-foreground transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Side */}
@@ -155,16 +170,27 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl">
             <div className="py-4 space-y-2">
-              {(isComingSoon ? comingSoonNavLinks : navLinks).map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block px-4 py-2 text-sm text-muted hover:text-foreground hover:bg-card rounded-lg transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const blocked = isComingSoon && !comingSoonAllowed.includes(link.href);
+                return blocked ? (
+                  <button
+                    key={link.href}
+                    onClick={showComingSoonToast}
+                    className="block w-full text-left px-4 py-2 text-sm text-muted/50 rounded-lg"
+                  >
+                    {link.label} <span className="text-[10px] bg-amber-500/90 text-black px-1.5 py-0.5 rounded ml-1">Coming Soon</span>
+                  </button>
+                ) : (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="block px-4 py-2 text-sm text-muted hover:text-foreground hover:bg-card rounded-lg transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
               <div className="border-t border-border pt-4 px-4 space-y-2">
                 {isComingSoon ? (
                   isAuthenticated ? (
@@ -224,6 +250,13 @@ export default function Header() {
           </div>
         )}
       </div>
+
+      {/* Coming Soon Toast */}
+      {comingSoonToast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[60] bg-amber-500 text-black text-sm font-medium px-4 py-2 rounded-lg shadow-lg animate-pulse">
+          🚀 Coming Soon — Stay tuned!
+        </div>
+      )}
     </header>
   );
 }
