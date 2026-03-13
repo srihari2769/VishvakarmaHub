@@ -336,7 +336,7 @@ export default function CompetitionPage() {
   const shareUrl = 'https://www.vishvakarmahub.com/competition';
   const applyUrl = 'https://www.vishvakarmahub.com/competition/register';
   const shareTitle = competition?.name || 'Vishvakarma Innovation Challenge 2026';
-  const shareText = `${shareTitle} — ${competition?.tagline || "India's Biggest Startup Competition"}\n\n🚀 Register your startup and compete for amazing prizes!\n🎓 Students: ₹${competition?.studentFee || 199} | 💼 Founders: ₹${competition?.founderFee || 499}\n\nOrganized by Trinetrashakti Innovations Pvt Ltd (Startup India Recognized)\n\n🔗 Competition Page: ${shareUrl}\n✅ Apply Now: ${applyUrl}`;
+  const shareText = `${shareTitle} — ${competition?.tagline || "India's Biggest Startup Competition"}\n\n� Venue: Tirupati, Andhra Pradesh, India\n�🚀 Register your startup and compete for amazing prizes!\n🎓 Students: ₹${competition?.studentFee || 199} | 💼 Founders: ₹${competition?.founderFee || 499}\n\nOrganized by Trinetrashakti Innovations Pvt Ltd (Startup India Recognized)\n\n🔗 Competition Page: ${shareUrl}\n✅ Apply Now: ${applyUrl}`;
 
   const shareLinks = [
     { name: 'WhatsApp', color: 'bg-green-500 hover:bg-green-600', icon: '💬', href: `https://wa.me/?text=${encodeURIComponent(shareText)}` },
@@ -449,9 +449,14 @@ export default function CompetitionPage() {
               {pcs('heroDescription', 'We invite students, founders, engineers, and innovators from every corner of India to showcase their groundbreaking ideas on the national stage.')}
             </p>
 
-            <p className="text-base sm:text-lg text-amber-400/80 font-medium mb-10 italic">
+            <p className="text-base sm:text-lg text-amber-400/80 font-medium mb-6 italic">
               &ldquo;{pcs('heroQuote', 'Your idea deserves the spotlight. This is your moment.')}&rdquo;
             </p>
+
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass text-white/60 text-sm font-medium mb-10">
+              <GlobeAltIcon className="w-4 h-4 text-amber-400" />
+              <span>📍 Tirupati, Andhra Pradesh, India</span>
+            </div>
           </div>
 
           {/* CTA Buttons */}
@@ -1413,7 +1418,7 @@ export default function CompetitionPage() {
               { label: 'Registration Closes', date: competition.registrationEnd, phase: 'REGISTRATION', icon: '⏰', desc: 'Last chance to register — don\'t miss out!' },
               { label: 'Screening Complete', date: competition.screeningEnd, phase: 'SCREENING', icon: '🔍', desc: 'Expert jury reviews all submissions' },
               { label: 'Public Voting Ends', date: competition.votingEnd, phase: 'VOTING', icon: '🗳️', desc: 'Community votes for the best startups' },
-              { label: 'Grand Finale', date: competition.finalsDate, phase: 'FINALS', icon: '🏆', desc: 'Live pitch day — winners announced!' },
+              { label: 'Grand Finale', date: competition.finalsDate, phase: 'FINALS', icon: '🏆', desc: 'Live pitch day in Tirupati — winners announced!' },
             ].map((item, i) => {
               const isPast = new Date(item.date) < new Date();
               const isCurrent = item.phase === competition.currentPhase;
@@ -1468,7 +1473,7 @@ export default function CompetitionPage() {
               { label: 'Registration Closes', date: competition.registrationEnd, phase: 'REGISTRATION', icon: '⏰', desc: 'Last chance to register — don\'t miss out!' },
               { label: 'Screening Complete', date: competition.screeningEnd, phase: 'SCREENING', icon: '🔍', desc: 'Expert jury reviews all submissions' },
               { label: 'Public Voting Ends', date: competition.votingEnd, phase: 'VOTING', icon: '🗳️', desc: 'Community votes for the best startups' },
-              { label: 'Grand Finale', date: competition.finalsDate, phase: 'FINALS', icon: '🏆', desc: 'Live pitch day — winners announced!' },
+              { label: 'Grand Finale', date: competition.finalsDate, phase: 'FINALS', icon: '🏆', desc: 'Live pitch day in Tirupati — winners announced!' },
             ].map((item, i) => {
               const isPast = new Date(item.date) < new Date();
               const isCurrent = item.phase === competition.currentPhase;
@@ -1679,6 +1684,9 @@ export default function CompetitionPage() {
             <p className="text-sm text-white/30">
               Vishvakarma Hub Platform &amp; Event is conducted by{' '}
               <span className="gradient-gold font-bold">Trinetrashakti Innovations Private Limited</span>
+            </p>
+            <p className="text-xs text-white/20 mt-1">
+              📍 Event Venue: <span className="text-amber-400 font-medium">Tirupati, Andhra Pradesh, India</span>
             </p>
             <p className="text-xs text-white/20 mt-1">
               Recognized by <span className="text-green-400 font-semibold">Startup India</span>, Government of India
