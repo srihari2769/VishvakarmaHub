@@ -27,6 +27,7 @@ import {
   TicketIcon,
   CreditCardIcon,
   AcademicCapIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -136,7 +137,8 @@ interface CompetitionData {
   sponsors: CompetitionSponsorItem[];
   campusPartners: CampusPartnerItem[];
   citizenPasses: CitizenPassItem[];
-  _count: { entries: number; citizenPasses: number };
+  participants: CompetitionParticipantItem[];
+  _count: { entries: number; citizenPasses: number; participants: number };
 }
 
 interface CompetitionJudgeItem {
@@ -161,6 +163,25 @@ interface CampusPartnerItem {
   name: string;
   logo: string | null;
   website: string | null;
+}
+
+interface CompetitionParticipantItem {
+  id: string;
+  phone: string;
+  participantType: string;
+  college: string | null;
+  company: string | null;
+  city: string;
+  state: string;
+  teamName: string | null;
+  teamSize: number;
+  ideaTitle: string | null;
+  ideaCategory: string | null;
+  totalFee: number | null;
+  paymentStatus: string;
+  status: string;
+  createdAt: string;
+  user: { firstName: string; lastName: string; email: string };
 }
 
 interface ContactSubmission {
@@ -203,7 +224,8 @@ export default function AdminPage() {
   const [compEditMode, setCompEditMode] = useState(false);
   const [compForm, setCompForm] = useState<Record<string, string | number>>({});
   const [compSaving, setCompSaving] = useState(false);
-  const [compSubTab, setCompSubTab] = useState<'entries' | 'details' | 'sponsors' | 'campus-partners' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
+  const [compSubTab, setCompSubTab] = useState<'entries' | 'participants' | 'details' | 'sponsors' | 'campus-partners' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
+  const [participantStatusLoading, setParticipantStatusLoading] = useState<string | null>(null);
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
   const [editingSponsor, setEditingSponsor] = useState<string | null>(null);
   const [editSponsorForm, setEditSponsorForm] = useState({ tier: '', sponsorName: '', price: '', benefits: '', logo: '' });
@@ -317,6 +339,21 @@ export default function AdminPage() {
       if (data.success) fetchCompetitionEntries();
     } catch {}
     setEntryStatusLoading(null);
+  };
+
+  const updateParticipantStatus = async (participantId: string, status: string) => {
+    setParticipantStatusLoading(participantId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'update-participant-status', participantId, status }),
+      });
+      const data = await res.json();
+      if (data.success) fetchCompetitionEntries();
+    } catch {}
+    setParticipantStatusLoading(null);
   };
 
   const saveCompetitionDetails = async () => {
@@ -1420,7 +1457,7 @@ export default function AdminPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">{competitionData.name}</h3>
                     <p className="text-sm text-muted">
-                      Phase: <span className="text-blue font-medium">{competitionData.currentPhase}</span> &middot; {competitionData._count.entries} entries &middot; {competitionData._count.citizenPasses || 0} passes
+                      Phase: <span className="text-blue font-medium">{competitionData.currentPhase}</span> &middot; {competitionData._count.entries} entries &middot; {competitionData._count.participants || 0} participants &middot; {competitionData._count.citizenPasses || 0} passes
                     </p>
                   </div>
                   <Button size="sm" variant="ghost" onClick={fetchCompetitionEntries}>Refresh</Button>
@@ -1428,7 +1465,7 @@ export default function AdminPage() {
 
                 {/* Sub-tabs */}
                 <div className="flex gap-1 bg-card rounded-lg p-1 flex-wrap">
-                  {(['entries', 'details', 'sponsors', 'campus-partners', 'judges', 'citizen-passes', 'page-content'] as const).map((st) => (
+                  {(['entries', 'participants', 'details', 'sponsors', 'campus-partners', 'judges', 'citizen-passes', 'page-content'] as const).map((st) => (
                     <button
                       key={st}
                       onClick={() => { setCompSubTab(st); if (st === 'page-content') initPageContentForm(); }}
@@ -1436,7 +1473,7 @@ export default function AdminPage() {
                         compSubTab === st ? 'bg-blue text-white' : 'text-muted hover:text-foreground'
                       }`}
                     >
-                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st === 'campus-partners' ? 'Campus Partners' : st}
+                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st === 'campus-partners' ? 'Campus Partners' : st === 'participants' ? `Participants (${competitionData?.participants?.length || 0})` : st}
                     </button>
                   ))}
                 </div>
@@ -1501,6 +1538,84 @@ export default function AdminPage() {
                           </Card>
                         ))}
                       </div>
+                    )}
+                  </>
+                )}
+
+                {/* Participants Sub-tab */}
+                {compSubTab === 'participants' && (
+                  <>
+                    {(!competitionData.participants || competitionData.participants.length === 0) ? (
+                      <Card className="p-8 text-center">
+                        <UserGroupIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                        <p className="text-muted">No participants registered yet.</p>
+                      </Card>
+                    ) : (
+                      <>
+                        {/* Summary stats */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                          <Card className="p-3 text-center">
+                            <p className="text-2xl font-bold text-foreground">{competitionData.participants.length}</p>
+                            <p className="text-xs text-muted">Total</p>
+                          </Card>
+                          <Card className="p-3 text-center">
+                            <p className="text-2xl font-bold text-green-400">{competitionData.participants.filter((p) => p.paymentStatus === 'PAID').length}</p>
+                            <p className="text-xs text-muted">Paid</p>
+                          </Card>
+                          <Card className="p-3 text-center">
+                            <p className="text-2xl font-bold text-blue">{competitionData.participants.filter((p) => p.ideaTitle).length}</p>
+                            <p className="text-xs text-muted">Ideas Submitted</p>
+                          </Card>
+                          <Card className="p-3 text-center">
+                            <p className="text-2xl font-bold text-foreground">₹{competitionData.participants.filter((p) => p.paymentStatus === 'PAID').reduce((sum, p) => sum + (p.totalFee || 0), 0).toLocaleString()}</p>
+                            <p className="text-xs text-muted">Revenue</p>
+                          </Card>
+                        </div>
+                        <div className="space-y-3">
+                          {competitionData.participants.map((p) => (
+                            <Card key={p.id} className="p-4">
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full bg-purple/20 flex items-center justify-center text-sm font-bold text-purple flex-shrink-0">
+                                  {p.user.firstName[0]}{p.user.lastName[0]}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-foreground truncate">{p.user.firstName} {p.user.lastName}</h4>
+                                  <p className="text-xs text-muted">{p.user.email} &middot; {p.phone}</p>
+                                  <p className="text-xs text-muted mt-0.5">
+                                    {p.participantType === 'STUDENT' ? `Student — ${p.college}` : `Professional${p.company ? ` — ${p.company}` : ''}`}
+                                    {' '}&middot; {p.city}, {p.state}
+                                  </p>
+                                  {p.ideaTitle && (
+                                    <p className="text-xs text-blue mt-0.5">💡 {p.ideaTitle} ({p.ideaCategory}) &middot; Team: {p.teamSize}</p>
+                                  )}
+                                </div>
+                                <div className="text-right flex-shrink-0 space-y-1">
+                                  <Badge variant={p.paymentStatus === 'PAID' ? 'success' : 'danger'}>
+                                    {p.paymentStatus === 'PAID' ? `₹${p.totalFee} Paid` : 'Unpaid'}
+                                  </Badge>
+                                  <p className="text-xs text-muted">{new Date(p.createdAt).toLocaleDateString()}</p>
+                                </div>
+                                <div className="flex-shrink-0">
+                                  <select
+                                    className="text-xs bg-card border border-border rounded px-2 py-1.5 text-foreground"
+                                    value={p.status}
+                                    disabled={participantStatusLoading === p.id}
+                                    onChange={(e) => updateParticipantStatus(p.id, e.target.value)}
+                                  >
+                                    <option value="REGISTERED">Registered</option>
+                                    <option value="IDEA_SUBMITTED">Idea Submitted</option>
+                                    <option value="SHORTLISTED">Shortlisted</option>
+                                    <option value="SELECTED">Selected</option>
+                                    <option value="FINALIST">Finalist</option>
+                                    <option value="WINNER">Winner</option>
+                                    <option value="ELIMINATED">Eliminated</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </>
                     )}
                   </>
                 )}

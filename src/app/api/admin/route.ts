@@ -160,7 +160,13 @@ export async function GET(request: NextRequest) {
             sponsors: { orderBy: { price: 'desc' } },
             campusPartners: { orderBy: { createdAt: 'asc' } },
             citizenPasses: { orderBy: { createdAt: 'desc' } },
-            _count: { select: { entries: true, citizenPasses: true } },
+            participants: {
+              include: {
+                user: { select: { firstName: true, lastName: true, email: true } },
+              },
+              orderBy: { createdAt: 'desc' },
+            },
+            _count: { select: { entries: true, citizenPasses: true, participants: true } },
           },
         });
         return successResponse(competition);
@@ -482,6 +488,18 @@ export async function DELETE(request: NextRequest) {
           data: { status: entryStatus },
         });
         return successResponse(updatedEntry);
+      }
+
+      case 'update-participant-status': {
+        const { participantId: pId, status: pStatus } = body;
+        if (!pId || !pStatus) return errorResponse('Participant ID and status required', 400);
+        const validParticipantStatuses = ['REGISTERED', 'IDEA_SUBMITTED', 'SHORTLISTED', 'SELECTED', 'FINALIST', 'WINNER', 'ELIMINATED'];
+        if (!validParticipantStatuses.includes(pStatus)) return errorResponse('Invalid status', 400);
+        const updatedParticipant = await prisma.competitionParticipant.update({
+          where: { id: pId },
+          data: { status: pStatus },
+        });
+        return successResponse(updatedParticipant);
       }
 
       case 'delete-user': {

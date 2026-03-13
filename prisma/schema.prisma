@@ -131,6 +131,7 @@ model User {
   cofounderApplications CofounderApplication[]
   competitionEntries CompetitionEntry[]
   competitionVotes  CompetitionVote[]
+  competitionParticipants CompetitionParticipant[]
 
   @@index([email])
   @@index([referralCode])
@@ -466,11 +467,66 @@ model Competition {
   sponsors        CompetitionSponsor[]
   campusPartners  CampusPartner[]
   citizenPasses   CitizenPass[]
+  participants    CompetitionParticipant[]
 
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
   @@map("competitions")
+}
+
+model CompetitionParticipant {
+  id              String   @id @default(cuid())
+
+  // Auth link
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  competitionId   String
+  competition     Competition @relation(fields: [competitionId], references: [id])
+
+  // Competition profile
+  phone           String
+  participantType String            // STUDENT or PROFESSIONAL
+  college         String?
+  company         String?
+  designation     String?
+  city            String
+  state           String
+
+  // Team
+  teamName        String?
+  teamSize        Int      @default(1)
+  teamMembers     Json?             // [{name, email, role}]
+
+  // Idea submission
+  ideaTitle       String?
+  ideaDescription String?  @db.Text
+  ideaCategory    String?
+  problemStatement String? @db.Text
+  solution        String?  @db.Text
+  targetAudience  String?  @db.Text
+  uniqueness      String?  @db.Text
+  productStage    String?
+  pitchDeck       String?
+  demoVideo       String?
+
+  // Payment
+  totalFee        Float?
+  paymentStatus   String   @default("PENDING")  // PENDING, PAID, FAILED
+  razorpayOrderId String?
+  razorpayPaymentId String?
+
+  // Status
+  status          String   @default("REGISTERED") // REGISTERED, IDEA_SUBMITTED, SHORTLISTED, SELECTED, FINALIST, WINNER, ELIMINATED
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, competitionId])
+  @@index([competitionId])
+  @@index([status])
+  @@map("competition_participants")
 }
 
 model CompetitionSponsor {

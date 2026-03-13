@@ -478,9 +478,9 @@ export default function CompetitionPage() {
                     </span>
                   </button>
                 </Link>
-                <Link href="/signup">
+                <Link href="/competition/login">
                   <button className="px-8 py-4 glass text-white font-semibold rounded-xl text-base hover:bg-white/10 transition-all border border-white/10 hover:border-amber-400/30">
-                    Create Account
+                    Already Registered? Login
                   </button>
                 </Link>
               </>
@@ -492,7 +492,7 @@ export default function CompetitionPage() {
                     Registration Opens Soon
                   </span>
                 </button>
-                <Link href="/signup">
+                <Link href="/competition/register">
                   <button className="px-8 py-4 glass text-white font-semibold rounded-xl text-base hover:bg-white/10 transition-all border border-white/10 hover:border-amber-400/30">
                     Create Account While You Wait
                   </button>
@@ -1685,9 +1685,9 @@ export default function CompetitionPage() {
                     </span>
                   </button>
                 </Link>
-                <Link href="/signup">
+                <Link href="/competition/login">
                   <button className="px-8 py-4 glass text-white font-semibold rounded-xl text-base hover:bg-white/10 transition-all border border-white/10 hover:border-amber-400/30">
-                    Create Account
+                    Already Registered? Login
                   </button>
                 </Link>
               </>
@@ -1699,7 +1699,7 @@ export default function CompetitionPage() {
                     Registration Opens Soon
                   </span>
                 </button>
-                <Link href="/signup">
+                <Link href="/competition/register">
                   <button className="px-8 py-4 glass text-white font-semibold rounded-xl text-base hover:bg-white/10 transition-all border border-white/10 hover:border-amber-400/30">
                     Create Account While You Wait
                   </button>
