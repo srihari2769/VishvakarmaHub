@@ -412,6 +412,37 @@ export async function PATCH(request: NextRequest) {
         return successResponse({ message: 'Citizen pass deleted' });
       }
 
+      case 'update-entry-status': {
+        const { entryId, status: entryStatus } = body;
+        if (!entryId || !entryStatus) return errorResponse('Entry ID and status required', 400);
+        const validStatuses = ['SUBMITTED', 'SHORTLISTED', 'SELECTED_TOP200', 'PUBLIC_VOTING', 'FINALIST', 'WINNER', 'ELIMINATED'];
+        if (!validStatuses.includes(entryStatus)) return errorResponse('Invalid status', 400);
+        const updatedEntry = await prisma.competitionEntry.update({
+          where: { id: entryId },
+          data: { status: entryStatus },
+        });
+        return successResponse(updatedEntry);
+      }
+
+      case 'update-participant-status': {
+        const { participantId: pId, status: pStatus } = body;
+        if (!pId || !pStatus) return errorResponse('Participant ID and status required', 400);
+        const validParticipantStatuses = ['REGISTERED', 'IDEA_SUBMITTED', 'SHORTLISTED', 'SELECTED', 'FINALIST', 'WINNER', 'ELIMINATED'];
+        if (!validParticipantStatuses.includes(pStatus)) return errorResponse('Invalid status', 400);
+        const updatedParticipant = await prisma.competitionParticipant.update({
+          where: { id: pId },
+          data: { status: pStatus },
+        });
+        return successResponse(updatedParticipant);
+      }
+
+      case 'delete-participant': {
+        const { participantId: delPId } = body;
+        if (!delPId) return errorResponse('Participant ID required', 400);
+        await prisma.competitionParticipant.delete({ where: { id: delPId } });
+        return successResponse({ message: 'Participant deleted' });
+      }
+
       default:
         return errorResponse('Invalid action', 400);
     }
@@ -476,30 +507,6 @@ export async function DELETE(request: NextRequest) {
         if (!contactId) return errorResponse('Contact ID required', 400);
         await prisma.contactSubmission.delete({ where: { id: contactId } });
         return successResponse({ message: 'Contact deleted' });
-      }
-
-      case 'update-entry-status': {
-        const { entryId, status: entryStatus } = body;
-        if (!entryId || !entryStatus) return errorResponse('Entry ID and status required', 400);
-        const validStatuses = ['SUBMITTED', 'SHORTLISTED', 'SELECTED_TOP200', 'PUBLIC_VOTING', 'FINALIST', 'WINNER', 'ELIMINATED'];
-        if (!validStatuses.includes(entryStatus)) return errorResponse('Invalid status', 400);
-        const updatedEntry = await prisma.competitionEntry.update({
-          where: { id: entryId },
-          data: { status: entryStatus },
-        });
-        return successResponse(updatedEntry);
-      }
-
-      case 'update-participant-status': {
-        const { participantId: pId, status: pStatus } = body;
-        if (!pId || !pStatus) return errorResponse('Participant ID and status required', 400);
-        const validParticipantStatuses = ['REGISTERED', 'IDEA_SUBMITTED', 'SHORTLISTED', 'SELECTED', 'FINALIST', 'WINNER', 'ELIMINATED'];
-        if (!validParticipantStatuses.includes(pStatus)) return errorResponse('Invalid status', 400);
-        const updatedParticipant = await prisma.competitionParticipant.update({
-          where: { id: pId },
-          data: { status: pStatus },
-        });
-        return successResponse(updatedParticipant);
       }
 
       case 'delete-user': {

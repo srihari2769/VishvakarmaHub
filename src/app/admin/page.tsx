@@ -370,6 +370,22 @@ export default function AdminPage() {
     setParticipantStatusLoading(null);
   };
 
+  const deleteParticipant = async (participantId: string, name: string) => {
+    if (!confirm(`Delete participant "${name}"? This cannot be undone.`)) return;
+    setParticipantStatusLoading(participantId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'delete-participant', participantId }),
+      });
+      const data = await res.json();
+      if (data.success) fetchCompetitionEntries();
+    } catch {}
+    setParticipantStatusLoading(null);
+  };
+
   const exportParticipantsCSV = () => {
     if (!competitionData?.participants?.length) return;
     const headers = ['Name', 'Email', 'Phone', 'Type', 'College/Company', 'Designation', 'City', 'State', 'Team Name', 'Team Size', 'Team Members', 'Idea Title', 'Category', 'Idea Description', 'Problem Statement', 'Solution', 'Target Audience', 'Uniqueness', 'Product Stage', 'Pitch Deck', 'Demo Video', 'Total Fee', 'Payment Status', 'Razorpay Payment ID', 'Status', 'Registered On'];
@@ -1665,6 +1681,14 @@ export default function AdminPage() {
                                     onClick={() => setSelectedParticipant(p)}
                                   >
                                     <EyeIcon className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    className="p-1.5 rounded-md hover:bg-red-500/10 text-muted hover:text-red-400 transition-colors"
+                                    title="Delete Participant"
+                                    disabled={participantStatusLoading === p.id}
+                                    onClick={() => deleteParticipant(p.id, `${p.user.firstName} ${p.user.lastName}`)}
+                                  >
+                                    <TrashIcon className="w-4 h-4" />
                                   </button>
                                   <div className="text-right space-y-1">
                                     <Badge variant={p.paymentStatus === 'PAID' ? 'success' : 'danger'}>
