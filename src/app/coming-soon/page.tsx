@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -9,6 +11,22 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function ComingSoonPage() {
+  const router = useRouter();
+  const [secondsLeft, setSecondsLeft] = useState(4);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          router.push('/competition');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [router]);
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Background effects */}
@@ -82,6 +100,16 @@ export default function ComingSoonPage() {
               </div>
             </Link>
           </motion.div>
+
+          {/* Redirect notice */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-sm text-muted mt-6"
+          >
+            Redirecting to Competition Page in <span className="text-purple font-bold">{secondsLeft}s</span>...
+          </motion.p>
 
           {/* Animated dots */}
           <motion.div
