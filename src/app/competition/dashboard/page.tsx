@@ -478,9 +478,7 @@ export default function CompetitionDashboardPage() {
                       {/* Card Header */}
                       <div className="bg-gradient-to-r from-amber-600 to-amber-500 px-5 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center">
-                            <span className="text-white font-bold text-xs">V</span>
-                          </div>
+                          <img src="/Stamp.png" alt="VH" style={{ width: 28, height: 28, borderRadius: 6 }} />
                           <div>
                             <p className="text-black font-bold text-sm tracking-wide">Vishvakarma Hub</p>
                             <p className="text-black/60 text-[9px] font-medium">Innovation Challenge 2026</p>
