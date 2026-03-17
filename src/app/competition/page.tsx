@@ -1287,10 +1287,10 @@ export default function CompetitionPage() {
                   : `Registration opens on ${formatDate(competition.registrationStart)}. Get your startup ready!`}
               </p>
               {registrationLive ? (
-                <Link href="/competition/register">
+                <Link href={isAuthenticated ? "/competition/dashboard" : "/competition/register"}>
                   <button className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-xl text-base hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/25">
                     <RocketLaunchIcon className="w-5 h-5 mr-2 inline" />
-                    Register Now
+                    Prepare Your Startup
                   </button>
                 </Link>
               ) : (
