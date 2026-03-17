@@ -603,11 +603,20 @@ export default function CompetitionDashboardPage() {
                 <div className="space-y-10">
                   {people.map((person) => (
                     <div key={person.key} className="space-y-3">
-                      {/* Certificate */}
+                      {/* Certificate – scaled wrapper for responsive display */}
+                      <div className="mx-auto w-full" style={{ maxWidth: 1120, aspectRatio: '1120/790', position: 'relative' }}>
+                        <div style={{ position: 'absolute', inset: 0, transformOrigin: 'top left' }} ref={(el) => {
+                          if (el) {
+                            const resizeOb = new ResizeObserver(() => {
+                              const parentW = el.parentElement?.clientWidth || 1120;
+                              el.style.transform = `scale(${parentW / 1120})`;
+                            });
+                            if (el.parentElement) resizeOb.observe(el.parentElement);
+                          }
+                        }}>
                       <div
                         ref={(el) => { certRefs.current[person.key] = el; }}
-                        className="mx-auto overflow-hidden"
-                        style={{ width: 1120, height: 790, position: 'relative', fontFamily: 'Georgia, "Times New Roman", serif' }}
+                        style={{ width: 1120, height: 790, position: 'relative', fontFamily: 'Georgia, "Times New Roman", serif', overflow: 'hidden' }}
                       >
                         {/* Deep navy background with subtle radial glow */}
                         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 40%, #141e3a 0%, #0a0e1f 60%, #060a16 100%)' }} />
@@ -653,10 +662,18 @@ export default function CompetitionDashboardPage() {
                         <div style={{
                           position: 'absolute', inset: 0,
                           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                          padding: '65px 80px', textAlign: 'center',
+                          padding: '30px 80px 40px 80px', textAlign: 'center',
                         }}>
+                          {/* ── Top branding: logo + text ── */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginBottom: 10 }}>
+                            <img src="/Stamp.png" alt="VH" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                            <span style={{ color: 'rgba(201,168,76,0.6)', fontSize: 10, fontWeight: 600, letterSpacing: 5, textTransform: 'uppercase' }}>
+                              Vishvakarma Hub
+                            </span>
+                          </div>
+
                           {/* Top ornament line */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
                             <div style={{ width: 60, height: 1, background: 'linear-gradient(90deg, transparent, #c9a84c)' }} />
                             <span style={{ color: '#c9a84c', fontSize: 14 }}>✦</span>
                             <div style={{ width: 60, height: 1, background: 'linear-gradient(-90deg, transparent, #c9a84c)' }} />
@@ -664,21 +681,21 @@ export default function CompetitionDashboardPage() {
 
                           {/* Certificate title */}
                           <h2 style={{
-                            color: '#c9a84c', fontSize: 50, fontWeight: 700, letterSpacing: 10,
-                            textTransform: 'uppercase', lineHeight: 1, marginBottom: 4,
+                            color: '#c9a84c', fontSize: 48, fontWeight: 700, letterSpacing: 10,
+                            textTransform: 'uppercase', lineHeight: 1, marginBottom: 2,
                             textShadow: '0 0 30px rgba(201,168,76,0.15)',
                           }}>
                             Certificate
                           </h2>
                           <p style={{
-                            color: 'rgba(201,168,76,0.7)', fontSize: 18, letterSpacing: 12,
+                            color: 'rgba(201,168,76,0.7)', fontSize: 17, letterSpacing: 12,
                             textTransform: 'uppercase', fontWeight: 400, marginBottom: 0,
                           }}>
                             of Participation
                           </p>
 
                           {/* Gold divider with diamond */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0 18px 0' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '10px 0 14px 0' }}>
                             <div style={{ width: 80, height: 1, background: 'linear-gradient(90deg, transparent, #c9a84c)' }} />
                             <div style={{
                               width: 8, height: 8, backgroundColor: '#c9a84c', transform: 'rotate(45deg)',
@@ -688,15 +705,15 @@ export default function CompetitionDashboardPage() {
 
                           {/* Presented to */}
                           <p style={{
-                            color: 'rgba(255,255,255,0.45)', fontSize: 14, letterSpacing: 5,
-                            textTransform: 'uppercase', marginBottom: 12, fontWeight: 400,
+                            color: 'rgba(255,255,255,0.45)', fontSize: 13, letterSpacing: 5,
+                            textTransform: 'uppercase', marginBottom: 8, fontWeight: 400,
                           }}>
                             This is Proudly Presented To
                           </p>
 
                           {/* Recipient name */}
                           <h3 style={{
-                            color: '#e8d5a3', fontSize: 44, fontWeight: 700, marginBottom: 8,
+                            color: '#e8d5a3', fontSize: 38, fontWeight: 700, marginBottom: 6,
                             fontStyle: 'italic', letterSpacing: 2,
                             textShadow: '0 2px 20px rgba(201,168,76,0.2)',
                           }}>
@@ -705,21 +722,21 @@ export default function CompetitionDashboardPage() {
 
                           {/* Underline below name */}
                           <div style={{
-                            width: 260, height: 1, margin: '0 auto 12px auto',
+                            width: 260, height: 1, margin: '0 auto 10px auto',
                             background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.5), transparent)',
                           }} />
 
                           {/* Role badge */}
                           <div style={{
                             display: 'inline-flex', alignItems: 'center', gap: 8,
-                            padding: '5px 22px', borderRadius: 20,
+                            padding: '4px 20px', borderRadius: 20,
                             border: '1px solid rgba(201,168,76,0.3)',
                             backgroundColor: 'rgba(201,168,76,0.06)',
-                            marginBottom: 16,
+                            marginBottom: 12,
                           }}>
                             <span style={{ color: '#c9a84c', fontSize: 10 }}>★</span>
                             <span style={{
-                              color: '#c9a84c', fontSize: 12, fontWeight: 700, letterSpacing: 3,
+                              color: '#c9a84c', fontSize: 11, fontWeight: 700, letterSpacing: 3,
                               textTransform: 'uppercase',
                             }}>
                               {person.role}
@@ -727,10 +744,20 @@ export default function CompetitionDashboardPage() {
                             <span style={{ color: '#c9a84c', fontSize: 10 }}>★</span>
                           </div>
 
+                          {/* Startup / Idea title */}
+                          {participant.ideaTitle && (
+                            <p style={{
+                              color: 'rgba(255,255,255,0.55)', fontSize: 13, marginBottom: 10,
+                              fontStyle: 'italic',
+                            }}>
+                              For the innovation project: <span style={{ color: '#e8d5a3', fontWeight: 600, fontStyle: 'normal' }}>&ldquo;{participant.ideaTitle}&rdquo;</span>
+                            </p>
+                          )}
+
                           {/* Description */}
                           <p style={{
-                            color: 'rgba(255,255,255,0.45)', fontSize: 13, lineHeight: 1.8,
-                            maxWidth: 540, marginBottom: 10,
+                            color: 'rgba(255,255,255,0.45)', fontSize: 12, lineHeight: 1.8,
+                            maxWidth: 580, marginBottom: 6,
                           }}>
                             In recognition of their valuable participation and commitment shown during the{' '}
                             <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
@@ -742,17 +769,27 @@ export default function CompetitionDashboardPage() {
                             . This certificate acknowledges their enthusiasm, creative thinking, and willingness
                             to take on new challenges in the spirit of innovation and entrepreneurship.
                           </p>
+
+                          {/* Appreciation line */}
                           <p style={{
                             color: 'rgba(201,168,76,0.5)', fontSize: 10, letterSpacing: 2,
-                            textTransform: 'uppercase', marginBottom: 18,
+                            textTransform: 'uppercase', marginBottom: 6,
                           }}>
                             We appreciate your contribution to the innovation ecosystem.
+                          </p>
+
+                          {/* Tagline */}
+                          <p style={{
+                            color: 'rgba(201,168,76,0.35)', fontSize: 9, letterSpacing: 3,
+                            textTransform: 'uppercase', marginBottom: 14,
+                          }}>
+                            From Idea to Innovation
                           </p>
 
                           {/* ── Bottom section: stamp + signatures ── */}
                           <div style={{
                             display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                            gap: 80, marginTop: 'auto', width: '100%',
+                            gap: 60, marginTop: 'auto', width: '100%',
                           }}>
                             {/* Date column */}
                             <div style={{ textAlign: 'center', minWidth: 140 }}>
@@ -760,13 +797,16 @@ export default function CompetitionDashboardPage() {
                                 {eventDate}
                               </p>
                               <div style={{ width: 140, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 5 }} />
-                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' }}>Date</p>
+                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' }}>Date of Issue</p>
                             </div>
 
                             {/* Stamp */}
-                            <img src="/Stamp.png" alt="Vishvakarma Hub Stamp" style={{
-                              width: 90, height: 90, borderRadius: '50%', flexShrink: 0,
-                            }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                              <img src="/Stamp.png" alt="Vishvakarma Hub Stamp" style={{
+                                width: 80, height: 80, borderRadius: '50%',
+                              }} />
+                              <span style={{ color: 'rgba(201,168,76,0.4)', fontSize: 7, letterSpacing: 1, textTransform: 'uppercase' }}>Verified</span>
+                            </div>
 
                             {/* Organization column */}
                             <div style={{ textAlign: 'center', minWidth: 140 }}>
@@ -777,19 +817,17 @@ export default function CompetitionDashboardPage() {
                               <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' }}>Organization</p>
                             </div>
                           </div>
-                        </div>
 
-                        {/* ── Top-center branding ── */}
-                        <div style={{
-                          position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)',
-                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                        }}>
-                          <img src="/Stamp.png" alt="VH" style={{ width: 40, height: 40, borderRadius: '50%' }} />
-                          <span style={{ color: 'rgba(201,168,76,0.55)', fontSize: 9, fontWeight: 600, letterSpacing: 4, textTransform: 'uppercase' }}>
-                            Vishvakarma Hub
-                          </span>
+                          {/* Certificate ID at very bottom */}
+                          <p style={{
+                            color: 'rgba(201,168,76,0.2)', fontSize: 8, letterSpacing: 2,
+                            textTransform: 'uppercase', marginTop: 8,
+                          }}>
+                            Certificate No: VH-{new Date().getFullYear()}-{participant.id?.toString().padStart(4, '0') || '0000'}
+                          </p>
                         </div>
                       </div>
+                      </div></div>
 
                       {/* Download Button */}
                       <div className="text-center">
