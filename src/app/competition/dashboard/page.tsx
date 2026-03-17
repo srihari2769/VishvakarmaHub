@@ -19,6 +19,7 @@ import {
   ExclamationTriangleIcon,
   IdentificationIcon,
   ArrowDownTrayIcon,
+  AcademicCapIcon,
 } from '@heroicons/react/24/outline';
 
 interface Participant {
@@ -56,6 +57,8 @@ interface CompetitionInfo {
   studentFee: number;
   founderFee: number;
   currentPhase: string;
+  pageContent: Record<string, unknown> | null;
+  finalsDate: string | null;
 }
 
 const STATUS_MAP: Record<string, { label: string; color: 'default' | 'success' | 'warning' | 'danger' | 'info' }> = {
@@ -76,7 +79,9 @@ export default function CompetitionDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const idCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const certRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [certDownloading, setCertDownloading] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -130,6 +135,28 @@ export default function CompetitionDashboardPage() {
       console.error('Download failed:', err);
     } finally {
       setDownloading(null);
+    }
+  }, []);
+
+  const downloadCertificate = useCallback(async (key: string, memberName: string) => {
+    const el = certRefs.current[key];
+    if (!el) return;
+    setCertDownloading(key);
+    try {
+      const html2canvas = (await import('html2canvas-pro')).default;
+      const canvas = await html2canvas(el, {
+        backgroundColor: '#1a1a2e',
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `Certificate-${memberName.replace(/\s+/g, '-')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Certificate download failed:', err);
+    } finally {
+      setCertDownloading(null);
     }
   }, []);
 
@@ -535,6 +562,211 @@ export default function CompetitionDashboardPage() {
               </div>
             </Card>
           )}
+
+          {/* ===== CERTIFICATE OF PARTICIPATION SECTION ===== */}
+          {isPaid && (() => {
+            const pc = competition?.pageContent as Record<string, unknown> | null;
+            const relDate = pc?.certificateReleaseDate as string | undefined;
+            const relTime = pc?.certificateReleaseTime as string | undefined;
+            if (!relDate) return null;
+            const releaseISO = `${relDate}T${relTime || '00:00'}:00+05:30`;
+            const releaseMs = new Date(releaseISO).getTime();
+            if (Date.now() < releaseMs) return null;
+
+            const eventDate = competition?.finalsDate
+              ? new Date(competition.finalsDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+              : new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const people = [
+              {
+                key: 'cert-leader',
+                name: `${participant.user.firstName} ${participant.user.lastName}`,
+                role: 'Team Leader',
+              },
+              ...((participant.teamMembers as { name: string; email: string; role: string }[] | null) || []).map((m, i) => ({
+                key: `cert-member-${i}`,
+                name: m.name,
+                role: m.role || `Team Member`,
+              })),
+            ];
+
+            return (
+              <Card className="p-6 mt-6">
+                <h3 className="text-lg font-bold text-foreground mb-2 flex items-center gap-2">
+                  <AcademicCapIcon className="w-5 h-5 text-amber-400" />
+                  Certificate of Participation
+                </h3>
+                <p className="text-muted text-sm mb-6">
+                  Download your participation certificates below.
+                </p>
+
+                <div className="space-y-10">
+                  {people.map((person) => (
+                    <div key={person.key} className="space-y-3">
+                      {/* Certificate */}
+                      <div
+                        ref={(el) => { certRefs.current[person.key] = el; }}
+                        className="mx-auto overflow-hidden"
+                        style={{ width: 800, height: 566, position: 'relative', fontFamily: 'Georgia, serif' }}
+                      >
+                        {/* Base - dark charcoal background */}
+                        <div style={{ position: 'absolute', inset: 0, backgroundColor: '#1a1a2e' }} />
+
+                        {/* Red diagonal overlay - left side */}
+                        <div style={{
+                          position: 'absolute', top: 0, left: 0, width: '45%', height: '100%',
+                          background: 'linear-gradient(135deg, #8b0000 0%, #c41e3a 50%, transparent 50%)',
+                          opacity: 0.9,
+                        }} />
+                        <div style={{
+                          position: 'absolute', top: 0, left: 0, width: '35%', height: '100%',
+                          background: 'linear-gradient(135deg, #6b0000 0%, #a01830 45%, transparent 45%)',
+                          opacity: 0.7,
+                        }} />
+
+                        {/* Gold diagonal stripe */}
+                        <div style={{
+                          position: 'absolute', top: 0, left: '30%', width: '15%', height: '100%',
+                          background: 'linear-gradient(135deg, transparent 40%, #d4a853 40%, #d4a853 44%, transparent 44%)',
+                        }} />
+
+                        {/* Gold border frame */}
+                        <div style={{
+                          position: 'absolute', inset: 12, border: '2px solid #d4a853', borderRadius: 4,
+                        }} />
+                        <div style={{
+                          position: 'absolute', inset: 16, border: '1px solid rgba(212,168,83,0.3)', borderRadius: 2,
+                        }} />
+
+                        {/* Content area - right portion */}
+                        <div style={{
+                          position: 'absolute', top: 0, right: 0, width: '60%', height: '100%',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          padding: '40px 50px 40px 20px', textAlign: 'center',
+                        }}>
+                          {/* Certificate title */}
+                          <p style={{
+                            color: '#d4a853', fontSize: 11, letterSpacing: 6, textTransform: 'uppercase',
+                            marginBottom: 4, fontWeight: 600,
+                          }}>
+                            Certificate
+                          </p>
+                          <h2 style={{
+                            color: '#d4a853', fontSize: 28, fontWeight: 700, letterSpacing: 3,
+                            textTransform: 'uppercase', marginBottom: 6, lineHeight: 1.1,
+                          }}>
+                            OF PARTICIPATION
+                          </h2>
+
+                          {/* Divider */}
+                          <div style={{
+                            width: 80, height: 2, backgroundColor: '#d4a853', margin: '8px auto',
+                          }} />
+
+                          {/* Presented to */}
+                          <p style={{
+                            color: 'rgba(255,255,255,0.5)', fontSize: 11, letterSpacing: 3,
+                            textTransform: 'uppercase', marginTop: 16, marginBottom: 8,
+                          }}>
+                            Proudly Presented To
+                          </p>
+
+                          {/* Recipient name */}
+                          <h3 style={{
+                            color: '#ffffff', fontSize: 30, fontWeight: 700, marginBottom: 4,
+                            fontStyle: 'italic', letterSpacing: 1,
+                          }}>
+                            {person.name}
+                          </h3>
+
+                          {/* Role */}
+                          <p style={{
+                            color: '#d4a853', fontSize: 12, fontWeight: 600, letterSpacing: 2,
+                            textTransform: 'uppercase', marginBottom: 12,
+                          }}>
+                            {person.role}
+                          </p>
+
+                          {/* Description */}
+                          <p style={{
+                            color: 'rgba(255,255,255,0.55)', fontSize: 11, lineHeight: 1.6,
+                            maxWidth: 340, marginBottom: 20,
+                          }}>
+                            For outstanding participation in the {competition?.name || 'Innovation Challenge 2026'}.
+                            {participant.teamName ? ` Representing Team "${participant.teamName}".` : ''}
+                          </p>
+
+                          {/* Bottom: date + org */}
+                          <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40,
+                            marginTop: 'auto',
+                          }}>
+                            <div style={{ textAlign: 'center' }}>
+                              <div style={{ width: 100, borderBottom: '1px solid rgba(212,168,83,0.4)', marginBottom: 4 }} />
+                              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, letterSpacing: 1 }}>{eventDate}</p>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                              <div style={{ width: 100, borderBottom: '1px solid rgba(212,168,83,0.4)', marginBottom: 4 }} />
+                              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, letterSpacing: 1 }}>Vishvakarma Hub</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Left side - award seal */}
+                        <div style={{
+                          position: 'absolute', bottom: 50, left: '10%',
+                          width: 70, height: 70, borderRadius: '50%',
+                          border: '2px solid #d4a853', display: 'flex',
+                          alignItems: 'center', justifyContent: 'center',
+                          backgroundColor: 'rgba(212,168,83,0.08)',
+                        }}>
+                          <div style={{
+                            width: 54, height: 54, borderRadius: '50%',
+                            border: '1px solid rgba(212,168,83,0.5)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexDirection: 'column',
+                          }}>
+                            <span style={{ color: '#d4a853', fontSize: 18 }}>★</span>
+                            <span style={{ color: '#d4a853', fontSize: 7, letterSpacing: 1, fontWeight: 600 }}>VH</span>
+                          </div>
+                        </div>
+
+                        {/* VH branding - top left */}
+                        <div style={{
+                          position: 'absolute', top: 28, left: 28,
+                          display: 'flex', alignItems: 'center', gap: 6,
+                        }}>
+                          <div style={{
+                            width: 28, height: 28, borderRadius: 6,
+                            backgroundColor: 'rgba(212,168,83,0.2)',
+                            border: '1px solid rgba(212,168,83,0.4)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: '#d4a853', fontWeight: 800, fontSize: 12,
+                          }}>V</div>
+                          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 600, letterSpacing: 1 }}>
+                            VISHVAKARMA HUB
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Download Button */}
+                      <div className="text-center">
+                        <button
+                          onClick={() => downloadCertificate(person.key, person.name)}
+                          disabled={certDownloading === person.key}
+                          className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <ArrowDownTrayIcon className="w-4 h-4" />
+                          {certDownloading === person.key ? 'Downloading...' : `Download ${person.name.split(' ')[0]}'s Certificate`}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            );
+          })()}
+
         </motion.div>
       </div>
     </div>

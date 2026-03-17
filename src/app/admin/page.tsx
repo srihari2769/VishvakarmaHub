@@ -2654,6 +2654,27 @@ export default function AdminPage() {
                       </div>
                     </Card>
 
+                    {/* Certificate Release */}
+                    <Card className="p-4 space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm border-b border-border pb-2">🎓 Certificate of Participation</h4>
+                      <p className="text-xs text-muted">Set the date &amp; time when participation certificates become visible and downloadable on participant dashboards.</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Release Date</label>
+                          <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.certificateReleaseDate || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, certificateReleaseDate: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Release Time (IST)</label>
+                          <input type="time" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.certificateReleaseTime || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, certificateReleaseTime: e.target.value })} />
+                        </div>
+                      </div>
+                      {typeof pageContentForm.certificateReleaseDate === 'string' && pageContentForm.certificateReleaseDate && (
+                        <p className="text-xs text-green-400">
+                          Certificates will be released on {pageContentForm.certificateReleaseDate} at {(pageContentForm.certificateReleaseTime as string) || '00:00'} IST
+                        </p>
+                      )}
+                    </Card>
+
                     <div className="flex justify-end">
                       <Button onClick={savePageContent} isLoading={pageContentSaving}>Save All Content</Button>
                     </div>
