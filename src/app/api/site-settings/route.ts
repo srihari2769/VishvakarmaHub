@@ -34,7 +34,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return successResponse({ comingSoon: settings.comingSoon });
+    // Get active competition registration date
+    let registrationStart: string | null = null;
+    try {
+      const comp = await prisma.competition.findFirst({
+        where: { isActive: true },
+        select: { registrationStart: true },
+      });
+      if (comp) registrationStart = comp.registrationStart.toISOString();
+    } catch {}
+
+    return successResponse({ comingSoon: settings.comingSoon, registrationStart });
   } catch (error) {
     console.error('Site settings fetch error:', error);
     return errorResponse('Failed to fetch site settings', 500);

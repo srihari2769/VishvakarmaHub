@@ -22,6 +22,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isComingSoon, setIsComingSoon] = useState(false);
+  const [registrationLive, setRegistrationLive] = useState(false);
   const [comingSoonToast, setComingSoonToast] = useState(false);
 
   const showComingSoonToast = () => {
@@ -33,7 +34,14 @@ export default function Header() {
     checkAuth();
     fetch('/api/site-settings')
       .then((r) => r.json())
-      .then((d) => { if (d.success) setIsComingSoon(d.data.comingSoon === true); })
+      .then((d) => {
+        if (d.success) {
+          setIsComingSoon(d.data.comingSoon === true);
+          if (d.data.registrationStart) {
+            setRegistrationLive(Date.now() >= new Date(d.data.registrationStart).getTime());
+          }
+        }
+      })
       .catch(() => {});
   }, [checkAuth]);
 
@@ -109,7 +117,7 @@ export default function Header() {
                     Logout
                   </button>
                 </>
-              ) : (
+              ) : registrationLive ? (
                 <>
                   <Link href="/competition/login">
                     <Button variant="ghost" size="sm">Login</Button>
@@ -117,6 +125,11 @@ export default function Header() {
                   <Link href="/competition/register">
                     <Button size="sm">Register</Button>
                   </Link>
+                </>
+              ) : (
+                <>
+                  <button disabled className="text-sm text-muted/40 cursor-not-allowed">Login</button>
+                  <button disabled className="px-4 py-1.5 text-sm font-medium rounded-lg bg-white/5 text-white/40 cursor-not-allowed border border-white/10">Register</button>
                 </>
               )
             ) : (
@@ -205,7 +218,7 @@ export default function Header() {
                         Logout
                       </button>
                     </>
-                  ) : (
+                  ) : registrationLive ? (
                     <>
                       <Link href="/competition/login" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" className="w-full" size="sm">Login</Button>
@@ -213,6 +226,11 @@ export default function Header() {
                       <Link href="/competition/register" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button className="w-full" size="sm">Register</Button>
                       </Link>
+                    </>
+                  ) : (
+                    <>
+                      <button disabled className="w-full px-4 py-2 text-sm text-muted/40 cursor-not-allowed">Login</button>
+                      <button disabled className="w-full px-4 py-2 text-sm font-medium rounded-lg bg-white/5 text-white/40 cursor-not-allowed border border-white/10">Register</button>
                     </>
                   )
                 ) : (

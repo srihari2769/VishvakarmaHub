@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -17,6 +17,8 @@ import {
   RocketLaunchIcon,
   DocumentTextIcon,
   ExclamationTriangleIcon,
+  IdentificationIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 
 interface Participant {
@@ -73,6 +75,8 @@ export default function CompetitionDashboardPage() {
   const [competition, setCompetition] = useState<CompetitionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const idCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -106,6 +110,28 @@ export default function CompetitionDashboardPage() {
       setLoading(false);
     }
   };
+
+  const downloadIdCard = useCallback(async (key: string, memberName: string) => {
+    const el = idCardRefs.current[key];
+    if (!el) return;
+    setDownloading(key);
+    try {
+      const html2canvas = (await import('html2canvas-pro')).default;
+      const canvas = await html2canvas(el, {
+        backgroundColor: '#0B0F1A',
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `ID-Card-${memberName.replace(/\s+/g, '-')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Download failed:', err);
+    } finally {
+      setDownloading(null);
+    }
+  }, []);
 
   if (isLoading || loading) {
     return (
@@ -380,6 +406,130 @@ export default function CompetitionDashboardPage() {
                       </div>
                     </div>
                     <span className="text-xs text-muted">{member.role || `Member ${i + 1}`}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* ===== ID CARDS SECTION ===== */}
+          {isPaid && (
+            <Card className="p-6 mt-6">
+              <h3 className="text-lg font-bold text-foreground mb-2 flex items-center gap-2">
+                <IdentificationIcon className="w-5 h-5 text-amber-400" />
+                Participant ID Cards
+              </h3>
+              <p className="text-muted text-sm mb-6">
+                Download your ID cards to present at the event venue.
+              </p>
+
+              <div className="space-y-8">
+                {/* Build list: leader + team members */}
+                {[
+                  {
+                    key: 'leader',
+                    name: `${participant.user.firstName} ${participant.user.lastName}`,
+                    email: participant.user.email,
+                    role: 'Team Leader',
+                    initial: participant.user.firstName[0],
+                  },
+                  ...((participant.teamMembers as { name: string; email: string; role: string }[] | null) || []).map((m, i) => ({
+                    key: `member-${i}`,
+                    name: m.name,
+                    email: m.email,
+                    role: m.role || `Member ${i + 1}`,
+                    initial: m.name[0],
+                  })),
+                ].map((person) => (
+                  <div key={person.key} className="space-y-3">
+                    {/* ID Card */}
+                    <div
+                      ref={(el) => { idCardRefs.current[person.key] = el; }}
+                      className="rounded-2xl overflow-hidden shadow-2xl shadow-amber-500/10 border border-amber-500/20 max-w-md mx-auto"
+                      style={{ minHeight: 280 }}
+                    >
+                      {/* Card Header */}
+                      <div className="bg-gradient-to-r from-amber-600 to-amber-500 px-5 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">V</span>
+                          </div>
+                          <div>
+                            <p className="text-black font-bold text-sm tracking-wide">Vishvakarma Hub</p>
+                            <p className="text-black/60 text-[9px] font-medium">Innovation Challenge 2026</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-black/80 text-[9px] font-bold uppercase tracking-wider">
+                            {participant.participantType === 'STUDENT' ? 'Student' : 'Founder'}
+                          </p>
+                          <p className="text-black font-bold text-[10px]">ID CARD</p>
+                        </div>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="bg-gradient-to-br from-[#0f1729] to-[#1a1f36] px-5 py-4">
+                        <div className="flex items-start gap-4">
+                          {/* Avatar */}
+                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-2 border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span className="text-2xl font-black text-amber-400">{person.initial.toUpperCase()}</span>
+                          </div>
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white font-bold text-lg leading-tight truncate">{person.name}</h4>
+                            <p className="text-amber-400/80 text-xs font-semibold mt-0.5">{person.role}</p>
+                            <p className="text-white/40 text-xs mt-1 truncate">{person.email}</p>
+                          </div>
+                        </div>
+
+                        {/* Details Grid */}
+                        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                          {participant.teamName && (
+                            <div>
+                              <span className="text-white/30 uppercase tracking-wider text-[9px]">Team</span>
+                              <p className="text-white/80 font-medium truncate">{participant.teamName}</p>
+                            </div>
+                          )}
+                          {participant.ideaCategory && (
+                            <div>
+                              <span className="text-white/30 uppercase tracking-wider text-[9px]">Category</span>
+                              <p className="text-white/80 font-medium truncate">{participant.ideaCategory}</p>
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-white/30 uppercase tracking-wider text-[9px]">Location</span>
+                            <p className="text-white/80 font-medium truncate">{participant.city}, {participant.state}</p>
+                          </div>
+                          <div>
+                            <span className="text-white/30 uppercase tracking-wider text-[9px]">Type</span>
+                            <p className="text-white/80 font-medium">{participant.participantType === 'STUDENT' ? 'Student' : 'Professional'}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card Footer */}
+                      <div className="bg-[#0a0e1a] px-5 py-2.5 flex items-center justify-between border-t border-white/5">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-green-400" />
+                          <span className="text-green-400 text-[10px] font-bold uppercase tracking-wider">Verified Participant</span>
+                        </div>
+                        <span className="text-white/20 text-[9px] font-mono">
+                          {participant.id.slice(-8).toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Download Button */}
+                    <div className="text-center">
+                      <button
+                        onClick={() => downloadIdCard(person.key, person.name)}
+                        disabled={downloading === person.key}
+                        className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ArrowDownTrayIcon className="w-4 h-4" />
+                        {downloading === person.key ? 'Downloading...' : `Download ${person.name.split(' ')[0]}'s ID Card`}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
