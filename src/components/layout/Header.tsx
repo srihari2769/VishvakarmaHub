@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import Button from '@/components/ui/Button';
@@ -72,11 +73,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full border-2 border-amber-500/70 flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full border border-amber-500/40 flex items-center justify-center">
-                <span className="text-amber-400 font-black text-[9px] tracking-wide">VH</span>
-              </div>
-            </div>
+            <Image src="/Stamp.png" alt="Vishvakarma Hub" width={34} height={34} className="rounded-full" />
             <span className="text-lg font-bold text-foreground">
               Vishvakarma<span className="gradient-text"> Hub</span>
             </span>

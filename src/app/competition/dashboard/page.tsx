@@ -764,29 +764,9 @@ export default function CompetitionDashboardPage() {
                             </div>
 
                             {/* Stamp */}
-                            <div style={{
-                              width: 90, height: 90, borderRadius: '50%',
-                              border: '3px solid #c9a84c', position: 'relative',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              flexShrink: 0,
-                            }}>
-                              <div style={{
-                                width: 76, height: 76, borderRadius: '50%',
-                                border: '2px solid rgba(201,168,76,0.5)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              }}>
-                                <div style={{
-                                  width: 62, height: 62, borderRadius: '50%',
-                                  border: '1px dashed rgba(201,168,76,0.4)',
-                                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                  gap: 1,
-                                }}>
-                                  <span style={{ color: '#c9a84c', fontSize: 8, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Vishvakarma</span>
-                                  <span style={{ color: '#c9a84c', fontSize: 16, fontWeight: 900, lineHeight: 1, letterSpacing: 1 }}>VH</span>
-                                  <span style={{ color: '#c9a84c', fontSize: 7, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase' }}>Hub ★ 2026</span>
-                                </div>
-                              </div>
-                            </div>
+                            <img src="/Stamp.png" alt="Vishvakarma Hub Stamp" style={{
+                              width: 90, height: 90, borderRadius: '50%', flexShrink: 0,
+                            }} />
 
                             {/* Organization column */}
                             <div style={{ textAlign: 'center', minWidth: 140 }}>
@@ -804,19 +784,7 @@ export default function CompetitionDashboardPage() {
                           position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)',
                           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                         }}>
-                          {/* Stamp logo */}
-                          <div style={{
-                            width: 36, height: 36, borderRadius: '50%',
-                            border: '2px solid rgba(201,168,76,0.6)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            <div style={{
-                              width: 28, height: 28, borderRadius: '50%',
-                              border: '1px solid rgba(201,168,76,0.35)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              color: '#c9a84c', fontWeight: 900, fontSize: 11,
-                            }}>VH</div>
-                          </div>
+                          <img src="/Stamp.png" alt="VH" style={{ width: 40, height: 40, borderRadius: '50%' }} />
                           <span style={{ color: 'rgba(201,168,76,0.55)', fontSize: 9, fontWeight: 600, letterSpacing: 4, textTransform: 'uppercase' }}>
                             Vishvakarma Hub
                           </span>
