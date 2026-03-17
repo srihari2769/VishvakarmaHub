@@ -145,8 +145,8 @@ export default function CompetitionDashboardPage() {
     try {
       const html2canvas = (await import('html2canvas-pro')).default;
       const canvas = await html2canvas(el, {
-        backgroundColor: '#1a1a2e',
-        scale: 2,
+        backgroundColor: '#0a0e1f',
+        scale: 3,
         useCORS: true,
       });
       const link = document.createElement('a');
@@ -607,7 +607,7 @@ export default function CompetitionDashboardPage() {
                       <div
                         ref={(el) => { certRefs.current[person.key] = el; }}
                         className="mx-auto overflow-hidden"
-                        style={{ width: 800, height: 566, position: 'relative', fontFamily: 'Georgia, "Times New Roman", serif' }}
+                        style={{ width: 1120, height: 790, position: 'relative', fontFamily: 'Georgia, "Times New Roman", serif' }}
                       >
                         {/* Deep navy background with subtle radial glow */}
                         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 40%, #141e3a 0%, #0a0e1f 60%, #060a16 100%)' }} />
@@ -653,7 +653,7 @@ export default function CompetitionDashboardPage() {
                         <div style={{
                           position: 'absolute', inset: 0,
                           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                          padding: '50px 60px', textAlign: 'center',
+                          padding: '65px 80px', textAlign: 'center',
                         }}>
                           {/* Top ornament line */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
@@ -664,14 +664,14 @@ export default function CompetitionDashboardPage() {
 
                           {/* Certificate title */}
                           <h2 style={{
-                            color: '#c9a84c', fontSize: 38, fontWeight: 700, letterSpacing: 8,
-                            textTransform: 'uppercase', lineHeight: 1, marginBottom: 2,
+                            color: '#c9a84c', fontSize: 50, fontWeight: 700, letterSpacing: 10,
+                            textTransform: 'uppercase', lineHeight: 1, marginBottom: 4,
                             textShadow: '0 0 30px rgba(201,168,76,0.15)',
                           }}>
                             Certificate
                           </h2>
                           <p style={{
-                            color: 'rgba(201,168,76,0.7)', fontSize: 14, letterSpacing: 10,
+                            color: 'rgba(201,168,76,0.7)', fontSize: 18, letterSpacing: 12,
                             textTransform: 'uppercase', fontWeight: 400, marginBottom: 0,
                           }}>
                             of Participation
@@ -688,15 +688,15 @@ export default function CompetitionDashboardPage() {
 
                           {/* Presented to */}
                           <p style={{
-                            color: 'rgba(255,255,255,0.45)', fontSize: 11, letterSpacing: 5,
-                            textTransform: 'uppercase', marginBottom: 10, fontWeight: 400,
+                            color: 'rgba(255,255,255,0.45)', fontSize: 14, letterSpacing: 5,
+                            textTransform: 'uppercase', marginBottom: 12, fontWeight: 400,
                           }}>
                             This is Proudly Presented To
                           </p>
 
                           {/* Recipient name */}
                           <h3 style={{
-                            color: '#e8d5a3', fontSize: 34, fontWeight: 700, marginBottom: 6,
+                            color: '#e8d5a3', fontSize: 44, fontWeight: 700, marginBottom: 8,
                             fontStyle: 'italic', letterSpacing: 2,
                             textShadow: '0 2px 20px rgba(201,168,76,0.2)',
                           }}>
@@ -705,108 +705,119 @@ export default function CompetitionDashboardPage() {
 
                           {/* Underline below name */}
                           <div style={{
-                            width: 200, height: 1, margin: '0 auto 10px auto',
+                            width: 260, height: 1, margin: '0 auto 12px auto',
                             background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.5), transparent)',
                           }} />
 
                           {/* Role badge */}
                           <div style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 6,
-                            padding: '4px 18px', borderRadius: 20,
+                            display: 'inline-flex', alignItems: 'center', gap: 8,
+                            padding: '5px 22px', borderRadius: 20,
                             border: '1px solid rgba(201,168,76,0.3)',
                             backgroundColor: 'rgba(201,168,76,0.06)',
-                            marginBottom: 14,
+                            marginBottom: 16,
                           }}>
-                            <span style={{ color: '#c9a84c', fontSize: 8 }}>★</span>
+                            <span style={{ color: '#c9a84c', fontSize: 10 }}>★</span>
                             <span style={{
-                              color: '#c9a84c', fontSize: 10, fontWeight: 700, letterSpacing: 3,
+                              color: '#c9a84c', fontSize: 12, fontWeight: 700, letterSpacing: 3,
                               textTransform: 'uppercase',
                             }}>
                               {person.role}
                             </span>
-                            <span style={{ color: '#c9a84c', fontSize: 8 }}>★</span>
+                            <span style={{ color: '#c9a84c', fontSize: 10 }}>★</span>
                           </div>
 
                           {/* Description */}
                           <p style={{
-                            color: 'rgba(255,255,255,0.45)', fontSize: 11, lineHeight: 1.7,
-                            maxWidth: 420, marginBottom: 22,
+                            color: 'rgba(255,255,255,0.45)', fontSize: 13, lineHeight: 1.8,
+                            maxWidth: 540, marginBottom: 10,
                           }}>
-                            For outstanding participation and dedication in the{' '}
+                            In recognition of their valuable participation and commitment shown during the{' '}
                             <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
                               {competition?.name || 'Vishvakarma Innovation Challenge 2026'}
                             </span>
                             {participant.teamName ? (
-                              <>, representing Team <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>&ldquo;{participant.teamName}&rdquo;</span></>
+                              <>, as a member of Team <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>&ldquo;{participant.teamName}&rdquo;</span></>
                             ) : ''}
-                            .
+                            . This certificate acknowledges their enthusiasm, creative thinking, and willingness
+                            to take on new challenges in the spirit of innovation and entrepreneurship.
+                          </p>
+                          <p style={{
+                            color: 'rgba(201,168,76,0.5)', fontSize: 10, letterSpacing: 2,
+                            textTransform: 'uppercase', marginBottom: 18,
+                          }}>
+                            We appreciate your contribution to the innovation ecosystem.
                           </p>
 
-                          {/* ── Bottom section: seal + signatures ── */}
+                          {/* ── Bottom section: stamp + signatures ── */}
                           <div style={{
                             display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                            gap: 60, marginTop: 'auto', width: '100%',
+                            gap: 80, marginTop: 'auto', width: '100%',
                           }}>
                             {/* Date column */}
-                            <div style={{ textAlign: 'center', minWidth: 110 }}>
-                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 600, marginBottom: 6 }}>
+                            <div style={{ textAlign: 'center', minWidth: 140 }}>
+                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
                                 {eventDate}
                               </p>
-                              <div style={{ width: 110, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 4 }} />
-                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 8, letterSpacing: 2, textTransform: 'uppercase' }}>Date</p>
+                              <div style={{ width: 140, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 5 }} />
+                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' }}>Date</p>
                             </div>
 
-                            {/* Center seal */}
+                            {/* Stamp */}
                             <div style={{
-                              width: 72, height: 72, borderRadius: '50%',
-                              border: '2px solid #c9a84c', position: 'relative',
+                              width: 90, height: 90, borderRadius: '50%',
+                              border: '3px solid #c9a84c', position: 'relative',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              background: 'radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)',
                               flexShrink: 0,
                             }}>
                               <div style={{
-                                width: 58, height: 58, borderRadius: '50%',
-                                border: '1px solid rgba(201,168,76,0.4)',
+                                width: 76, height: 76, borderRadius: '50%',
+                                border: '2px solid rgba(201,168,76,0.5)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                flexDirection: 'column', gap: 1,
                               }}>
-                                <span style={{ color: '#c9a84c', fontSize: 16, lineHeight: 1 }}>✦</span>
-                                <span style={{ color: '#c9a84c', fontSize: 8, fontWeight: 800, letterSpacing: 2 }}>VH</span>
+                                <div style={{
+                                  width: 62, height: 62, borderRadius: '50%',
+                                  border: '1px dashed rgba(201,168,76,0.4)',
+                                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                  gap: 1,
+                                }}>
+                                  <span style={{ color: '#c9a84c', fontSize: 8, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Vishvakarma</span>
+                                  <span style={{ color: '#c9a84c', fontSize: 16, fontWeight: 900, lineHeight: 1, letterSpacing: 1 }}>VH</span>
+                                  <span style={{ color: '#c9a84c', fontSize: 7, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase' }}>Hub ★ 2026</span>
+                                </div>
                               </div>
-                              {/* Outer decorative dots */}
-                              {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-                                <div key={deg} style={{
-                                  position: 'absolute', width: 3, height: 3, borderRadius: '50%',
-                                  backgroundColor: '#c9a84c',
-                                  top: '50%', left: '50%',
-                                  transform: `rotate(${deg}deg) translateY(-38px) translate(-50%, -50%)`,
-                                }} />
-                              ))}
                             </div>
 
-                            {/* Signature column */}
-                            <div style={{ textAlign: 'center', minWidth: 110 }}>
-                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 600, marginBottom: 6, fontStyle: 'italic' }}>
+                            {/* Organization column */}
+                            <div style={{ textAlign: 'center', minWidth: 140 }}>
+                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, marginBottom: 8, fontStyle: 'italic' }}>
                                 Vishvakarma Hub
                               </p>
-                              <div style={{ width: 110, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 4 }} />
-                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 8, letterSpacing: 2, textTransform: 'uppercase' }}>Organization</p>
+                              <div style={{ width: 140, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 5 }} />
+                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' }}>Organization</p>
                             </div>
                           </div>
                         </div>
 
                         {/* ── Top-center branding ── */}
                         <div style={{
-                          position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)',
-                          display: 'flex', alignItems: 'center', gap: 8,
+                          position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                         }}>
+                          {/* Stamp logo */}
                           <div style={{
-                            width: 18, height: 18, borderRadius: 4,
-                            background: 'linear-gradient(135deg, #c9a84c, #a3843a)',
+                            width: 36, height: 36, borderRadius: '50%',
+                            border: '2px solid rgba(201,168,76,0.6)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: '#0a0e1f', fontWeight: 900, fontSize: 9,
-                          }}>V</div>
-                          <span style={{ color: 'rgba(201,168,76,0.55)', fontSize: 8, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase' }}>
+                          }}>
+                            <div style={{
+                              width: 28, height: 28, borderRadius: '50%',
+                              border: '1px solid rgba(201,168,76,0.35)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: '#c9a84c', fontWeight: 900, fontSize: 11,
+                            }}>VH</div>
+                          </div>
+                          <span style={{ color: 'rgba(201,168,76,0.55)', fontSize: 9, fontWeight: 600, letterSpacing: 4, textTransform: 'uppercase' }}>
                             Vishvakarma Hub
                           </span>
                         </div>

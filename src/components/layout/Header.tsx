@@ -72,8 +72,10 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue to-purple flex items-center justify-center">
-              <span className="text-white font-bold text-sm">V</span>
+            <div className="w-8 h-8 rounded-full border-2 border-amber-500/70 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full border border-amber-500/40 flex items-center justify-center">
+                <span className="text-amber-400 font-black text-[9px] tracking-wide">VH</span>
+              </div>
             </div>
             <span className="text-lg font-bold text-foreground">
               Vishvakarma<span className="gradient-text"> Hub</span>
