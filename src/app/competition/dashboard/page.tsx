@@ -661,167 +661,174 @@ export default function CompetitionDashboardPage() {
                         {/* ── Main content ── */}
                         <div style={{
                           position: 'absolute', inset: 0,
-                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                          padding: '30px 80px 40px 80px', textAlign: 'center',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '28px 60px 24px 60px', textAlign: 'center',
                         }}>
-                          {/* ── Top branding: logo + text ── */}
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginBottom: 10 }}>
-                            <img src="/Stamp.png" alt="VH" style={{ width: 44, height: 44, borderRadius: '50%' }} />
-                            <span style={{ color: 'rgba(201,168,76,0.6)', fontSize: 10, fontWeight: 600, letterSpacing: 5, textTransform: 'uppercase' }}>
-                              Vishvakarma Hub
-                            </span>
-                          </div>
+                          {/* ═══ TOP SECTION ═══ */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                            {/* ── Top branding: logo + text ── */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+                              <img src="/Stamp.png" alt="VH" style={{ width: 52, height: 52, borderRadius: '50%' }} />
+                              <span style={{ color: 'rgba(201,168,76,0.6)', fontSize: 12, fontWeight: 600, letterSpacing: 6, textTransform: 'uppercase' }}>
+                                Vishvakarma Hub
+                              </span>
+                            </div>
 
-                          {/* Top ornament line */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-                            <div style={{ width: 60, height: 1, background: 'linear-gradient(90deg, transparent, #c9a84c)' }} />
-                            <span style={{ color: '#c9a84c', fontSize: 14 }}>✦</span>
-                            <div style={{ width: 60, height: 1, background: 'linear-gradient(-90deg, transparent, #c9a84c)' }} />
-                          </div>
+                            {/* Top ornament line */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
+                              <div style={{ width: 80, height: 1, background: 'linear-gradient(90deg, transparent, #c9a84c)' }} />
+                              <span style={{ color: '#c9a84c', fontSize: 16 }}>✦</span>
+                              <div style={{ width: 80, height: 1, background: 'linear-gradient(-90deg, transparent, #c9a84c)' }} />
+                            </div>
 
-                          {/* Certificate title */}
-                          <h2 style={{
-                            color: '#c9a84c', fontSize: 48, fontWeight: 700, letterSpacing: 10,
-                            textTransform: 'uppercase', lineHeight: 1, marginBottom: 2,
-                            textShadow: '0 0 30px rgba(201,168,76,0.15)',
-                          }}>
-                            Certificate
-                          </h2>
-                          <p style={{
-                            color: 'rgba(201,168,76,0.7)', fontSize: 17, letterSpacing: 12,
-                            textTransform: 'uppercase', fontWeight: 400, marginBottom: 0,
-                          }}>
-                            of Participation
-                          </p>
-
-                          {/* Gold divider with diamond */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '10px 0 14px 0' }}>
-                            <div style={{ width: 80, height: 1, background: 'linear-gradient(90deg, transparent, #c9a84c)' }} />
-                            <div style={{
-                              width: 8, height: 8, backgroundColor: '#c9a84c', transform: 'rotate(45deg)',
-                            }} />
-                            <div style={{ width: 80, height: 1, background: 'linear-gradient(-90deg, transparent, #c9a84c)' }} />
-                          </div>
-
-                          {/* Presented to */}
-                          <p style={{
-                            color: 'rgba(255,255,255,0.45)', fontSize: 13, letterSpacing: 5,
-                            textTransform: 'uppercase', marginBottom: 8, fontWeight: 400,
-                          }}>
-                            This is Proudly Presented To
-                          </p>
-
-                          {/* Recipient name */}
-                          <h3 style={{
-                            color: '#e8d5a3', fontSize: 38, fontWeight: 700, marginBottom: 6,
-                            fontStyle: 'italic', letterSpacing: 2,
-                            textShadow: '0 2px 20px rgba(201,168,76,0.2)',
-                          }}>
-                            {person.name}
-                          </h3>
-
-                          {/* Underline below name */}
-                          <div style={{
-                            width: 260, height: 1, margin: '0 auto 10px auto',
-                            background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.5), transparent)',
-                          }} />
-
-                          {/* Role badge */}
-                          <div style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 8,
-                            padding: '4px 20px', borderRadius: 20,
-                            border: '1px solid rgba(201,168,76,0.3)',
-                            backgroundColor: 'rgba(201,168,76,0.06)',
-                            marginBottom: 12,
-                          }}>
-                            <span style={{ color: '#c9a84c', fontSize: 10 }}>★</span>
-                            <span style={{
-                              color: '#c9a84c', fontSize: 11, fontWeight: 700, letterSpacing: 3,
-                              textTransform: 'uppercase',
+                            {/* Certificate title */}
+                            <h2 style={{
+                              color: '#c9a84c', fontSize: 56, fontWeight: 700, letterSpacing: 12,
+                              textTransform: 'uppercase', lineHeight: 1, marginBottom: 4,
+                              textShadow: '0 0 30px rgba(201,168,76,0.15)',
                             }}>
-                              {person.role}
-                            </span>
-                            <span style={{ color: '#c9a84c', fontSize: 10 }}>★</span>
-                          </div>
-
-                          {/* Startup / Idea title */}
-                          {participant.ideaTitle && (
+                              Certificate
+                            </h2>
                             <p style={{
-                              color: 'rgba(255,255,255,0.55)', fontSize: 13, marginBottom: 10,
-                              fontStyle: 'italic',
+                              color: 'rgba(201,168,76,0.7)', fontSize: 20, letterSpacing: 14,
+                              textTransform: 'uppercase', fontWeight: 400, marginBottom: 0,
                             }}>
-                              For the innovation project: <span style={{ color: '#e8d5a3', fontWeight: 600, fontStyle: 'normal' }}>&ldquo;{participant.ideaTitle}&rdquo;</span>
+                              of Participation
                             </p>
-                          )}
 
-                          {/* Description */}
-                          <p style={{
-                            color: 'rgba(255,255,255,0.45)', fontSize: 12, lineHeight: 1.8,
-                            maxWidth: 580, marginBottom: 6,
-                          }}>
-                            In recognition of their valuable participation and commitment shown during the{' '}
-                            <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
-                              {competition?.name || 'Vishvakarma Innovation Challenge 2026'}
-                            </span>
-                            {participant.teamName ? (
-                              <>, as a member of Team <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>&ldquo;{participant.teamName}&rdquo;</span></>
-                            ) : ''}
-                            . This certificate acknowledges their enthusiasm, creative thinking, and willingness
-                            to take on new challenges in the spirit of innovation and entrepreneurship.
-                          </p>
+                            {/* Gold divider with diamond */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '14px 0 16px 0' }}>
+                              <div style={{ width: 100, height: 1, background: 'linear-gradient(90deg, transparent, #c9a84c)' }} />
+                              <div style={{
+                                width: 10, height: 10, backgroundColor: '#c9a84c', transform: 'rotate(45deg)',
+                              }} />
+                              <div style={{ width: 100, height: 1, background: 'linear-gradient(-90deg, transparent, #c9a84c)' }} />
+                            </div>
+                          </div>
 
-                          {/* Appreciation line */}
-                          <p style={{
-                            color: 'rgba(201,168,76,0.5)', fontSize: 10, letterSpacing: 2,
-                            textTransform: 'uppercase', marginBottom: 6,
-                          }}>
-                            We appreciate your contribution to the innovation ecosystem.
-                          </p>
+                          {/* ═══ MIDDLE SECTION ═══ */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', flex: 1, justifyContent: 'center' }}>
+                            {/* Presented to */}
+                            <p style={{
+                              color: 'rgba(255,255,255,0.5)', fontSize: 15, letterSpacing: 6,
+                              textTransform: 'uppercase', marginBottom: 10, fontWeight: 400,
+                            }}>
+                              This is Proudly Presented To
+                            </p>
 
-                          {/* Tagline */}
-                          <p style={{
-                            color: 'rgba(201,168,76,0.35)', fontSize: 9, letterSpacing: 3,
-                            textTransform: 'uppercase', marginBottom: 14,
-                          }}>
-                            From Idea to Innovation
-                          </p>
+                            {/* Recipient name */}
+                            <h3 style={{
+                              color: '#e8d5a3', fontSize: 44, fontWeight: 700, marginBottom: 8,
+                              fontStyle: 'italic', letterSpacing: 3,
+                              textShadow: '0 2px 20px rgba(201,168,76,0.2)',
+                            }}>
+                              {person.name}
+                            </h3>
 
-                          {/* ── Bottom section: stamp + signatures ── */}
+                            {/* Underline below name */}
+                            <div style={{
+                              width: 320, height: 1, margin: '0 auto 12px auto',
+                              background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.5), transparent)',
+                            }} />
+
+                            {/* Role badge */}
+                            <div style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 10,
+                              padding: '6px 26px', borderRadius: 20,
+                              border: '1px solid rgba(201,168,76,0.3)',
+                              backgroundColor: 'rgba(201,168,76,0.06)',
+                              marginBottom: 14,
+                            }}>
+                              <span style={{ color: '#c9a84c', fontSize: 12 }}>★</span>
+                              <span style={{
+                                color: '#c9a84c', fontSize: 13, fontWeight: 700, letterSpacing: 4,
+                                textTransform: 'uppercase',
+                              }}>
+                                {person.role}
+                              </span>
+                              <span style={{ color: '#c9a84c', fontSize: 12 }}>★</span>
+                            </div>
+
+                            {/* Startup / Idea title */}
+                            {participant.ideaTitle && (
+                              <p style={{
+                                color: 'rgba(255,255,255,0.55)', fontSize: 15, marginBottom: 14,
+                                fontStyle: 'italic',
+                              }}>
+                                For the innovation project: <span style={{ color: '#e8d5a3', fontWeight: 600, fontStyle: 'normal' }}>&ldquo;{participant.ideaTitle}&rdquo;</span>
+                              </p>
+                            )}
+
+                            {/* Description */}
+                            <p style={{
+                              color: 'rgba(255,255,255,0.5)', fontSize: 14, lineHeight: 1.9,
+                              maxWidth: 720, marginBottom: 10,
+                            }}>
+                              In recognition of their valuable participation and commitment shown during the{' '}
+                              <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
+                                {competition?.name || 'Vishvakarma Innovation Challenge 2026'}
+                              </span>
+                              {participant.teamName ? (
+                                <>, as a member of Team <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>&ldquo;{participant.teamName}&rdquo;</span></>
+                              ) : ''}
+                              . This certificate acknowledges their enthusiasm, creative thinking, and willingness
+                              to take on new challenges in the spirit of innovation and entrepreneurship.
+                            </p>
+
+                            {/* Appreciation line */}
+                            <p style={{
+                              color: 'rgba(201,168,76,0.55)', fontSize: 12, letterSpacing: 3,
+                              textTransform: 'uppercase', marginBottom: 6,
+                            }}>
+                              We appreciate your contribution to the innovation ecosystem.
+                            </p>
+
+                            {/* Tagline */}
+                            <p style={{
+                              color: 'rgba(201,168,76,0.4)', fontSize: 11, letterSpacing: 4,
+                              textTransform: 'uppercase', marginBottom: 0,
+                            }}>
+                              From Idea to Innovation
+                            </p>
+                          </div>
+
+                          {/* ═══ BOTTOM SECTION: stamp + signatures ═══ */}
                           <div style={{
-                            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                            gap: 60, marginTop: 'auto', width: '100%',
+                            display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+                            width: '100%', paddingTop: 12,
                           }}>
                             {/* Date column */}
-                            <div style={{ textAlign: 'center', minWidth: 140 }}>
-                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                            <div style={{ textAlign: 'center', minWidth: 170 }}>
+                              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
                                 {eventDate}
                               </p>
-                              <div style={{ width: 140, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 5 }} />
-                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' }}>Date of Issue</p>
+                              <div style={{ width: 170, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 6 }} />
+                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' }}>Date of Issue</p>
                             </div>
 
                             {/* Stamp */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                               <img src="/Stamp.png" alt="Vishvakarma Hub Stamp" style={{
-                                width: 80, height: 80, borderRadius: '50%',
+                                width: 85, height: 85, borderRadius: '50%',
                               }} />
-                              <span style={{ color: 'rgba(201,168,76,0.4)', fontSize: 7, letterSpacing: 1, textTransform: 'uppercase' }}>Verified</span>
+                              <span style={{ color: 'rgba(201,168,76,0.45)', fontSize: 8, letterSpacing: 2, textTransform: 'uppercase' }}>Verified</span>
                             </div>
 
                             {/* Organization column */}
-                            <div style={{ textAlign: 'center', minWidth: 140 }}>
-                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, marginBottom: 8, fontStyle: 'italic' }}>
+                            <div style={{ textAlign: 'center', minWidth: 170 }}>
+                              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, fontWeight: 600, marginBottom: 8, fontStyle: 'italic' }}>
                                 Vishvakarma Hub
                               </p>
-                              <div style={{ width: 140, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 5 }} />
-                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' }}>Organization</p>
+                              <div style={{ width: 170, height: 1, backgroundColor: 'rgba(201,168,76,0.4)', marginBottom: 6 }} />
+                              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' }}>Organization</p>
                             </div>
                           </div>
 
                           {/* Certificate ID at very bottom */}
                           <p style={{
-                            color: 'rgba(201,168,76,0.2)', fontSize: 8, letterSpacing: 2,
-                            textTransform: 'uppercase', marginTop: 8,
+                            color: 'rgba(201,168,76,0.25)', fontSize: 9, letterSpacing: 2,
+                            textTransform: 'uppercase', marginTop: 6,
                           }}>
                             Certificate No: VH-{new Date().getFullYear()}-{participant.id?.toString().padStart(4, '0') || '0000'}
                           </p>
