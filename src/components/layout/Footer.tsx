@@ -5,7 +5,7 @@ const footerLinks = {
     { href: '/explore', label: 'Explore Startups' },
     { href: '/categories', label: 'Categories' },
     { href: '/how-it-works', label: 'How It Works' },
-    { href: '/submit-idea', label: 'Submit Idea' },
+    { href: '/coming-soon', label: 'Submit Idea' },
   ],
   company: [
     { href: '/about', label: 'About Us' },
