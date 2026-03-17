@@ -1766,31 +1766,31 @@ export default function AdminPage() {
                                   {selectedParticipant.ideaDescription && (
                                     <div>
                                       <p className="text-muted mb-1">Description:</p>
-                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.ideaDescription}</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap break-words overflow-hidden">{selectedParticipant.ideaDescription}</p>
                                     </div>
                                   )}
                                   {selectedParticipant.problemStatement && (
                                     <div>
                                       <p className="text-muted mb-1">Problem Statement:</p>
-                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.problemStatement}</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap break-words overflow-hidden">{selectedParticipant.problemStatement}</p>
                                     </div>
                                   )}
                                   {selectedParticipant.solution && (
                                     <div>
                                       <p className="text-muted mb-1">Solution:</p>
-                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.solution}</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap break-words overflow-hidden">{selectedParticipant.solution}</p>
                                     </div>
                                   )}
                                   {selectedParticipant.targetAudience && (
                                     <div>
                                       <p className="text-muted mb-1">Target Audience:</p>
-                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.targetAudience}</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap break-words overflow-hidden">{selectedParticipant.targetAudience}</p>
                                     </div>
                                   )}
                                   {selectedParticipant.uniqueness && (
                                     <div>
                                       <p className="text-muted mb-1">What makes it unique:</p>
-                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap">{selectedParticipant.uniqueness}</p>
+                                      <p className="text-foreground bg-background rounded p-2 text-xs whitespace-pre-wrap break-words overflow-hidden">{selectedParticipant.uniqueness}</p>
                                     </div>
                                   )}
                                   <div className="grid grid-cols-2 gap-3">
