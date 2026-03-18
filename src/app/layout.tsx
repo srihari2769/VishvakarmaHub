@@ -7,6 +7,10 @@ import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.vishvakarmahub.com'),
+  icons: {
+    icon: '/Stamp.png',
+    apple: '/Stamp.png',
+  },
   title: {
     default: "Vishvakarma Hub - From Idea to Innovation",
     template: "%s | Vishvakarma Hub",
