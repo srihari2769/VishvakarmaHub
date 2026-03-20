@@ -31,6 +31,10 @@ import {
   VideoCameraIcon,
   ShareIcon,
   TicketIcon,
+  BriefcaseIcon,
+  ComputerDesktopIcon,
+  SignalIcon,
+  BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon as HandThumbUpSolid } from '@heroicons/react/24/solid';
 
@@ -1084,9 +1088,9 @@ export default function CompetitionPage() {
                     <h3 className="text-xl font-display font-bold text-white">Title Sponsor</h3>
                     <Badge variant="warning">Most Premium</Badge>
                   </div>
-                  <p className="text-2xl font-display font-bold text-amber-400 mb-4">{pcs('titleSponsorPrice', '₹5,00,000')}</p>
+                  <p className="text-2xl font-display font-bold text-amber-400 mb-4">{pcs('titleSponsorPrice', '₹7,50,000')}</p>
                   <div className="grid sm:grid-cols-2 gap-2 text-sm text-white/50">
-                    {pcList('titleSponsorBenefits', 'Event named \u201cpowered by [Sponsor]\u201d, Logo on stage backdrop, 5–10 min keynote speech, Premium branding across website, Media coverage mention, Startup exhibition booth, Direct access to top startups').map((b, i) => (
+                    {pcList('titleSponsorBenefits', 'Event named \u201cpowered by [Sponsor]\u201d, Exclusive category rights — no competitors in your industry, Logo on stage backdrop & all banners, 5–10 min keynote speech + closing ceremony address, Dedicated hiring zone at venue, Jury panel seat in finals, Premium branding across website & all media (press\u002C reels\u002C banners), Media coverage & press release mention, Premium startup exhibition booth, Direct access to top startups & talent pipeline').map((b, i) => (
                       <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-amber-400 flex-shrink-0" /><span>{b}</span></div>
                     ))}
                   </div>
@@ -1105,9 +1109,9 @@ export default function CompetitionPage() {
                   <h3 className="text-lg font-display font-bold text-white">Presenting Sponsor</h3>
                   <Badge variant="danger">Premium</Badge>
                 </div>
-                <p className="text-2xl font-display font-bold text-rose-400 mb-4">{pcs('presentingSponsorPrice', '₹3,00,000')}</p>
+                <p className="text-2xl font-display font-bold text-rose-400 mb-4">{pcs('presentingSponsorPrice', '₹5,00,000')}</p>
                 <div className="space-y-2 text-sm text-white/50">
-                  {pcList('presentingSponsorBenefits', 'Co-branded event title, Logo on stage backdrop, 5 min keynote slot, Premium branding on website, Media coverage mention, VIP booth at exhibition').map((b, i) => (
+                  {pcList('presentingSponsorBenefits', 'Co-host branding — not just a logo\u002C full event co-presentation, Sponsored challenge track (e.g.\u002C \u201cAI Challenge powered by [You]\u201d), Logo on stage backdrop & event banners, 5 min keynote slot, Premium branding on website & social media, Media coverage & press mention, VIP booth at startup exhibition, Networking access with top founders').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-rose-400 flex-shrink-0" /><span>{b}</span></div>
                   ))}
                 </div>
@@ -1122,9 +1126,9 @@ export default function CompetitionPage() {
                   <h3 className="text-lg font-display font-bold text-white">Diamond Sponsor</h3>
                   <Badge variant="info">Elite</Badge>
                 </div>
-                <p className="text-2xl font-display font-bold text-sky-400 mb-4">{pcs('diamondSponsorPrice', '₹2,00,000')}</p>
+                <p className="text-2xl font-display font-bold text-sky-400 mb-4">{pcs('diamondSponsorPrice', '₹3,50,000')}</p>
                 <div className="space-y-2 text-sm text-white/50">
-                  {pcList('diamondSponsorBenefits', 'Logo on event banners and stage, Featured website section, Social media promotion, Exhibition booth, VIP networking access, Award ceremony mention').map((b, i) => (
+                  {pcList('diamondSponsorBenefits', 'Access to live startup pitching sessions, Investor roundtable invite with top founders, Lead capture system (QR code / digital cards), Logo on event banners and stage, Featured website section with company profile, Social media promotion across all channels, Premium exhibition booth, VIP networking access, Award ceremony mention & brand visibility').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-sky-400 flex-shrink-0" /><span>{b}</span></div>
                   ))}
                 </div>
@@ -1225,6 +1229,73 @@ export default function CompetitionPage() {
             </div>
           </div>
 
+          {/* ── NEW: High-Value Strategic Packages ── */}
+          <div className="gsap-reveal mb-10">
+            <div className="text-center mb-8">
+              <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-2">Strategic Partnerships</p>
+              <h3 className="text-2xl font-display font-bold text-white mb-2">High-Value Packages</h3>
+              <div className="divine-line w-16 mx-auto mb-3" />
+              <p className="text-sm text-white/40 max-w-lg mx-auto">Purpose-built sponsorships targeting specific departments — engineering, HR, and marketing teams each have separate budgets</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 gsap-stagger-parent">
+              {/* Innovation Track Sponsor */}
+              <div className="gsap-stagger-child">
+                <div className="glass-card rounded-2xl p-6 relative overflow-hidden h-full">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-violet-400 via-purple to-indigo-400" />
+                  <ComputerDesktopIcon className="w-10 h-10 text-violet-400 mb-3" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-display font-bold text-white">Innovation Track Sponsor</h3>
+                  </div>
+                  <p className="text-2xl font-display font-bold text-violet-400 mb-1">{pcs('trackSponsorPrice', '₹2,00,000 – ₹5,00,000')}</p>
+                  <p className="text-xs text-white/30 mb-4">AI Track · Robotics Track · FinTech Track · HealthTech Track</p>
+                  <div className="space-y-2 text-sm text-white/50">
+                    {['Naming rights for your chosen track', 'Direct access to niche startup talent', 'Judging rights in track finals', 'Track winner announced as \u201c[Your Brand] Award\u201d', 'Dedicated branding in track area', 'Featured company profile on track page'].map((b, i) => (
+                      <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-violet-400 flex-shrink-0" /><span>{b}</span></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Hiring Partner */}
+              <div className="gsap-stagger-child">
+                <div className="glass-card rounded-2xl p-6 relative overflow-hidden h-full">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400" />
+                  <BriefcaseIcon className="w-10 h-10 text-emerald-400 mb-3" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-display font-bold text-white">Hiring Partner</h3>
+                    <Badge variant="success">HR Budgets</Badge>
+                  </div>
+                  <p className="text-2xl font-display font-bold text-emerald-400 mb-1">{pcs('hiringPartnerPrice', '₹3,00,000+')}</p>
+                  <p className="text-xs text-white/30 mb-4">Perfect for companies looking to recruit top talent</p>
+                  <div className="space-y-2 text-sm text-white/50">
+                    {['Full resume database access of all participants', 'On-spot interview booth at venue', 'Branded as Official Hiring Partner', 'Job board placement on event website', 'Priority access to winning teams', 'Talent pipeline for internships & full-time roles'].map((b, i) => (
+                      <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-emerald-400 flex-shrink-0" /><span>{b}</span></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Digital Reach Sponsor */}
+              <div className="gsap-stagger-child">
+                <div className="glass-card rounded-2xl p-6 relative overflow-hidden h-full">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-pink-400 via-rose-400 to-red-400" />
+                  <SignalIcon className="w-10 h-10 text-pink-400 mb-3" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-display font-bold text-white">Digital Reach Sponsor</h3>
+                    <Badge variant="danger">Marketing</Badge>
+                  </div>
+                  <p className="text-2xl font-display font-bold text-pink-400 mb-1">{pcs('digitalReachPrice', '₹1,00,000 – ₹3,00,000')}</p>
+                  <p className="text-xs text-white/30 mb-4">Maximize digital visibility across all platforms</p>
+                  <div className="space-y-2 text-sm text-white/50">
+                    {['Logo & branding in all Instagram reels & stories', 'YouTube coverage with brand integration', 'Influencer integration & co-created content', 'Branded hashtag campaign', 'Post-event highlight reel with sponsor branding', 'Social media analytics report shared post-event'].map((b, i) => (
+                      <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>{b}</span></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Special Sponsorship Opportunities */}
           <div className="gsap-reveal">
             <div className="text-center mb-6">
@@ -1264,6 +1335,64 @@ export default function CompetitionPage() {
                   <p className="text-sm text-white/40">{pcs('awardSponsorDesc', 'Sponsor name on winner trophies')}</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="section-divider" />
+
+      {/* ===== SPONSOR ROI PROJECTION ===== */}
+      <section className="py-20 px-4 sm:px-6 relative">
+        <div className="parallax-orb absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[160px]" />
+        <div className="max-w-5xl mx-auto">
+          <div className="gsap-reveal text-center mb-14">
+            <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-3">Why Sponsor Us</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-3 tracking-wide">Sponsor ROI Projection</h2>
+            <div className="divine-line w-24 mx-auto mb-4" />
+            <p className="text-white/40 max-w-xl mx-auto">Real numbers, real impact — here&apos;s what your sponsorship translates to</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 gsap-stagger-parent">
+            {[
+              { icon: UserGroupIcon, value: '10,000+', label: 'Expected Attendees', sub: 'Students, founders, investors', color: 'amber' },
+              { icon: GlobeAltIcon, value: '10,00,000+', label: 'Digital Reach', sub: 'Social media impressions', color: 'sky' },
+              { icon: RocketLaunchIcon, value: '500+', label: 'Startups & Ideas', sub: 'Across all innovation tracks', color: 'emerald' },
+              { icon: BuildingOffice2Icon, value: '100+', label: 'Colleges & Institutions', sub: 'Pan-India participation', color: 'violet' },
+            ].map((stat, i) => (
+              <div key={i} className="gsap-stagger-child">
+                <div className="glass-card rounded-2xl p-6 text-center h-full">
+                  <div className={`w-14 h-14 rounded-2xl bg-${stat.color}-400/10 flex items-center justify-center mx-auto mb-4`}>
+                    <stat.icon className={`w-7 h-7 text-${stat.color}-400`} />
+                  </div>
+                  <p className={`text-3xl font-display font-bold text-${stat.color}-400 mb-1`}>{stat.value}</p>
+                  <p className="text-sm font-semibold text-white/70 mb-1">{stat.label}</p>
+                  <p className="text-xs text-white/30">{stat.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="gsap-reveal glass-card rounded-2xl p-8 relative overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400/50 via-amber-400 to-amber-400/50" />
+            <h3 className="text-xl font-display font-bold text-white mb-6 text-center">What Sponsors Get</h3>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+              {[
+                { icon: '🎯', title: 'Brand Visibility', desc: 'Logo placement across stage, banners, website, certificates, ID cards, and all event media' },
+                { icon: '🎤', title: 'Speaking Opportunities', desc: 'Keynote slots, panel discussions, and closing ceremony addresses for premium tiers' },
+                { icon: '💼', title: 'Talent Access', desc: 'Direct access to 500+ innovative minds — recruit interns, co-founders, and early employees' },
+                { icon: '📊', title: 'Lead Generation', desc: 'QR-based lead capture, attendee database access, and post-event analytics report' },
+                { icon: '📱', title: 'Digital Content', desc: 'Branded reels, YouTube coverage, social media posts reaching 10L+ impressions' },
+                { icon: '🤝', title: 'Networking', desc: 'VIP access to investor roundtables, founder meetups, and exclusive after-event sessions' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02]">
+                  <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                  <div>
+                    <p className="font-semibold text-white/80 mb-1">{item.title}</p>
+                    <p className="text-white/40 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
