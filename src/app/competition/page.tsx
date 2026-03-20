@@ -1066,10 +1066,10 @@ export default function CompetitionPage() {
         <div className="parallax-orb absolute top-[10%] left-[5%] w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[160px]" />
         <div className="max-w-6xl mx-auto">
           <div className="gsap-reveal text-center mb-14">
-            <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-3">Partner With Us</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-3 tracking-wide">Become a Sponsor</h2>
+            <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-3">Growth Partnerships</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-3 tracking-wide">Partner With Us to Grow Your Business</h2>
             <div className="divine-line w-24 mx-auto mb-4" />
-            <p className="text-white/40 max-w-xl mx-auto">Partner with us and get unparalleled visibility in India&apos;s biggest startup competition</p>
+            <p className="text-white/40 max-w-xl mx-auto">Strategic partnerships that deliver real ROI — brand visibility, talent access, and market reach at India&apos;s biggest startup competition</p>
           </div>
 
           {/* Title Sponsor — Featured */}
@@ -1235,7 +1235,7 @@ export default function CompetitionPage() {
               <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-2">Strategic Partnerships</p>
               <h3 className="text-2xl font-display font-bold text-white mb-2">High-Value Packages</h3>
               <div className="divine-line w-16 mx-auto mb-3" />
-              <p className="text-sm text-white/40 max-w-lg mx-auto">Purpose-built sponsorships targeting specific departments — engineering, HR, and marketing teams each have separate budgets</p>
+              <p className="text-sm text-white/40 max-w-lg mx-auto">Purpose-built partnerships targeting specific departments — engineering, HR, and marketing teams each have separate budgets</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 gsap-stagger-parent">
               {/* Innovation Track Sponsor */}
@@ -1299,8 +1299,8 @@ export default function CompetitionPage() {
           {/* Special Sponsorship Opportunities */}
           <div className="gsap-reveal">
             <div className="text-center mb-6">
-              <h3 className="text-xl font-display font-bold text-white mb-1">Special Sponsorship Opportunities</h3>
-              <p className="text-sm text-white/30">High-value niche sponsorships for maximum brand impact</p>
+              <h3 className="text-xl font-display font-bold text-white mb-1">Special Partnership Opportunities</h3>
+              <p className="text-sm text-white/30">High-value niche partnerships for maximum business growth</p>
             </div>
             <div className="grid sm:grid-cols-3 gap-5 gsap-stagger-parent">
               <div className="gsap-stagger-child">
@@ -1347,10 +1347,10 @@ export default function CompetitionPage() {
         <div className="parallax-orb absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[160px]" />
         <div className="max-w-5xl mx-auto">
           <div className="gsap-reveal text-center mb-14">
-            <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-3">Why Sponsor Us</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-3 tracking-wide">Sponsor ROI Projection</h2>
+            <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-3">Why Partner With Us</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-3 tracking-wide">Your Partnership ROI</h2>
             <div className="divine-line w-24 mx-auto mb-4" />
-            <p className="text-white/40 max-w-xl mx-auto">Real numbers, real impact — here&apos;s what your sponsorship translates to</p>
+            <p className="text-white/40 max-w-xl mx-auto">Real numbers, real impact — here&apos;s what your partnership investment translates to</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 gsap-stagger-parent">
@@ -1375,7 +1375,7 @@ export default function CompetitionPage() {
 
           <div className="gsap-reveal glass-card rounded-2xl p-8 relative overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400/50 via-amber-400 to-amber-400/50" />
-            <h3 className="text-xl font-display font-bold text-white mb-6 text-center">What Sponsors Get</h3>
+            <h3 className="text-xl font-display font-bold text-white mb-6 text-center">What Partners Get</h3>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
               {[
                 { icon: '🎯', title: 'Brand Visibility', desc: 'Logo placement across stage, banners, website, certificates, ID cards, and all event media' },
