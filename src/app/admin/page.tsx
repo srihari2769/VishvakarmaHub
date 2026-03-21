@@ -680,6 +680,13 @@ export default function AdminPage() {
       awardSponsorTitle: 'Award Sponsor',
       awardSponsorPrice: '₹20,000',
       awardSponsorDesc: 'Sponsor name on winner trophies',
+      strategicPackagesSubtitle: 'Purpose-built partnerships targeting specific departments — engineering, HR, and marketing teams each have separate budgets',
+      trackSponsorPrice: '₹2,00,000 – ₹5,00,000',
+      trackSponsorBenefits: 'Naming rights for your chosen track, Direct access to niche startup talent, Judging rights in track finals, Track winner announced as "[Your Brand] Award", Dedicated branding in track area, Featured company profile on track page',
+      hiringPartnerPrice: '₹3,00,000+',
+      hiringPartnerBenefits: 'Full resume database access of all participants, On-spot interview booth at venue, Branded as Official Hiring Partner, Job board placement on event website, Priority access to winning teams, Talent pipeline for internships & full-time roles',
+      digitalReachPrice: '₹1,00,000 – ₹3,00,000',
+      digitalReachBenefits: 'Logo & branding in all Instagram reels & stories, YouTube coverage with brand integration, Influencer integration & co-created content, Branded hashtag campaign, Post-event highlight reel with sponsor branding, Social media analytics report shared post-event',
       ctaTitle: "Don't Just Watch.",
       ctaHighlight: 'Be Part of It.',
       ctaDescription: "This is more than a competition — it's a movement. Join the next generation of Indian innovators and put your startup on the national map.",
@@ -2584,6 +2591,46 @@ export default function AdminPage() {
                         <div>
                           <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
                           <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.communityPartnerBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, communityPartnerBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-2">Strategic Packages (High-Value)</p>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Section Subtitle</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.strategicPackagesSubtitle || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, strategicPackagesSubtitle: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-1">Innovation Track Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.trackSponsorPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, trackSponsorPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.trackSponsorBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, trackSponsorBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-1">Hiring Partner</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.hiringPartnerPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, hiringPartnerPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.hiringPartnerBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, hiringPartnerBenefits: e.target.value })} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted font-semibold mt-1">Digital Reach Sponsor</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Price</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.digitalReachPrice || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, digitalReachPrice: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Benefits (comma-separated)</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(pageContentForm.digitalReachBenefits || '')} onChange={(e) => setPageContentForm({ ...pageContentForm, digitalReachBenefits: e.target.value })} />
                         </div>
                       </div>
                       <p className="text-xs text-muted font-semibold mt-2">Special Sponsorships</p>

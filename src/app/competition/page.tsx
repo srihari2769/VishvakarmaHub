@@ -1235,7 +1235,7 @@ export default function CompetitionPage() {
               <p className="font-display text-xs tracking-[0.3em] text-amber-400/60 uppercase mb-2">Strategic Partnerships</p>
               <h3 className="text-2xl font-display font-bold text-white mb-2">High-Value Packages</h3>
               <div className="divine-line w-16 mx-auto mb-3" />
-              <p className="text-sm text-white/40 max-w-lg mx-auto">Purpose-built partnerships targeting specific departments — engineering, HR, and marketing teams each have separate budgets</p>
+              <p className="text-sm text-white/40 max-w-lg mx-auto">{pcs('strategicPackagesSubtitle', 'Purpose-built partnerships targeting specific departments — engineering, HR, and marketing teams each have separate budgets')}</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 gsap-stagger-parent">
               {/* Innovation Track Sponsor */}
@@ -1249,7 +1249,7 @@ export default function CompetitionPage() {
                   <p className="text-2xl font-display font-bold text-violet-400 mb-1">{pcs('trackSponsorPrice', '₹2,00,000 – ₹5,00,000')}</p>
                   <p className="text-xs text-white/30 mb-4">AI Track · Robotics Track · FinTech Track · HealthTech Track</p>
                   <div className="space-y-2 text-sm text-white/50">
-                    {['Naming rights for your chosen track', 'Direct access to niche startup talent', 'Judging rights in track finals', 'Track winner announced as \u201c[Your Brand] Award\u201d', 'Dedicated branding in track area', 'Featured company profile on track page'].map((b, i) => (
+                    {pcList('trackSponsorBenefits', 'Naming rights for your chosen track, Direct access to niche startup talent, Judging rights in track finals, Track winner announced as \u201c[Your Brand] Award\u201d, Dedicated branding in track area, Featured company profile on track page').map((b, i) => (
                       <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-violet-400 flex-shrink-0" /><span>{b}</span></div>
                     ))}
                   </div>
@@ -1268,7 +1268,7 @@ export default function CompetitionPage() {
                   <p className="text-2xl font-display font-bold text-emerald-400 mb-1">{pcs('hiringPartnerPrice', '₹3,00,000+')}</p>
                   <p className="text-xs text-white/30 mb-4">Perfect for companies looking to recruit top talent</p>
                   <div className="space-y-2 text-sm text-white/50">
-                    {['Full resume database access of all participants', 'On-spot interview booth at venue', 'Branded as Official Hiring Partner', 'Job board placement on event website', 'Priority access to winning teams', 'Talent pipeline for internships & full-time roles'].map((b, i) => (
+                    {pcList('hiringPartnerBenefits', 'Full resume database access of all participants, On-spot interview booth at venue, Branded as Official Hiring Partner, Job board placement on event website, Priority access to winning teams, Talent pipeline for internships & full-time roles').map((b, i) => (
                       <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-emerald-400 flex-shrink-0" /><span>{b}</span></div>
                     ))}
                   </div>
@@ -1287,7 +1287,7 @@ export default function CompetitionPage() {
                   <p className="text-2xl font-display font-bold text-pink-400 mb-1">{pcs('digitalReachPrice', '₹1,00,000 – ₹3,00,000')}</p>
                   <p className="text-xs text-white/30 mb-4">Maximize digital visibility across all platforms</p>
                   <div className="space-y-2 text-sm text-white/50">
-                    {['Logo & branding in all Instagram reels & stories', 'YouTube coverage with brand integration', 'Influencer integration & co-created content', 'Branded hashtag campaign', 'Post-event highlight reel with sponsor branding', 'Social media analytics report shared post-event'].map((b, i) => (
+                    {pcList('digitalReachBenefits', 'Logo & branding in all Instagram reels & stories, YouTube coverage with brand integration, Influencer integration & co-created content, Branded hashtag campaign, Post-event highlight reel with sponsor branding, Social media analytics report shared post-event').map((b, i) => (
                       <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>{b}</span></div>
                     ))}
                   </div>
