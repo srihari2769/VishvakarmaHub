@@ -11,19 +11,19 @@ export default function GuidelinesPage() {
           <h1 className="text-4xl font-bold text-foreground mb-2">Community Guidelines</h1>
           <p className="text-muted mb-8">
             Our guidelines ensure Vishvakarma Hub remains a safe, trustworthy, and productive
-            space for innovators and supporters alike.
+            space for innovators and collaborators alike.
           </p>
 
           <div className="space-y-6">
             <Card className="p-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">🎯 Campaign Content Rules</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">🎯 Startup Submission Rules</h2>
               <ul className="list-disc pl-6 space-y-2 text-muted">
-                <li>Campaigns must represent genuine startup ideas or innovations</li>
+                <li>Submissions must represent genuine startup ideas or innovations</li>
                 <li>All claims about your product, team, and progress must be truthful</li>
-                <li>Provide realistic timelines and funding goals</li>
-                <li>Include clear descriptions of what supporters will receive (reward tiers)</li>
+                <li>Provide realistic timelines and milestones</li>
+                <li>Include clear descriptions of your product, vision, and goals</li>
                 <li>Use original images and videos — do not use copyrighted material without permission</li>
-                <li>Campaigns must fall within one of our approved innovation categories</li>
+                <li>Startups must fall within one of our approved innovation categories</li>
               </ul>
             </Card>
 
@@ -53,13 +53,13 @@ export default function GuidelinesPage() {
             </Card>
 
             <Card className="p-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">📊 Campaign Creator Responsibilities</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">📊 Startup Founder Responsibilities</h2>
               <ul className="list-disc pl-6 space-y-2 text-muted">
-                <li>Provide regular project updates (at least monthly for funded campaigns)</li>
-                <li>Respond to supporter questions in a timely manner</li>
-                <li>Deliver rewards as promised within stated timelines</li>
-                <li>Notify supporters immediately if there are delays or changes to the project</li>
-                <li>Use funds responsibly and as described in the campaign</li>
+                <li>Provide regular project updates (at least monthly for listed startups)</li>
+                <li>Respond to community questions in a timely manner</li>
+                <li>Deliver on commitments and milestones as stated</li>
+                <li>Notify the community immediately if there are delays or changes to the project</li>
+                <li>Use platform resources responsibly</li>
                 <li>Comply with all applicable laws and regulations</li>
               </ul>
             </Card>
@@ -67,10 +67,10 @@ export default function GuidelinesPage() {
             <Card className="p-6">
               <h2 className="text-xl font-semibold text-foreground mb-3">🔍 Review Process</h2>
               <ul className="list-disc pl-6 space-y-2 text-muted">
-                <li>All campaigns undergo a review process before going live</li>
+                <li>All startups undergo a review process before going live</li>
                 <li>Reviews typically take 2-3 business days</li>
                 <li>We may request additional information or documentation</li>
-                <li>Campaigns violating guidelines will be rejected with explanation</li>
+                <li>Startups violating guidelines will be rejected with explanation</li>
                 <li>Repeat violations may result in account suspension</li>
               </ul>
             </Card>

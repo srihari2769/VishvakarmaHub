@@ -3,9 +3,8 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Card, ProgressBar, Badge } from '@/components/ui';
-import { formatCurrency, calculateProgress, calculateDaysLeft } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { Button, Card, Badge } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
 import {
   UserIcon,
@@ -18,8 +17,6 @@ import {
   CheckCircleIcon,
   ClockIcon,
   ExclamationCircleIcon,
-  XMarkIcon,
-  CurrencyRupeeIcon,
   SparklesIcon,
   DocumentTextIcon,
   PhotoIcon,
@@ -110,14 +107,6 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
   const [aiEvaluating, setAiEvaluating] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
 
-  // Funding state
-  const [selectedTier, setSelectedTier] = useState<RewardTier | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [customAmount, setCustomAmount] = useState('');
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentError, setPaymentError] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
   // Save state
   const [isSaved, setIsSaved] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -179,139 +168,6 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
     }
   }, [slug, justSubmitted, isAuthenticated, token]);
 
-  const handleSelectTier = (tier: RewardTier) => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    setSelectedTier(tier);
-    setCustomAmount(tier.amount.toString());
-    setShowPaymentModal(true);
-    setPaymentError('');
-    setPaymentSuccess(false);
-  };
-
-  const handleBackStartup = () => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    setSelectedTier(null);
-    setCustomAmount('');
-    setShowPaymentModal(true);
-    setPaymentError('');
-    setPaymentSuccess(false);
-  };
-
-  const handlePayment = async () => {
-    const amount = Number(customAmount);
-    if (!amount || amount < 1) {
-      setPaymentError('Please enter a valid amount (minimum ₹1)');
-      return;
-    }
-    if (!startup) return;
-
-    setPaymentLoading(true);
-    setPaymentError('');
-
-    try {
-      const res = await fetch('/api/payments/create-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          startupId: startup.id,
-          amount,
-          rewardTierId: selectedTier?.id || null,
-        }),
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        setPaymentError(data.error || 'Failed to create order');
-        setPaymentLoading(false);
-        return;
-      }
-
-      // Try loading Razorpay checkout
-      if (typeof window !== 'undefined' && (window as any).Razorpay) {
-        const options = {
-          key: data.data.keyId,
-          amount: data.data.amount * 100,
-          currency: data.data.currency,
-          name: 'Vishvakarma Hub',
-          description: `Support ${startup.title}`,
-          order_id: data.data.orderId,
-          handler: async (response: any) => {
-            // Verify payment on server
-            try {
-              const verifyRes = await fetch('/api/payments/verify', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  contributionId: data.data.contributionId,
-                }),
-              });
-            } catch {
-              // Payment still recorded via webhook
-            }
-            setPaymentSuccess(true);
-            // Refresh startup data
-            const refreshRes = await fetch(`/api/startups/${slug}`);
-            const refreshData = await refreshRes.json();
-            if (refreshData.success) setStartup(refreshData.data);
-          },
-          prefill: data.data.prefill,
-          theme: { color: '#3B82F6' },
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.on('payment.failed', (response: any) => {
-          setPaymentError(response?.error?.description || 'Payment was cancelled or failed. Please try again.');
-        });
-        rzp.open();
-        setPaymentLoading(false);
-      } else {
-        // Razorpay SDK not loaded — complete directly via contributions API
-        const contribRes = await fetch('/api/contributions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            campaignId: startup.campaign?.id,
-            amount,
-            paymentMethod: 'DIRECT',
-            rewardTierId: selectedTier?.id || null,
-          }),
-        });
-
-        const contribData = await contribRes.json();
-        if (contribData.success) {
-          setPaymentSuccess(true);
-          const refreshRes = await fetch(`/api/startups/${slug}`);
-          const refreshData = await refreshRes.json();
-          if (refreshData.success) setStartup(refreshData.data);
-        } else {
-          setPaymentError(contribData.error || 'Contribution failed');
-        }
-        setPaymentLoading(false);
-      }
-    } catch {
-      setPaymentError('Something went wrong. Please try again.');
-      setPaymentLoading(false);
-    }
-  };
-
   const handlePostComment = async () => {
     if (!commentText.trim() || !startup) return;
     setCommentLoading(true);
@@ -357,11 +213,6 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
       </div>
     );
   }
-
-  const progress = startup.campaign
-    ? calculateProgress(startup.campaign.raisedAmount, startup.campaign.fundingGoal)
-    : 0;
-  const daysLeft = startup.campaign ? calculateDaysLeft(new Date(startup.campaign.endDate)) : 0;
 
   return (
     <div className="min-h-screen pt-20 pb-16">
@@ -793,184 +644,11 @@ export default function StartupPage({ params }: { params: Promise<{ slug: string
             )}
           </div>
 
-          {/* Sidebar — Funding */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            {startup.campaign && (
-              <Card className="p-6 sticky top-24">
-                <div className="mb-6">
-                  <p className="text-3xl font-bold text-foreground">
-                    {formatCurrency(startup.campaign.raisedAmount)}
-                  </p>
-                  <p className="text-sm text-muted">
-                    raised of {formatCurrency(startup.campaign.fundingGoal)} goal
-                  </p>
-                  <ProgressBar progress={progress} className="mt-4" />
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 mb-6 text-center">
-                  <div>
-                    <p className="text-xl font-bold text-foreground">{startup.campaign.supporterCount}</p>
-                    <p className="text-xs text-muted">Supporters</p>
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold text-foreground">{daysLeft}</p>
-                    <p className="text-xs text-muted">Days Left</p>
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold gradient-text">{progress}%</p>
-                    <p className="text-xs text-muted">Funded</p>
-                  </div>
-                </div>
-
-                {/* Reward Tiers */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-foreground">Support This Startup</h3>
-                  {startup.campaign.rewardTiers.map((tier) => (
-                    <div
-                      key={tier.id}
-                      className="border border-border rounded-xl p-4 hover:border-blue/30 transition-colors cursor-pointer group"
-                      onClick={() => handleSelectTier(tier)}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-foreground">{tier.name}</span>
-                        <span className="text-blue font-bold">{formatCurrency(tier.amount)}</span>
-                      </div>
-                      <p className="text-xs text-muted mb-3">{tier.description}</p>
-                      {tier.maxClaims && (
-                        <p className="text-xs text-muted">
-                          {tier.maxClaims - tier.claimedCount} of {tier.maxClaims} remaining
-                        </p>
-                      )}
-                      <Button size="sm" className="w-full mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Select This Tier
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-
-                <Button className="w-full mt-4" size="lg" onClick={handleBackStartup}>
-                  Fund This Startup
-                </Button>
-              </Card>
-            )}
           </div>
         </div>
       </div>
-
-      {/* Payment Modal */}
-      <AnimatePresence>
-        {showPaymentModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            onClick={() => !paymentLoading && setShowPaymentModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-card border border-border rounded-2xl p-6 w-full max-w-md"
-            >
-              {paymentSuccess ? (
-                <div className="text-center py-6">
-                  <CheckCircleIcon className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-foreground mb-2">Thank You!</h3>
-                  <p className="text-muted mb-6">Your contribution has been recorded successfully.</p>
-                  <Button onClick={() => setShowPaymentModal(false)}>Close</Button>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-foreground">
-                      {selectedTier ? `Support: ${selectedTier.name}` : 'Fund This Startup'}
-                    </h3>
-                    <button
-                      onClick={() => setShowPaymentModal(false)}
-                      disabled={paymentLoading}
-                      className="text-muted hover:text-foreground"
-                    >
-                      <XMarkIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {selectedTier && (
-                    <div className="mb-4 p-3 bg-blue/5 border border-blue/20 rounded-xl">
-                      <p className="text-sm text-foreground font-medium">{selectedTier.name}</p>
-                      <p className="text-xs text-muted mt-1">{selectedTier.description}</p>
-                    </div>
-                  )}
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Amount (₹)
-                    </label>
-                    <div className="relative">
-                      <CurrencyRupeeIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
-                      <input
-                        type="number"
-                        min="1"
-                        value={customAmount}
-                        onChange={(e) => setCustomAmount(e.target.value)}
-                        className="w-full bg-input border border-border rounded-xl pl-10 pr-4 py-3 text-foreground focus:outline-none focus:border-blue"
-                        placeholder="Enter amount"
-                      />
-                    </div>
-                  </div>
-
-                  {!selectedTier && startup?.campaign?.rewardTiers && startup.campaign.rewardTiers.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-xs text-muted mb-2">Quick amounts:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {startup.campaign.rewardTiers.map((tier) => (
-                          <button
-                            key={tier.id}
-                            onClick={() => {
-                              setSelectedTier(tier);
-                              setCustomAmount(tier.amount.toString());
-                            }}
-                            className="px-3 py-1 text-xs rounded-lg border border-border hover:border-blue text-muted hover:text-foreground transition-colors"
-                          >
-                            {formatCurrency(tier.amount)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentError && (
-                    <div className="mb-4 p-3 bg-danger/10 border border-danger/30 rounded-xl text-sm text-danger">
-                      {paymentError}
-                    </div>
-                  )}
-
-                  <Button
-                    className="w-full"
-                    size="lg"
-                    onClick={handlePayment}
-                    disabled={paymentLoading || !customAmount}
-                  >
-                    {paymentLoading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                        Processing...
-                      </span>
-                    ) : (
-                      `Contribute ${customAmount ? formatCurrency(Number(customAmount)) : ''}`
-                    )}
-                  </Button>
-
-                  <p className="text-xs text-muted text-center mt-3">
-                    Payments are processed securely via Razorpay
-                  </p>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

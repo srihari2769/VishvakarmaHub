@@ -6,8 +6,6 @@ import { Button } from '@/components/ui';
 import {
   LightBulbIcon,
   CpuChipIcon,
-  RocketLaunchIcon,
-  CurrencyRupeeIcon,
   CheckBadgeIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
@@ -17,20 +15,20 @@ const STEPS = [
     icon: LightBulbIcon,
     title: 'Submit Your Idea',
     description:
-      'Share your innovative startup idea with the community. Fill out our guided submission form covering your problem statement, solution, target audience, and funding goals.',
+      'Share your innovative startup idea with the community. Fill out our guided submission form covering your problem statement, solution, target audience, and vision.',
     details: [
       'Describe the problem you\'re solving',
       'Explain your innovative solution',
       'Define your target market',
-      'Set your funding campaign',
+      'Upload pitch deck and documents',
     ],
     color: 'from-blue to-cyan',
   },
   {
     icon: CpuChipIcon,
-    title: 'Manual Evaluation',
+    title: 'Expert Evaluation',
     description:
-      'Our expert team evaluates your idea across innovation score, market potential, execution risk, and startup potential to give supporters confidence in backing your project.',
+      'Our expert team evaluates your idea across innovation score, market potential, execution risk, and startup potential to ensure quality and viability.',
     details: [
       'Innovation scoring review',
       'Market potential assessment',
@@ -41,9 +39,9 @@ const STEPS = [
   },
   {
     icon: CheckBadgeIcon,
-    title: 'Community Review',
+    title: 'Approval & Listing',
     description:
-      'Your startup is reviewed by our admin team and the community. Approved campaigns go live where supporters can discover and evaluate your idea.',
+      'Your startup is reviewed by our admin team. Approved startups go live on the platform where the community can discover and evaluate your idea.',
     details: [
       'Admin moderation and approval',
       'Community feedback and comments',
@@ -53,40 +51,14 @@ const STEPS = [
     color: 'from-emerald-500 to-teal-500',
   },
   {
-    icon: RocketLaunchIcon,
-    title: 'Launch Campaign',
-    description:
-      'Once approved, your startup campaign goes live. Set reward tiers, share updates, and engage with your supporters as you build towards your funding goal.',
-    details: [
-      'Customizable reward tiers',
-      'Campaign update posts',
-      'Supporter engagement tools',
-      'Milestone tracking',
-    ],
-    color: 'from-orange to-amber-500',
-  },
-  {
-    icon: CurrencyRupeeIcon,
-    title: 'Receive Funding',
-    description:
-      'Supporters contribute through secure payment gateways. Track your funding progress in real-time and celebrate milestones with your community.',
-    details: [
-      'Razorpay & Stripe integration',
-      'Real-time funding tracker',
-      'UPI, cards, and net banking',
-      'Transparent fund disbursement',
-    ],
-    color: 'from-blue to-purple',
-  },
-  {
     icon: ChartBarIcon,
     title: 'Grow & Scale',
     description:
-      'Use your funding to build and scale your startup. Share progress updates, hit milestones, and keep your supporters engaged as you grow from idea to innovation.',
+      'Build and scale your startup with the right connections. Share progress updates, hit milestones, and grow from idea to innovation.',
     details: [
-      'Milestone-based fund release',
+      'Milestone tracking and updates',
       'Progress reporting tools',
-      'Community of supporters',
+      'Community engagement',
       'Mentorship opportunities',
     ],
     color: 'from-cyan to-blue',
@@ -107,7 +79,7 @@ export default function HowItWorksPage() {
             How <span className="gradient-text">Vishvakarma Hub</span> Works
           </h1>
           <p className="text-lg text-muted max-w-2xl mx-auto">
-            From submitting your idea to receiving funding — here&apos;s how our platform turns your innovation into reality.
+            From submitting your idea to scaling your startup — here&apos;s how our platform turns your innovation into reality.
           </p>
         </motion.div>
 

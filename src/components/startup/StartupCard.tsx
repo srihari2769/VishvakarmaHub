@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, ProgressBar, Badge } from '@/components/ui';
-import { formatCurrency, calculateProgress, calculateDaysLeft } from '@/lib/utils';
+import { Card, Badge } from '@/components/ui';
 
 interface StartupCardProps {
   startup: {
@@ -28,11 +27,6 @@ interface StartupCardProps {
 }
 
 export default function StartupCard({ startup }: StartupCardProps) {
-  const progress = startup.campaign
-    ? calculateProgress(startup.campaign.raisedAmount, startup.campaign.fundingGoal)
-    : 0;
-  const daysLeft = startup.campaign ? calculateDaysLeft(new Date(startup.campaign.endDate)) : 0;
-
   return (
     <Link href={`/startup/${startup.slug}`}>
       <Card hover glow className="h-full">
@@ -61,20 +55,7 @@ export default function StartupCard({ startup }: StartupCardProps) {
             <Badge variant="default">{startup.productStage}</Badge>
           </div>
 
-          {startup.campaign && (
-            <>
-              <ProgressBar progress={progress} className="mb-3" />
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-foreground font-medium">
-                  {formatCurrency(startup.campaign.raisedAmount)}
-                </span>
-                <span className="text-muted">
-                  {startup.campaign.supporterCount} supporters
-                </span>
-                <span className="text-muted">{daysLeft} days left</span>
-              </div>
-            </>
-          )}
+
         </div>
       </Card>
     </Link>

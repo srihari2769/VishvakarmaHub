@@ -275,7 +275,7 @@ export default function StartupDashboardPage() {
   }
 
   const totalRaised = startups.reduce((sum, s) => sum + (s.campaign?.raisedAmount || 0), 0);
-  const totalSupporters = startups.reduce((sum, s) => sum + (s.campaign?.supporterCount || 0), 0);
+  const totalCommunity = startups.reduce((sum, s) => sum + (s.campaign?.supporterCount || 0), 0);
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -288,7 +288,7 @@ export default function StartupDashboardPage() {
         >
           <div>
             <h1 className="text-2xl font-bold text-foreground">Founder Dashboard</h1>
-            <p className="text-muted text-sm">Manage your startups and campaigns</p>
+            <p className="text-muted text-sm">Manage your startups</p>
           </div>
           <Link href="/submit-idea">
             <Button>
@@ -327,8 +327,8 @@ export default function StartupDashboardPage() {
                 <UserGroupIcon className="w-5 h-5 text-purple" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{totalSupporters}</p>
-                <p className="text-xs text-muted">Total Supporters</p>
+                <p className="text-2xl font-bold text-foreground">{totalCommunity}</p>
+                <p className="text-xs text-muted">Community Members</p>
               </div>
             </div>
           </Card>
@@ -454,28 +454,6 @@ export default function StartupDashboardPage() {
                         </Link>
                       </div>
                     </div>
-
-                    {startup.campaign && (
-                      <>
-                        <ProgressBar progress={progress} />
-                        <div className="grid grid-cols-3 gap-4 mt-4 text-center">
-                          <div>
-                            <p className="font-bold text-foreground">
-                              {formatCurrency(startup.campaign.raisedAmount)}
-                            </p>
-                            <p className="text-xs text-muted">Raised</p>
-                          </div>
-                          <div>
-                            <p className="font-bold text-foreground">{startup.campaign.supporterCount}</p>
-                            <p className="text-xs text-muted">Supporters</p>
-                          </div>
-                          <div>
-                            <p className="font-bold text-foreground">{daysLeft}</p>
-                            <p className="text-xs text-muted">Days Left</p>
-                          </div>
-                        </div>
-                      </>
-                    )}
                   </Card>
                 );
               })
@@ -588,12 +566,8 @@ export default function StartupDashboardPage() {
                 </div>
 
                 {/* Per-Startup Breakdown */}
-                <h3 className="text-lg font-semibold text-foreground">Campaign Breakdown</h3>
+                <h3 className="text-lg font-semibold text-foreground">Startup Overview</h3>
                 {startups.map((s) => {
-                  const progress = s.campaign
-                    ? calculateProgress(s.campaign.raisedAmount, s.campaign.fundingGoal)
-                    : 0;
-                  const daysLeft = s.campaign ? calculateDaysLeft(new Date(s.campaign.endDate)) : 0;
                   return (
                     <Card key={s.id} className="p-5">
                       <div className="flex items-center justify-between mb-3">
@@ -603,35 +577,9 @@ export default function StartupDashboardPage() {
                         </div>
                         <Badge variant={s.status === 'APPROVED' ? 'success' : 'warning'}>{s.status}</Badge>
                       </div>
-                      {s.campaign ? (
-                        <>
-                          <ProgressBar progress={progress} />
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-                            <div>
-                              <p className="text-xs text-muted">Raised</p>
-                              <p className="font-bold text-foreground">
-                                {formatCurrency(s.campaign.raisedAmount)}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted">Goal</p>
-                              <p className="font-bold text-foreground">
-                                {formatCurrency(s.campaign.fundingGoal)}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted">Supporters</p>
-                              <p className="font-bold text-foreground">{s.campaign.supporterCount}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted">Days Left</p>
-                              <p className="font-bold text-foreground">{daysLeft > 0 ? daysLeft : 'Ended'}</p>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-sm text-muted">No campaign created yet</p>
-                      )}
+                      <p className="text-sm text-muted">
+                        {s.status === 'APPROVED' ? 'Your startup is live and visible to the community.' : 'Your startup is under review.'}
+                      </p>
                     </Card>
                   );
                 })}

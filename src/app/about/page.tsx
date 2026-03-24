@@ -12,15 +12,15 @@ const team = [
 
 const values = [
   { title: 'Innovation First', description: 'We believe every idea deserves a chance to transform industries and improve lives.', icon: '💡' },
-  { title: 'Transparency', description: 'Open funding, clear milestones, and honest communication between founders and supporters.', icon: '🔍' },
-  { title: 'Community Driven', description: 'The public decides which innovations deserve support through democratic funding.', icon: '🌍' },
+  { title: 'Transparency', description: 'Open processes, clear milestones, and honest communication between founders and the community.', icon: '🔍' },
+  { title: 'Community Driven', description: 'The community helps shape which innovations gain visibility and momentum.', icon: '🌍' },
   { title: 'Security & Trust', description: 'Bank-grade security for payments and data protection for all platform users.', icon: '🛡️' },
 ];
 
 const milestones = [
-  { year: '2026', event: 'Vishvakarma Hub launches as India\'s premier innovation funding platform' },
+  { year: '2026', event: 'Vishvakarma Hub launches as India\'s premier startup innovation platform' },
   { year: '2026', event: 'First 100 startups onboarded across 40+ categories' },
-  { year: '2026', event: 'Public funding crosses ₹1 Crore milestone' },
+  { year: '2026', event: 'Platform community crosses 10,000 active members' },
   { year: '2027', event: 'Expansion to international markets planned' },
 ];
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Our Mission</h2>
             <p className="text-lg text-muted max-w-3xl mx-auto leading-relaxed">
               To democratize innovation by creating a transparent, secure platform where anyone with a
-              groundbreaking idea can launch a startup, and anyone who believes in that vision can fund it.
+              groundbreaking idea can launch a startup, and anyone who believes in that vision can help it grow.
               <span className="block mt-4 text-blue font-semibold text-xl">From Idea to Innovation.</span>
             </p>
           </Card>

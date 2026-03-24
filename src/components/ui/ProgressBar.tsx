@@ -18,7 +18,7 @@ export default function ProgressBar({ progress, className = '', showLabel = true
         />
       </div>
       {showLabel && (
-        <p className="text-xs text-muted mt-1">{clampedProgress}% funded</p>
+        <p className="text-xs text-muted mt-1">{clampedProgress}% complete</p>
       )}
     </div>
   );

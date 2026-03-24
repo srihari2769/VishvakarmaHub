@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Card, Badge, Button, ProgressBar } from '@/components/ui';
-import { formatCurrency, calculateProgress } from '@/lib/utils';
+import { Card, Badge, Button } from '@/components/ui';
+
 import {
   UserGroupIcon,
   MagnifyingGlassIcon,
@@ -174,9 +174,6 @@ export default function CoFoundersPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((startup, i) => {
-              const progress = startup.campaign
-                ? calculateProgress(startup.campaign.raisedAmount, startup.campaign.fundingGoal)
-                : 0;
               return (
                 <motion.div
                   key={startup.id}
@@ -256,17 +253,6 @@ export default function CoFoundersPage() {
                           ))}
                         </div>
                       </div>
-
-                      {/* Campaign Progress */}
-                      {startup.campaign && (
-                        <div className="mb-3">
-                          <ProgressBar progress={progress} />
-                          <div className="flex justify-between mt-2 text-xs text-muted">
-                            <span>{formatCurrency(startup.campaign.raisedAmount)} raised</span>
-                            <span>{startup.campaign.supporterCount} supporters</span>
-                          </div>
-                        </div>
-                      )}
 
                       {/* Apply Button */}
                       <div className="mt-auto pt-3">

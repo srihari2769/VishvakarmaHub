@@ -84,7 +84,7 @@ function ExploreContent() {
             Explore <span className="gradient-text">Startups</span>
           </h1>
           <p className="text-lg text-muted max-w-2xl mx-auto">
-            Discover innovative startups and support the ideas that matter to you.
+            Discover innovative startups and the ideas that matter to you.
           </p>
         </motion.div>
 
@@ -119,7 +119,7 @@ function ExploreContent() {
                 { value: 'newest', label: 'Newest First' },
                 { value: 'oldest', label: 'Oldest First' },
                 { value: 'popular', label: 'Most Popular' },
-                { value: 'funded', label: 'Most Funded' },
+                { value: 'popular', label: 'Most Popular' },
               ]}
             />
           </div>

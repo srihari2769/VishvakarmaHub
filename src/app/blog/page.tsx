@@ -6,16 +6,16 @@ import Link from 'next/link';
 
 const posts = [
   {
-    title: 'How Public Funding is Transforming Indian Startups',
-    excerpt: 'Discover how community-powered funding is enabling grassroots innovation across India, from tier-2 cities to rural areas.',
+    title: 'How Innovation Platforms are Transforming Indian Startups',
+    excerpt: 'Discover how community-powered platforms are enabling grassroots innovation across India, from tier-2 cities to rural areas.',
     date: 'Jan 15, 2025',
     category: 'Innovation',
     readTime: '5 min read',
     image: '🚀',
   },
   {
-    title: '10 Tips for a Successful Crowdfunding Campaign',
-    excerpt: 'Learn proven strategies from founders who raised over ₹1 crore on our platform. From storytelling to reward tiers.',
+    title: '10 Tips for Launching a Successful Startup',
+    excerpt: 'Learn proven strategies from founders who built thriving startups on our platform. From storytelling to building the right team.',
     date: 'Jan 10, 2025',
     category: 'Guides',
     readTime: '8 min read',
@@ -23,7 +23,7 @@ const posts = [
   },
   {
     title: 'AI and the Future of Innovation Platforms',
-    excerpt: 'How artificial intelligence is helping match innovators with the right supporters and mentors.',
+    excerpt: 'How artificial intelligence is helping match innovators with the right collaborators and mentors.',
     date: 'Jan 5, 2025',
     category: 'Technology',
     readTime: '6 min read',
@@ -38,8 +38,8 @@ const posts = [
     image: '🌍',
   },
   {
-    title: 'Building Trust in Online Funding: Our Approach',
-    excerpt: 'How Vishvakarma Hub ensures transparency, accountability, and trust between innovators and supporters.',
+    title: 'Building Trust in Innovation Platforms: Our Approach',
+    excerpt: 'How Vishvakarma Hub ensures transparency, accountability, and trust between innovators and the community.',
     date: 'Dec 20, 2024',
     category: 'Platform',
     readTime: '4 min read',
@@ -47,7 +47,7 @@ const posts = [
   },
   {
     title: 'From Idea to IPO: Success Stories of 2024',
-    excerpt: 'Celebrating the startups that went from a simple idea submission to raising institutional funding.',
+    excerpt: 'Celebrating the startups that went from a simple idea submission to raising institutional investment.',
     date: 'Dec 15, 2024',
     category: 'Success Stories',
     readTime: '10 min read',
@@ -68,7 +68,7 @@ export default function BlogPage() {
             The Innovation <span className="gradient-text">Blog</span>
           </h1>
           <p className="text-lg text-muted max-w-2xl mx-auto">
-            Stories, guides, and insights from the world of startup innovation and public funding.
+            Stories, guides, and insights from the world of startup innovation.
           </p>
         </motion.div>
 

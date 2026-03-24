@@ -11,7 +11,6 @@ import {
   RocketLaunchIcon,
   LightBulbIcon,
   UserGroupIcon,
-  CurrencyDollarIcon,
   ChartBarIcon,
   ShieldCheckIcon,
   ArrowRightIcon,
@@ -30,8 +29,8 @@ const staggerContainer = {
 const stats = [
   { label: 'Startups Launched', value: '500+', icon: RocketLaunchIcon },
   { label: 'Ideas Submitted', value: '2,000+', icon: LightBulbIcon },
-  { label: 'Active Supporters', value: '15,000+', icon: UserGroupIcon },
-  { label: 'Funds Raised', value: '₹10Cr+', icon: CurrencyDollarIcon },
+  { label: 'Active Community', value: '15,000+', icon: UserGroupIcon },
+  { label: 'Categories', value: '40+', icon: ChartBarIcon },
 ];
 
 const howItWorks = [
@@ -43,21 +42,21 @@ const howItWorks = [
   },
   {
     step: '02',
-    title: 'Manual Evaluation',
+    title: 'Expert Evaluation',
     description: 'Our expert team evaluates market potential, competition, feasibility, and innovation to give your idea a score.',
     icon: ChartBarIcon,
   },
   {
     step: '03',
-    title: 'Launch Campaign',
-    description: 'Create a funding campaign with reward tiers. Set your goal and timeline to bring your vision to life.',
-    icon: RocketLaunchIcon,
+    title: 'Approval & Listing',
+    description: 'Approved startups go live on the platform. Get discovered by the community, receive feedback, and build traction.',
+    icon: ShieldCheckIcon,
   },
   {
     step: '04',
-    title: 'Get Funded',
-    description: 'The public supports your startup through contributions. Track progress, hit milestones, and grow.',
-    icon: CurrencyDollarIcon,
+    title: 'Grow & Scale',
+    description: 'Build your startup with the right connections. Track milestones, share progress, and grow from idea to innovation.',
+    icon: RocketLaunchIcon,
   },
 ];
 
@@ -91,8 +90,8 @@ export default function HomePage() {
             </h1>
 
             <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
-              A platform where innovators submit ideas, teams form, the public supports
-              projects, and startups are launched into the world.
+              A platform where innovators submit ideas, startups are evaluated,
+              and the best innovations are launched into the world.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -144,7 +143,7 @@ export default function HomePage() {
               How It <span className="gradient-text">Works</span>
             </h2>
             <p className="text-lg text-muted max-w-2xl mx-auto">
-              From a spark of an idea to a funded startup — here&apos;s your journey on Vishvakarma Hub.
+              From a spark of an idea to a thriving startup — here&apos;s your journey on Vishvakarma Hub.
             </p>
           </motion.div>
 
@@ -265,12 +264,12 @@ export default function HomePage() {
               {
                 icon: UserGroupIcon,
                 title: 'Vibrant Community',
-                description: 'Connect with innovators, investors, mentors, and supporters building the next big thing.',
+                description: 'Connect with innovators, investors, mentors, and collaborators building the next big thing.',
               },
               {
                 icon: RocketLaunchIcon,
                 title: 'Launch & Scale',
-                description: 'From idea submission to funded startup — we provide the tools and community to help you scale.',
+                description: 'From idea submission to a thriving startup — we provide the tools and community to help you scale.',
               },
             ].map((feature, index) => (
               <motion.div
@@ -308,7 +307,7 @@ export default function HomePage() {
               Ready to Build the <span className="gradient-text">Future?</span>
             </h2>
             <p className="text-lg text-muted max-w-2xl mx-auto mb-10">
-              Whether you&apos;re an innovator with a breakthrough idea or a supporter looking to back the next big thing — Vishvakarma Hub is where it begins.
+              Whether you&apos;re an innovator with a breakthrough idea or looking to discover the next big thing — Vishvakarma Hub is where it begins.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/signup">

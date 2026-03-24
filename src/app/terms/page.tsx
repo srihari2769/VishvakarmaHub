@@ -18,7 +18,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">2. Description of Service</h2>
-              <p>Vishvakarma Hub is a startup creation and public funding platform that enables innovators to submit ideas, create campaigns, and receive contributions from the public. The Platform facilitates connections between founders and supporters but does not guarantee funding outcomes.</p>
+              <p>Vishvakarma Hub is a startup creation and innovation platform that enables innovators to submit ideas, get expert evaluation, and grow their ventures. The Platform facilitates connections between founders, mentors, and collaborators but does not guarantee business outcomes.</p>
             </section>
 
             <section>
@@ -33,31 +33,30 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">4. Startup Campaigns</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">4. Startup Listings</h2>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Campaign creators must provide truthful and accurate information about their startup</li>
-                <li>All submitted ideas and campaigns are subject to review and approval</li>
-                <li>Campaign creators are legally obligated to fulfill promises made to supporters</li>
-                <li>The Platform reserves the right to remove campaigns that violate our guidelines</li>
-                <li>Campaign creators must provide regular updates on project progress</li>
+                <li>Startup founders must provide truthful and accurate information about their startup</li>
+                <li>All submitted ideas and listings are subject to review and approval</li>
+                <li>Founders are responsible for the accuracy of information presented on their listing</li>
+                <li>The Platform reserves the right to remove listings that violate our guidelines</li>
+                <li>Founders must provide regular updates on project progress</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">5. Contributions</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">5. Platform Usage</h2>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Contributions are voluntary payments to support startup campaigns</li>
-                <li>Contributors understand that startup ventures carry inherent risks</li>
-                <li>Contributions are not investments and do not confer equity or ownership</li>
-                <li>Refund eligibility is governed by our Refund Policy</li>
-                <li>The Platform is not responsible for the success or failure of funded campaigns</li>
+                <li>Users understand that startup ventures carry inherent risks</li>
+                <li>The Platform provides a space for startups to gain visibility and connect with the ecosystem</li>
+                <li>The Platform is not responsible for the success or failure of any listed startup</li>
+                <li>Users must comply with all applicable laws while using the Platform</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">6. Prohibited Activities</h2>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Submitting fraudulent campaigns or false information</li>
+                <li>Submitting fraudulent listings or false information</li>
                 <li>Using the Platform for money laundering or illegal activities</li>
                 <li>Harassing, threatening, or intimidating other users</li>
                 <li>Attempting to circumvent platform fees or payment systems</li>
@@ -69,12 +68,12 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">7. Intellectual Property</h2>
-              <p>Campaign creators retain ownership of their intellectual property. By submitting content to the Platform, you grant Vishvakarma Hub a non-exclusive, worldwide license to display and promote your campaign on our platform and affiliated channels.</p>
+              <p>Startup founders retain ownership of their intellectual property. By submitting content to the Platform, you grant Vishvakarma Hub a non-exclusive, worldwide license to display and promote your startup on our platform and affiliated channels.</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">8. Platform Fees</h2>
-              <p>Vishvakarma Hub charges a platform fee on successfully funded campaigns. Fee structures are disclosed during campaign creation. Payment processing fees from third-party providers (Razorpay, Stripe) are additional.</p>
+              <p>Vishvakarma Hub may charge platform fees for premium services and features. Fee structures are disclosed before use. Payment processing fees from third-party providers may apply.</p>
             </section>
 
             <section>
@@ -84,7 +83,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">10. Termination</h2>
-              <p>We may suspend or terminate your account at our discretion if you violate these terms. You may delete your account at any time. Upon termination, your obligation to fulfill funded campaigns remains in effect.</p>
+              <p>We may suspend or terminate your account at our discretion if you violate these terms. You may delete your account at any time, subject to any outstanding obligations on the Platform.</p>
             </section>
 
             <section>

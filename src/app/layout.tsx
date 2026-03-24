@@ -19,19 +19,18 @@ export const metadata: Metadata = {
     template: "%s | Vishvakarma Hub",
   },
   description:
-    "A platform where innovators submit ideas, teams form, the public supports projects, and startups are launched.",
+    "A platform where innovators submit ideas, teams form, startups grow, and innovation thrives.",
   keywords: [
     "startup",
     "innovation",
-    "funding",
-    "crowdfunding",
     "ideas",
     "entrepreneurship",
+    "startup platform",
   ],
   openGraph: {
     title: "Vishvakarma Hub - From Idea to Innovation",
     description:
-      "A platform where innovators submit ideas, teams form, the public supports projects, and startups are launched.",
+      "A platform where innovators submit ideas, teams form, startups grow, and innovation thrives.",
     type: "website",
     url: "https://www.vishvakarmahub.com",
     locale: "en_IN",

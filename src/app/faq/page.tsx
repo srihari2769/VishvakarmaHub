@@ -10,15 +10,15 @@ const faqs = [
     questions: [
       {
         q: 'What is Vishvakarma Hub?',
-        a: 'Vishvakarma Hub is a startup creation and public funding platform that connects innovators with supporters. It enables anyone to submit startup ideas, launch funding campaigns, and receive contributions from the public.',
+        a: 'Vishvakarma Hub is a startup creation and innovation platform that connects innovators with experts, mentors, and collaborators. It enables anyone to submit startup ideas, get expert evaluation, and grow their venture.',
       },
       {
-        q: 'How does public funding work?',
-        a: 'Founders create campaigns with funding goals and reward tiers. Supporters browse startups and contribute funds. If a campaign reaches its goal, the full funds are released to the founder. Even if a campaign does not reach its full goal, the partial funds raised are still provided to the founder to continue development.',
+        q: 'How does the platform work?',
+        a: 'Innovators submit their startup ideas through our platform. Each idea undergoes expert evaluation. Approved startups get listed on the platform where they gain visibility, connect with co-founders, and access resources to grow.',
       },
       {
         q: 'Is Vishvakarma Hub free to use?',
-        a: 'Creating an account and browsing startups is completely free. We charge a small platform fee (5%) only on successfully funded campaigns.',
+        a: 'Creating an account and browsing startups is completely free. Premium features and services may have associated fees.',
       },
     ],
   },
@@ -30,33 +30,12 @@ const faqs = [
         a: 'Sign up for an account, then navigate to "Submit Idea" from the navigation menu. Fill out the form with your idea details, category, and any supporting documents.',
       },
       {
-        q: 'How do I create a funding campaign?',
-        a: 'After your idea is approved, you can create a campaign by setting a funding goal, deadline, description, and reward tiers for supporters.',
-      },
-      {
-        q: 'When do I receive the funds?',
-        a: 'Funds are released within 7-10 business days after a campaign successfully reaches its funding goal and the deadline passes.',
+        q: 'What happens after I submit my idea?',
+        a: 'Your idea goes through an expert evaluation process. Our team reviews it for viability, innovation, and market potential. You will be notified once the review is complete.',
       },
       {
         q: 'What documents do I need to submit?',
-        a: 'You will need to submit identity verification, a pitch deck or business plan, and any relevant prototypes or demos. Specific requirements vary by campaign size.',
-      },
-    ],
-  },
-  {
-    category: 'For Supporters',
-    questions: [
-      {
-        q: 'Is my contribution safe?',
-        a: 'All payments are processed securely through Razorpay and Stripe. We never store your payment card details on our servers.',
-      },
-      {
-        q: 'Can I get a refund?',
-        a: 'Yes, refunds are provided if a campaign is cancelled, or is found to be fraudulent. If a campaign does not reach its funding goal, the partial funds are released to the founder and are not refunded. See our Refund Policy for details.',
-      },
-      {
-        q: 'Do I get equity for my contribution?',
-        a: 'No. Contributions are support-based, similar to crowdfunding. You may receive rewards set by the campaign creator, but contributions do not confer equity or ownership.',
+        a: 'You will need to submit identity verification, a pitch deck or business plan, and any relevant prototypes or demos. Specific requirements vary by startup category.',
       },
     ],
   },
@@ -73,7 +52,7 @@ const faqs = [
       },
       {
         q: 'Can I delete my account?',
-        a: 'Yes. Contact contact@trinetrashaktiinnovations.com to request account deletion. Note that active campaign obligations must be fulfilled before deletion.',
+        a: 'Yes. Contact contact@trinetrashaktiinnovations.com to request account deletion.',
       },
     ],
   },

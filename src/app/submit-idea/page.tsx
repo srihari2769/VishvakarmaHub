@@ -12,7 +12,6 @@ import {
   BeakerIcon,
   RocketLaunchIcon,
   PhotoIcon,
-  CurrencyRupeeIcon,
   CheckIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -24,7 +23,6 @@ const STEPS = [
   { label: 'Solution', icon: BeakerIcon },
   { label: 'Product Stage', icon: RocketLaunchIcon },
   { label: 'Media', icon: PhotoIcon },
-  { label: 'Funding', icon: CurrencyRupeeIcon },
 ];
 
 const PRODUCT_STAGES = [
@@ -157,11 +155,7 @@ export default function SubmitIdeaPage() {
       case 3:
         if (!form.productStage) newErrors.productStage = 'Select a product stage';
         break;
-      case 5:
-        if (!form.fundingGoal || Number(form.fundingGoal) < 10000)
-          newErrors.fundingGoal = 'Minimum funding goal is ₹10,000';
-        if (!form.endDate) newErrors.endDate = 'End date is required';
-        break;
+
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -444,7 +438,7 @@ export default function SubmitIdeaPage() {
                   />
                   <div className="p-4 bg-blue/5 border border-blue/10 rounded-xl">
                     <p className="text-sm text-muted">
-                      Your product stage helps supporters understand where you are in development.
+                      Your product stage helps the community understand where you are in development.
                       Be honest — this builds trust with your community.
                     </p>
                   </div>
@@ -545,84 +539,6 @@ export default function SubmitIdeaPage() {
                 </div>
               )}
 
-              {/* Step 5: Funding */}
-              {step === 5 && (
-                <div className="space-y-6">
-                  <h2 className="text-xl font-semibold text-foreground mb-4">Set your funding goal</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="Funding Goal (₹)"
-                      type="number"
-                      value={form.fundingGoal}
-                      onChange={(e) => updateField('fundingGoal', e.target.value)}
-                      error={errors.fundingGoal}
-                      placeholder="100000"
-                    />
-                    <Input
-                      label="Campaign End Date"
-                      type="date"
-                      value={form.endDate}
-                      onChange={(e) => updateField('endDate', e.target.value)}
-                      error={errors.endDate}
-                    />
-                  </div>
-
-                  {/* Reward Tiers */}
-                  <div>
-                    <h3 className="font-medium text-foreground mb-3">Reward Tiers</h3>
-                    {form.rewardTiers.map((tier, idx) => (
-                      <div key={idx} className="border border-border rounded-xl p-4 mb-3">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-sm font-medium text-muted">Tier {idx + 1}</span>
-                          {idx > 0 && (
-                            <button
-                              onClick={() => removeRewardTier(idx)}
-                              className="text-xs text-red-400 hover:text-red-300"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 mb-2">
-                          <Input
-                            label="Tier Name"
-                            value={tier.name}
-                            onChange={(e) => updateRewardTier(idx, 'name', e.target.value)}
-                            placeholder="e.g., Early Bird"
-                          />
-                          <Input
-                            label="Amount (₹)"
-                            type="number"
-                            value={tier.amount}
-                            onChange={(e) => updateRewardTier(idx, 'amount', e.target.value)}
-                            placeholder="500"
-                          />
-                        </div>
-                        <Input
-                          label="Description"
-                          value={tier.description}
-                          onChange={(e) => updateRewardTier(idx, 'description', e.target.value)}
-                          placeholder="What supporters get at this tier"
-                        />
-                        <Input
-                          label="Max Claims (optional)"
-                          type="number"
-                          value={tier.maxClaims}
-                          onChange={(e) => updateRewardTier(idx, 'maxClaims', e.target.value)}
-                          placeholder="Leave empty for unlimited"
-                          className="mt-2"
-                        />
-                      </div>
-                    ))}
-                    <button
-                      onClick={addRewardTier}
-                      className="text-sm text-blue hover:text-blue/80 font-medium"
-                    >
-                      + Add Another Tier
-                    </button>
-                  </div>
-                </div>
-              )}
             </Card>
           </motion.div>
         </AnimatePresence>

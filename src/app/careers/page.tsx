@@ -9,21 +9,21 @@ const openings = [
     department: 'Engineering',
     location: 'Hyderabad / Remote',
     type: 'Full-time',
-    description: 'Build and scale our platform using Next.js, Node.js, and PostgreSQL. Work on real-time funding systems and startup management tools.',
+    description: 'Build and scale our platform using Next.js, Node.js, and PostgreSQL. Work on startup evaluation systems and management tools.',
   },
   {
     title: 'UI/UX Designer',
     department: 'Design',
     location: 'Hyderabad / Remote',
     type: 'Full-time',
-    description: 'Design intuitive user experiences for innovators, founders, and supporters. Create design systems and prototypes for new features.',
+    description: 'Design intuitive user experiences for innovators and founders. Create design systems and prototypes for new features.',
   },
   {
     title: 'Community Manager',
     department: 'Growth',
     location: 'Remote',
     type: 'Full-time',
-    description: 'Build and nurture our community of innovators and supporters. Manage social media, events, and founder success programs.',
+    description: 'Build and nurture our community of innovators and collaborators. Manage social media, events, and founder success programs.',
   },
   {
     title: 'DevOps Engineer',
@@ -70,7 +70,7 @@ export default function CareersPage() {
             Join the <span className="gradient-text">Mission</span>
           </h1>
           <p className="text-lg text-muted max-w-2xl mx-auto">
-            Help us build the future of innovation funding. We&apos;re looking for passionate people
+            Help us build the future of innovation. We&apos;re looking for passionate people
             who want to make a difference.
           </p>
         </motion.div>
