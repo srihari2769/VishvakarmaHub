@@ -18,6 +18,8 @@ const footerLinks = {
     { href: '/privacy', label: 'Privacy Policy' },
     { href: '/terms', label: 'Terms of Service' },
     { href: '/refund', label: 'Refund Policy' },
+    { href: '/competition/terms-and-conditions', label: 'Competition T&C' },
+    { href: '/competition/refund-policy', label: 'Competition Refund' },
   ],
   support: [
     { href: '/faq', label: 'FAQ' },
@@ -42,6 +44,12 @@ export default function Footer() {
             <p className="text-sm text-muted leading-relaxed">
               From Idea to Innovation. A platform where innovators submit ideas, teams form, and startups launch.
             </p>
+            <div className="mt-4 space-y-1.5 text-xs text-muted">
+              <p className="font-semibold text-foreground/80">Trinetrashakti Innovations Pvt Ltd</p>
+              <p>Tirupati, Andhra Pradesh, India</p>
+              <p>Email: <a href="mailto:support@vishvakarmahub.com" className="hover:text-foreground transition-colors">support@vishvakarmahub.com</a></p>
+              <p>Phone: <a href="tel:+919876543210" className="hover:text-foreground transition-colors">+91 98765 43210</a></p>
+            </div>
           </div>
 
           {/* Links */}
