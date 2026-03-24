@@ -68,7 +68,7 @@ export default function RefundPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">7. Dispute Resolution</h2>
-              <p>If you are dissatisfied with a funded campaign&apos;s progress, we encourage you to first communicate with the campaign creator through the platform. If the issue is not resolved, you may file a formal dispute with our support team at support@vishvakarmahub.com.</p>
+              <p>If you are dissatisfied with a funded campaign&apos;s progress, we encourage you to first communicate with the campaign creator through the platform. If the issue is not resolved, you may file a formal dispute with our support team at contact@trinetrashaktiinnovations.com.</p>
             </section>
 
             <section>

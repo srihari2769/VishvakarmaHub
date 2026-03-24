@@ -61,7 +61,7 @@ export default function CompetitionRefundPolicyPage() {
               <h2 className="text-xl font-semibold text-foreground mb-3">5. Refund Process (For Exceptional Cases Only)</h2>
               <p className="mb-2">If you believe you qualify for a refund under Section 4:</p>
               <ol className="list-decimal pl-6 space-y-2">
-                <li>Email <a href="mailto:support@vishvakarmahub.com" className="text-amber-500 hover:underline">support@vishvakarmahub.com</a> with subject line: <strong className="text-foreground">&quot;Competition Refund Request — [Your Registration ID]&quot;</strong></li>
+                <li>Email <a href="mailto:contact@trinetrashaktiinnovations.com" className="text-amber-500 hover:underline">contact@trinetrashaktiinnovations.com</a> with subject line: <strong className="text-foreground">&quot;Competition Refund Request — [Your Registration ID]&quot;</strong></li>
                 <li>Include: your full name, registered email, phone number, payment receipt/transaction ID, and a detailed explanation of your request.</li>
                 <li>Our team will review your request within <strong className="text-foreground">5–7 business days</strong>.</li>
                 <li>If approved, the refund will be credited to the original payment method within <strong className="text-foreground">10–15 business days</strong>.</li>
@@ -89,7 +89,7 @@ export default function CompetitionRefundPolicyPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">9. Governing Law</h2>
-              <p>This Refund Policy shall be governed by and construed in accordance with the laws of India. Any disputes arising from refund claims shall be subject to the exclusive jurisdiction of the courts in <strong className="text-foreground">Tirupati, Andhra Pradesh, India</strong>.</p>
+              <p>This Refund Policy shall be governed by and construed in accordance with the laws of India. Any disputes arising from refund claims shall be subject to the exclusive jurisdiction of the courts in <strong className="text-foreground">Vijayawada, Andhra Pradesh, India</strong>.</p>
             </section>
 
             <section>
@@ -97,9 +97,10 @@ export default function CompetitionRefundPolicyPage() {
               <p className="mb-2">For refund inquiries or payment-related issues:</p>
               <ul className="list-none space-y-1">
                 <li><strong className="text-foreground">Organization:</strong> Trinetrashakti Innovations Private Limited</li>
-                <li><strong className="text-foreground">Address:</strong> Tirupati, Andhra Pradesh, India</li>
-                <li><strong className="text-foreground">Email:</strong> <a href="mailto:support@vishvakarmahub.com" className="text-amber-500 hover:underline">support@vishvakarmahub.com</a></li>
-                <li><strong className="text-foreground">Phone:</strong> <a href="tel:+919876543210" className="text-amber-500 hover:underline">+91 98765 43210</a></li>
+                <li><strong className="text-foreground">Registered Office:</strong> 36-14-3/2, 4th Floor, HQ Vijayawada, Bricks &amp; Palms, Shanti Nagar, Labbipet, Vijayawada – 520010, Andhra Pradesh</li>
+                <li><strong className="text-foreground">Operational Office:</strong> Tirupati, Andhra Pradesh</li>
+                <li><strong className="text-foreground">Email:</strong> <a href="mailto:contact@trinetrashaktiinnovations.com" className="text-amber-500 hover:underline">contact@trinetrashaktiinnovations.com</a></li>
+                <li><strong className="text-foreground">Phone:</strong> <a href="tel:+919032981675" className="text-amber-500 hover:underline">+91 90329 81675</a></li>
               </ul>
             </section>
 

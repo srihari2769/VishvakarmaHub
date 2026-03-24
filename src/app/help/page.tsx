@@ -62,7 +62,7 @@ const helpTopics = [
     links: [
       { label: 'Contact us', href: '/contact' },
       { label: 'Report an issue', href: '/contact' },
-      { label: 'Send email', href: 'mailto:support@vishvakarmahub.com' },
+      { label: 'Send email', href: 'mailto:contact@trinetrashaktiinnovations.com' },
     ],
   },
 ];
@@ -125,8 +125,8 @@ export default function HelpPage() {
               Our support team is available Monday to Friday, 9 AM – 6 PM IST.
             </p>
             <p className="text-muted">
-              Email us at <span className="text-blue">support@vishvakarmahub.com</span> or call{' '}
-              <span className="text-blue">+91 40 1234 5678</span>
+              Email us at <span className="text-blue">contact@trinetrashaktiinnovations.com</span> or call{' '}
+              <span className="text-blue">+91 90329 81675</span>
             </p>
           </Card>
         </motion.div>

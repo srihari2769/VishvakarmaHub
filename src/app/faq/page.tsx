@@ -73,7 +73,7 @@ const faqs = [
       },
       {
         q: 'Can I delete my account?',
-        a: 'Yes. Contact support@vishvakarmahub.com to request account deletion. Note that active campaign obligations must be fulfilled before deletion.',
+        a: 'Yes. Contact contact@trinetrashaktiinnovations.com to request account deletion. Note that active campaign obligations must be fulfilled before deletion.',
       },
     ],
   },
@@ -143,7 +143,7 @@ export default function FAQPage() {
         <div className="text-center mt-12">
           <p className="text-muted">
             Still have questions? Contact us at{' '}
-            <span className="text-blue">support@vishvakarmahub.com</span>
+            <span className="text-blue">contact@trinetrashaktiinnovations.com</span>
           </p>
         </div>
       </div>

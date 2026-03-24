@@ -33,9 +33,9 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { label: 'Email', value: 'support@vishvakarmahub.com', icon: '📧' },
-    { label: 'Phone', value: '+91 98765 43210', icon: '📞' },
-    { label: 'Location', value: 'Hyderabad, Telangana, India', icon: '📍' },
+    { label: 'Email', value: 'contact@trinetrashaktiinnovations.com', icon: '📧' },
+    { label: 'Phone', value: '+91 90329 81675', icon: '📞' },
+    { label: 'Location', value: 'Vijayawada, Andhra Pradesh, India', icon: '📍' },
     { label: 'Hours', value: 'Mon - Fri, 9 AM - 6 PM IST', icon: '🕐' },
   ];
 

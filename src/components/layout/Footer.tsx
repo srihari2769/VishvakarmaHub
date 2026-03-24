@@ -46,9 +46,11 @@ export default function Footer() {
             </p>
             <div className="mt-4 space-y-1.5 text-xs text-muted">
               <p className="font-semibold text-foreground/80">Trinetrashakti Innovations Pvt Ltd</p>
-              <p>Tirupati, Andhra Pradesh, India</p>
-              <p>Email: <a href="mailto:support@vishvakarmahub.com" className="hover:text-foreground transition-colors">support@vishvakarmahub.com</a></p>
-              <p>Phone: <a href="tel:+919876543210" className="hover:text-foreground transition-colors">+91 98765 43210</a></p>
+              <p>36-14-3/2, 4th Floor, HQ Vijayawada,</p>
+              <p>Bricks &amp; Palms, Shanti Nagar, Labbipet,</p>
+              <p>Vijayawada – 520010, Andhra Pradesh</p>
+              <p className="mt-1">Email: <a href="mailto:contact@trinetrashaktiinnovations.com" className="hover:text-foreground transition-colors">contact@trinetrashaktiinnovations.com</a></p>
+              <p>Phone: <a href="tel:+919032981675" className="hover:text-foreground transition-colors">+91 90329 81675</a></p>
             </div>
           </div>
 

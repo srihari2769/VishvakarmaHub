@@ -17,9 +17,10 @@ export default function CompetitionTermsPage() {
               <h2 className="text-xl font-semibold text-foreground mb-3">1. Organizer</h2>
               <p>The Vishvakarma Innovation Challenge 2026 (&quot;the Competition&quot;) is organized and conducted by <strong className="text-foreground">Trinetrashakti Innovations Private Limited</strong>, a company incorporated under the Companies Act, 2013, and recognized under the Startup India initiative of the Government of India.</p>
               <ul className="list-disc pl-6 space-y-1 mt-2">
-                <li><strong className="text-foreground">Registered Office:</strong> Tirupati, Andhra Pradesh, India</li>
-                <li><strong className="text-foreground">Email:</strong> support@vishvakarmahub.com</li>
-                <li><strong className="text-foreground">Phone:</strong> +91 98765 43210</li>
+                <li><strong className="text-foreground">Registered Office:</strong> 36-14-3/2, 4th Floor, HQ Vijayawada, Bricks &amp; Palms, Shanti Nagar, Labbipet, Vijayawada – 520010, Andhra Pradesh</li>
+                <li><strong className="text-foreground">Operational Office:</strong> Tirupati, Andhra Pradesh</li>
+                <li><strong className="text-foreground">Email:</strong> contact@trinetrashaktiinnovations.com</li>
+                <li><strong className="text-foreground">Phone:</strong> +91 90329 81675</li>
                 <li><strong className="text-foreground">Website:</strong> <Link href="https://www.vishvakarmahub.com" className="text-amber-500 hover:underline">www.vishvakarmahub.com</Link></li>
               </ul>
             </section>
@@ -45,7 +46,7 @@ export default function CompetitionTermsPage() {
               <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
                 <p className="text-red-400 font-semibold text-sm">⚠️ All registration fees are non-refundable. By completing payment, you acknowledge and agree that no refunds will be issued under any circumstances.</p>
               </div>
-              <p className="mt-2">Registration is confirmed only upon successful payment via Razorpay. A confirmation email with your registration ID and competition details will be sent to your registered email address.</p>
+              <p className="mt-2">Registration is confirmed only upon successful payment via Razorpay. A confirmation of your registration and competition details will be available in your dashboard.</p>
             </section>
 
             <section>
@@ -161,7 +162,7 @@ export default function CompetitionTermsPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">15. Governing Law &amp; Jurisdiction</h2>
-              <p>These Terms &amp; Conditions shall be governed by and construed in accordance with the laws of India. Any disputes arising out of or in connection with the Competition shall be subject to the exclusive jurisdiction of the courts in <strong className="text-foreground">Tirupati, Andhra Pradesh, India</strong>.</p>
+              <p>These Terms &amp; Conditions shall be governed by and construed in accordance with the laws of India. Any disputes arising out of or in connection with the Competition shall be subject to the exclusive jurisdiction of the courts in <strong className="text-foreground">Vijayawada, Andhra Pradesh, India</strong>.</p>
             </section>
 
             <section>
@@ -169,9 +170,10 @@ export default function CompetitionTermsPage() {
               <p className="mb-2">For any questions or concerns regarding these Terms &amp; Conditions, please contact us:</p>
               <ul className="list-none space-y-1">
                 <li><strong className="text-foreground">Organization:</strong> Trinetrashakti Innovations Private Limited</li>
-                <li><strong className="text-foreground">Address:</strong> Tirupati, Andhra Pradesh, India</li>
-                <li><strong className="text-foreground">Email:</strong> <a href="mailto:support@vishvakarmahub.com" className="text-amber-500 hover:underline">support@vishvakarmahub.com</a></li>
-                <li><strong className="text-foreground">Phone:</strong> <a href="tel:+919876543210" className="text-amber-500 hover:underline">+91 98765 43210</a></li>
+                <li><strong className="text-foreground">Registered Office:</strong> 36-14-3/2, 4th Floor, HQ Vijayawada, Bricks &amp; Palms, Shanti Nagar, Labbipet, Vijayawada – 520010, Andhra Pradesh</li>
+                <li><strong className="text-foreground">Operational Office:</strong> Tirupati, Andhra Pradesh</li>
+                <li><strong className="text-foreground">Email:</strong> <a href="mailto:contact@trinetrashaktiinnovations.com" className="text-amber-500 hover:underline">contact@trinetrashaktiinnovations.com</a></li>
+                <li><strong className="text-foreground">Phone:</strong> <a href="tel:+919032981675" className="text-amber-500 hover:underline">+91 90329 81675</a></li>
                 <li><strong className="text-foreground">Website:</strong> <Link href="https://www.vishvakarmahub.com" className="text-amber-500 hover:underline">www.vishvakarmahub.com</Link></li>
               </ul>
             </section>
