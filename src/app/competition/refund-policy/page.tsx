@@ -10,7 +10,7 @@ export default function CompetitionRefundPolicyPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-sm text-amber-500 font-medium mb-1">Vishvakarma Innovation Challenge 2026</p>
           <h1 className="text-4xl font-bold text-foreground mb-2">Refund Policy</h1>
-          <p className="text-muted mb-8">Last updated: March 24, 2026</p>
+          <p className="text-muted mb-8">Last updated: March 25, 2026</p>
 
           <div className="prose-custom space-y-8 text-muted">
             <section>

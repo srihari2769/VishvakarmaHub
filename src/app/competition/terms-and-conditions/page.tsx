@@ -10,7 +10,7 @@ export default function CompetitionTermsPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-sm text-amber-500 font-medium mb-1">Vishvakarma Innovation Challenge 2026</p>
           <h1 className="text-4xl font-bold text-foreground mb-2">Terms &amp; Conditions</h1>
-          <p className="text-muted mb-8">Last updated: March 24, 2026</p>
+          <p className="text-muted mb-8">Last updated: March 25, 2026</p>
 
           <div className="prose-custom space-y-8 text-muted">
             <section>
@@ -52,8 +52,8 @@ export default function CompetitionTermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">4. Competition Timeline</h2>
               <ul className="list-disc pl-6 space-y-1">
-                <li><strong className="text-foreground">Registration Period:</strong> March 23, 2026 – May 23, 2026</li>
-                <li><strong className="text-foreground">Idea Submission Deadline:</strong> May 23, 2026</li>
+                <li><strong className="text-foreground">Registration Period:</strong> March 25, 2026 – May 25, 2026</li>
+                <li><strong className="text-foreground">Idea Submission Deadline:</strong> May 25, 2026</li>
                 <li><strong className="text-foreground">AI + Expert Screening:</strong> By June 5, 2026</li>
                 <li><strong className="text-foreground">Public Voting Phase:</strong> June 5, 2026 – July 10, 2026</li>
                 <li><strong className="text-foreground">Grand Finals:</strong> July 23, 2026</li>
