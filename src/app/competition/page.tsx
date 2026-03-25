@@ -67,6 +67,7 @@ interface CompetitionData {
   founderFee: number;
   boothPrice: number;
   boothDescription: string | null;
+  manualRegistrations: number;
   registrationStart: string;
   registrationEnd: string;
   screeningEnd: string;
@@ -585,7 +586,7 @@ export default function CompetitionPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto">
             {[
-              { label: 'Registrations', value: competition?._count?.entries || 0, icon: RocketLaunchIcon, color: 'text-amber-400' },
+              { label: 'Registrations', value: (competition?._count?.entries || 0) + (competition?.manualRegistrations || 0), icon: RocketLaunchIcon, color: 'text-amber-400' },
               { label: 'Top Selected', value: pcn('topSelected', 200), icon: StarIcon, color: 'text-amber-300' },
               { label: 'Finalists', value: pcn('finalistCount', 20), icon: TrophyIcon, color: 'text-orange-400' },
               { label: 'Pitch Duration', value: pcs('pitchDuration', '5 min'), icon: ClockIcon, color: 'text-cyan-400' },

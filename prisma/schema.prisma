@@ -458,6 +458,9 @@ model Competition {
   boothPrice        Float             @default(5000)
   boothDescription  String?           @db.Text
 
+  // Manual registration count (added by admin to inflate display count)
+  manualRegistrations Int           @default(0)
+
   // Editable page content (JSON blob for all static text on the competition page)
   pageContent       Json?
 

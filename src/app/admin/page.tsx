@@ -127,6 +127,7 @@ interface CompetitionData {
   founderFee: number;
   boothPrice: number;
   boothDescription: string | null;
+  manualRegistrations: number;
   registrationStart: string;
   registrationEnd: string;
   screeningEnd: string;
@@ -1880,6 +1881,7 @@ export default function AdminPage() {
                             founderFee: competitionData.founderFee,
                             boothPrice: competitionData.boothPrice,
                             boothDescription: competitionData.boothDescription || '',
+                            manualRegistrations: competitionData.manualRegistrations || 0,
                             registrationStart: competitionData.registrationStart?.slice(0, 10) || '',
                             registrationEnd: competitionData.registrationEnd?.slice(0, 10) || '',
                             screeningEnd: competitionData.screeningEnd?.slice(0, 10) || '',
@@ -1936,6 +1938,11 @@ export default function AdminPage() {
                           <textarea rows={2} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.boothDescription || ''} onChange={(e) => setCompForm({ ...compForm, boothDescription: e.target.value })} />
                         </div>
                         <div>
+                          <label className="block text-xs text-muted mb-1">Manual Registrations Count</label>
+                          <input type="number" min="0" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.manualRegistrations ?? 0} onChange={(e) => setCompForm({ ...compForm, manualRegistrations: parseInt(e.target.value) || 0 })} />
+                          <p className="text-xs text-muted mt-1">Added to actual registration count on the public page</p>
+                        </div>
+                        <div>
                           <label className="block text-xs text-muted mb-1">Registration Start</label>
                           <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.registrationStart || ''} onChange={(e) => setCompForm({ ...compForm, registrationStart: e.target.value })} />
                         </div>
@@ -1981,6 +1988,10 @@ export default function AdminPage() {
                         <div className="md:col-span-2">
                           <span className="text-muted">Booth Description:</span>
                           <p className="text-foreground">{competitionData.boothDescription || '—'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Manual Registrations:</span>
+                          <p className="text-foreground font-medium">{competitionData.manualRegistrations || 0}</p>
                         </div>
                         <div>
                           <span className="text-muted">Registration:</span>
