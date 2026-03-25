@@ -436,6 +436,17 @@ export async function PATCH(request: NextRequest) {
         return successResponse(updatedParticipant);
       }
 
+      case 'update-participant-mode': {
+        const { participantId: modeId, participationMode: mode } = body;
+        if (!modeId || !mode) return errorResponse('Participant ID and mode required', 400);
+        if (!['IDEA_SUBMISSION', 'EVENT_ACCESS'].includes(mode)) return errorResponse('Invalid participation mode', 400);
+        const updatedMode = await prisma.competitionParticipant.update({
+          where: { id: modeId },
+          data: { participationMode: mode },
+        });
+        return successResponse(updatedMode);
+      }
+
       case 'delete-participant': {
         const { participantId: delPId } = body;
         if (!delPId) return errorResponse('Participant ID required', 400);

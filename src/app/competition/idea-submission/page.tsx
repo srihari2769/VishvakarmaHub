@@ -142,6 +142,11 @@ export default function IdeaSubmissionPage() {
           return;
         }
 
+        // If Idea Submission mode selected but no idea yet, go to step 1
+        if (p.participationMode === 'IDEA_SUBMISSION' && !p.ideaTitle) {
+          setStep(1);
+        }
+
         // If idea already submitted but not paid, pre-fill
         if (p.ideaTitle) {
           setExistingIdea(true);
@@ -769,7 +774,14 @@ export default function IdeaSubmissionPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end mt-8">
+                  <div className="flex justify-between mt-8">
+                    <button
+                      type="button"
+                      onClick={() => { setStep(0); setParticipationMode(''); }}
+                      className="text-sm text-muted hover:text-foreground transition-colors"
+                    >
+                      ← Change participation mode
+                    </button>
                     <Button onClick={() => goToStep(2)}>
                       Next: Team Details
                       <ArrowRightIcon className="w-4 h-4 ml-2 inline" />

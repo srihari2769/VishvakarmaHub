@@ -372,6 +372,21 @@ export default function AdminPage() {
     setParticipantStatusLoading(null);
   };
 
+  const updateParticipantMode = async (participantId: string, participationMode: string) => {
+    setParticipantStatusLoading(participantId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'update-participant-mode', participantId, participationMode }),
+      });
+      const data = await res.json();
+      if (data.success) fetchCompetitionEntries();
+    } catch {}
+    setParticipantStatusLoading(null);
+  };
+
   const deleteParticipant = async (participantId: string, name: string) => {
     if (!confirm(`Delete participant "${name}"? This cannot be undone.`)) return;
     setParticipantStatusLoading(participantId);
@@ -1724,6 +1739,15 @@ export default function AdminPage() {
                                     <option value="FINALIST">Finalist</option>
                                     <option value="WINNER">Winner</option>
                                     <option value="ELIMINATED">Eliminated</option>
+                                  </select>
+                                  <select
+                                    className={`text-xs border rounded px-2 py-1.5 ${p.participationMode === 'EVENT_ACCESS' ? 'bg-amber-400/10 border-amber-400/30 text-amber-400' : 'bg-purple/10 border-purple/30 text-purple'}`}
+                                    value={p.participationMode || 'IDEA_SUBMISSION'}
+                                    disabled={participantStatusLoading === p.id}
+                                    onChange={(e) => updateParticipantMode(p.id, e.target.value)}
+                                  >
+                                    <option value="IDEA_SUBMISSION">💡 Idea Submission</option>
+                                    <option value="EVENT_ACCESS">🎫 Event Access</option>
                                   </select>
                                 </div>
                               </div>
