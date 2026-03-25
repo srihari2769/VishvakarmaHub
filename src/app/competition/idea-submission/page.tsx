@@ -131,7 +131,7 @@ export default function IdeaSubmissionPage() {
         }
 
         // If participationMode already set, restore it
-        if (p.participationMode) {
+        if (p.participationMode && p.participationMode !== '') {
           setParticipationMode(p.participationMode);
         }
 
@@ -145,6 +145,15 @@ export default function IdeaSubmissionPage() {
         // If Idea Submission mode selected but no idea yet, go to step 1
         if (p.participationMode === 'IDEA_SUBMISSION' && !p.ideaTitle) {
           setStep(1);
+          setPageLoading(false);
+          return;
+        }
+
+        // No mode selected yet — stay on step 0 (default)
+        if (!p.participationMode || p.participationMode === '') {
+          setStep(0);
+          setPageLoading(false);
+          return;
         }
 
         // If idea already submitted but not paid, pre-fill
