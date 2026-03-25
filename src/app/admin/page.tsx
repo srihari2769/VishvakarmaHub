@@ -171,6 +171,7 @@ interface CompetitionParticipantItem {
   id: string;
   phone: string;
   participantType: string;
+  participationMode: string;
   college: string | null;
   company: string | null;
   designation: string | null;
@@ -389,7 +390,7 @@ export default function AdminPage() {
 
   const exportParticipantsCSV = () => {
     if (!competitionData?.participants?.length) return;
-    const headers = ['Name', 'Email', 'Phone', 'Type', 'College/Company', 'Designation', 'City', 'State', 'Team Name', 'Team Size', 'Team Members', 'Idea Title', 'Category', 'Idea Description', 'Problem Statement', 'Solution', 'Target Audience', 'Uniqueness', 'Product Stage', 'Pitch Deck', 'Demo Video', 'Total Fee', 'Payment Status', 'Razorpay Payment ID', 'Status', 'Registered On'];
+    const headers = ['Name', 'Email', 'Phone', 'Type', 'Participation Mode', 'College/Company', 'Designation', 'City', 'State', 'Team Name', 'Team Size', 'Team Members', 'Idea Title', 'Category', 'Idea Description', 'Problem Statement', 'Solution', 'Target Audience', 'Uniqueness', 'Product Stage', 'Pitch Deck', 'Demo Video', 'Total Fee', 'Payment Status', 'Razorpay Payment ID', 'Status', 'Registered On'];
     const escape = (val: string | null | undefined) => {
       if (!val) return '';
       const s = String(val).replace(/"/g, '""');
@@ -400,6 +401,7 @@ export default function AdminPage() {
       escape(p.user.email),
       escape(p.phone),
       escape(p.participantType),
+      escape(p.participationMode === 'EVENT_ACCESS' ? 'Event Access' : 'Idea Submission'),
       escape(p.participantType === 'STUDENT' ? p.college : p.company),
       escape(p.designation),
       escape(p.city),
@@ -1637,7 +1639,7 @@ export default function AdminPage() {
                     ) : (
                       <>
                         {/* Summary stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                           <Card className="p-3 text-center">
                             <p className="text-2xl font-bold text-foreground">{competitionData.participants.length}</p>
                             <p className="text-xs text-muted">Total</p>
@@ -1649,6 +1651,10 @@ export default function AdminPage() {
                           <Card className="p-3 text-center">
                             <p className="text-2xl font-bold text-blue">{competitionData.participants.filter((p) => p.ideaTitle).length}</p>
                             <p className="text-xs text-muted">Ideas Submitted</p>
+                          </Card>
+                          <Card className="p-3 text-center">
+                            <p className="text-2xl font-bold text-amber-400">{competitionData.participants.filter((p) => p.participationMode === 'EVENT_ACCESS').length}</p>
+                            <p className="text-xs text-muted">Event Access</p>
                           </Card>
                           <Card className="p-3 text-center">
                             <p className="text-2xl font-bold text-foreground">₹{competitionData.participants.filter((p) => p.paymentStatus === 'PAID').reduce((sum, p) => sum + (p.totalFee || 0), 0).toLocaleString()}</p>
@@ -1677,6 +1683,7 @@ export default function AdminPage() {
                                     {p.participantType === 'STUDENT' ? `Student — ${p.college}` : `Professional${p.company ? ` — ${p.company}` : ''}`}
                                     {p.designation && ` · ${p.designation}`}
                                     {' '}&middot; {p.city}, {p.state}
+                                    {' '}&middot; <span className={p.participationMode === 'EVENT_ACCESS' ? 'text-amber-400' : 'text-purple'}>{p.participationMode === 'EVENT_ACCESS' ? '🎫 Event Access' : '💡 Idea Submission'}</span>
                                   </p>
                                   {p.ideaTitle && (
                                     <p className="text-xs text-blue mt-0.5">💡 {p.ideaTitle} ({p.ideaCategory}) &middot; Team: {p.teamSize}</p>
@@ -1752,6 +1759,7 @@ export default function AdminPage() {
                               <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div><span className="text-muted">Phone:</span> <span className="text-foreground">{selectedParticipant.phone}</span></div>
                                 <div><span className="text-muted">Type:</span> <span className="text-foreground">{selectedParticipant.participantType}</span></div>
+                                <div><span className="text-muted">Mode:</span> <span className={selectedParticipant.participationMode === 'EVENT_ACCESS' ? 'text-amber-400' : 'text-purple'}>{selectedParticipant.participationMode === 'EVENT_ACCESS' ? '🎫 Event Access' : '💡 Idea Submission'}</span></div>
                                 {selectedParticipant.college && <div><span className="text-muted">College:</span> <span className="text-foreground">{selectedParticipant.college}</span></div>}
                                 {selectedParticipant.company && <div><span className="text-muted">Company:</span> <span className="text-foreground">{selectedParticipant.company}</span></div>}
                                 {selectedParticipant.designation && <div><span className="text-muted">Designation:</span> <span className="text-foreground">{selectedParticipant.designation}</span></div>}

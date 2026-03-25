@@ -491,6 +491,7 @@ model CompetitionParticipant {
   // Competition profile
   phone           String
   participantType String            // STUDENT or PROFESSIONAL
+  participationMode String          @default("IDEA_SUBMISSION")  // IDEA_SUBMISSION or EVENT_ACCESS
   college         String?
   company         String?
   designation     String?

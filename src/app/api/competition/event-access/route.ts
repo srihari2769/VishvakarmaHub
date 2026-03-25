@@ -7,7 +7,41 @@ import { createRazorpayInstance, getRazorpayKeys } from '@/lib/razorpay';
 
 export const maxDuration = 30;
 
-// POST /api/competition/idea-submission — Submit idea + create Razorpay order
+// PATCH /api/competition/event-access — Save participation mode
+export async function PATCH(request: NextRequest) {
+  try {
+    const token = getTokenFromRequest(request);
+    if (!token) return errorResponse('Unauthorized', 401);
+
+    const decoded = verifyToken(token);
+    if (!decoded) return errorResponse('Invalid token', 401);
+
+    const { participationMode } = await request.json();
+    if (!participationMode || !['IDEA_SUBMISSION', 'EVENT_ACCESS'].includes(participationMode)) {
+      return errorResponse('Invalid participation mode', 400);
+    }
+
+    const competition = await prisma.competition.findFirst({ where: { isActive: true } });
+    if (!competition) return errorResponse('No active competition', 400);
+
+    const participant = await prisma.competitionParticipant.findUnique({
+      where: { userId_competitionId: { userId: decoded.userId, competitionId: competition.id } },
+    });
+    if (!participant) return errorResponse('Please register for the competition first', 400);
+
+    await prisma.competitionParticipant.update({
+      where: { id: participant.id },
+      data: { participationMode },
+    });
+
+    return successResponse({ message: 'Participation mode updated' });
+  } catch (error) {
+    console.error('Update participation mode error:', error);
+    return errorResponse('Failed to update participation mode', 500);
+  }
+}
+
+// POST /api/competition/event-access — Create Razorpay order for event access
 export async function POST(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);
@@ -16,79 +50,32 @@ export async function POST(request: NextRequest) {
     const decoded = verifyToken(token);
     if (!decoded) return errorResponse('Invalid token', 401);
 
-    const body = await request.json();
-    const {
-      ideaTitle, ideaDescription, ideaCategory, problemStatement,
-      solution, targetAudience, uniqueness, productStage,
-      pitchDeck, demoVideo, teamName, teamSize, teamMembers,
-    } = body;
-
-    // Validate required idea fields
-    if (!ideaTitle || !ideaDescription || !ideaCategory || !problemStatement || !solution) {
-      return errorResponse('Idea title, description, category, problem statement, and solution are required', 400);
-    }
-
-    const parsedTeamSize = Math.max(1, parseInt(teamSize) || 1);
-    if (parsedTeamSize > 10) {
-      return errorResponse('Maximum team size is 10 members', 400);
-    }
-
-    // Validate team members if team size > 1
-    if (parsedTeamSize > 1) {
-      if (!teamMembers || !Array.isArray(teamMembers) || teamMembers.length !== parsedTeamSize - 1) {
-        return errorResponse(`Please provide details for all ${parsedTeamSize - 1} additional team member(s)`, 400);
-      }
-      for (let i = 0; i < teamMembers.length; i++) {
-        if (!teamMembers[i].name || !teamMembers[i].email) {
-          return errorResponse(`Name and email are required for team member ${i + 1}`, 400);
-        }
-      }
-    }
-
-    // Get competition
-    const competition = await prisma.competition.findFirst({
-      where: { isActive: true },
-    });
+    const competition = await prisma.competition.findFirst({ where: { isActive: true } });
     if (!competition) return errorResponse('No active competition', 400);
 
-    // Get participant
     const participant = await prisma.competitionParticipant.findUnique({
       where: { userId_competitionId: { userId: decoded.userId, competitionId: competition.id } },
     });
-    if (!participant) {
-      return errorResponse('Please register for the competition first', 400);
-    }
+    if (!participant) return errorResponse('Please register for the competition first', 400);
 
     if (participant.paymentStatus === 'PAID') {
-      return errorResponse('You have already submitted and paid. Check your dashboard.', 400);
+      return errorResponse('You have already paid. Check your dashboard.', 400);
     }
 
-    // Calculate fee
     const baseFee = participant.participantType === 'STUDENT'
       ? competition.studentFee
       : competition.founderFee;
-    const totalFee = baseFee * parsedTeamSize;
+    const totalFee = baseFee; // Event access is single person, no team
 
-    // Update participant with idea data (PENDING payment)
+    // Update participant mode and fee
     const updated = await prisma.competitionParticipant.update({
       where: { id: participant.id },
       data: {
-        ideaTitle,
-        ideaDescription,
-        ideaCategory,
-        problemStatement,
-        solution,
-        targetAudience: targetAudience || null,
-        uniqueness: uniqueness || null,
-        productStage: productStage || null,
-        pitchDeck: pitchDeck || null,
-        demoVideo: demoVideo || null,
-        teamName: teamName || null,
-        teamSize: parsedTeamSize,
-        teamMembers: parsedTeamSize > 1 ? teamMembers : null,
+        participationMode: 'EVENT_ACCESS',
+        teamSize: 1,
+        teamName: null,
+        teamMembers: undefined,
         totalFee,
-        status: 'IDEA_SUBMITTED',
-        participationMode: 'IDEA_SUBMISSION',
       },
     });
 
@@ -109,11 +96,10 @@ export async function POST(request: NextRequest) {
       notes: {
         participant_id: updated.id,
         competition_id: competition.id,
-        type: 'competition_idea_submission',
+        type: 'competition_event_access',
       },
     });
 
-    // Save order ID
     await prisma.competitionParticipant.update({
       where: { id: updated.id },
       data: { razorpayOrderId: order.id },
@@ -123,8 +109,6 @@ export async function POST(request: NextRequest) {
       participantId: updated.id,
       orderId: order.id,
       amount: totalFee,
-      baseFee,
-      teamSize: parsedTeamSize,
       currency: 'INR',
       keyId: rzpKeyId,
       competitionName: competition.name,
@@ -135,12 +119,12 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Idea submission error:', error);
-    return errorResponse('Failed to submit idea', 500);
+    console.error('Event access order error:', error);
+    return errorResponse('Failed to create order', 500);
   }
 }
 
-// PUT /api/competition/idea-submission — Verify payment after Razorpay checkout
+// PUT /api/competition/event-access — Verify payment after Razorpay checkout
 export async function PUT(request: NextRequest) {
   try {
     const token = getTokenFromRequest(request);
@@ -156,7 +140,6 @@ export async function PUT(request: NextRequest) {
       return errorResponse('Missing payment verification data', 400);
     }
 
-    // Verify signature
     const { keySecret: secret } = await getRazorpayKeys();
     const expectedSignature = crypto
       .createHmac('sha256', secret)
@@ -167,7 +150,6 @@ export async function PUT(request: NextRequest) {
       return errorResponse('Invalid payment signature', 400);
     }
 
-    // Verify participant belongs to user
     const participant = await prisma.competitionParticipant.findUnique({
       where: { id: participantId },
       include: { competition: { select: { name: true } } },
@@ -181,7 +163,6 @@ export async function PUT(request: NextRequest) {
       return successResponse({ message: 'Payment already verified' });
     }
 
-    // Update to paid
     await prisma.competitionParticipant.update({
       where: { id: participantId },
       data: {
@@ -190,20 +171,19 @@ export async function PUT(request: NextRequest) {
       },
     });
 
-    // Send notification
     await prisma.notification.create({
       data: {
         type: 'SYSTEM',
-        title: 'Competition Registration Confirmed!',
-        message: `Your idea "${participant.ideaTitle}" has been submitted for ${participant.competition.name}. Payment of ₹${participant.totalFee} received. Team size: ${participant.teamSize}.`,
+        title: 'Event Access Confirmed!',
+        message: `Your event access pass for ${participant.competition.name} is confirmed. Payment of ₹${participant.totalFee} received.`,
         link: '/competition/dashboard',
         userId: decoded.userId,
       },
     });
 
-    return successResponse({ message: 'Payment confirmed! Your idea has been submitted successfully.' });
+    return successResponse({ message: 'Payment confirmed! Your event access pass is ready.' });
   } catch (error) {
-    console.error('Payment verification error:', error);
+    console.error('Event access payment verification error:', error);
     return errorResponse('Failed to verify payment', 500);
   }
 }

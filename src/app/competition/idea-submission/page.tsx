@@ -19,6 +19,7 @@ import {
   RocketLaunchIcon,
   AcademicCapIcon,
   BriefcaseIcon,
+  TicketIcon,
 } from '@heroicons/react/24/outline';
 
 declare global {
@@ -61,12 +62,13 @@ interface TeamMember {
 export default function IdeaSubmissionPage() {
   const router = useRouter();
   const { user, token, isAuthenticated, isLoading, checkAuth } = useAuthStore();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [participantType, setParticipantType] = useState<string>('');
+  const [participationMode, setParticipationMode] = useState<string>('');
   const [baseFee, setBaseFee] = useState(0);
   const [studentFee, setStudentFee] = useState(199);
   const [founderFee, setFounderFee] = useState(499);
@@ -122,9 +124,21 @@ export default function IdeaSubmissionPage() {
         const fee = p.participantType === 'STUDENT' ? c.studentFee : c.founderFee;
         setBaseFee(fee);
 
-        // If already submitted & paid, redirect to dashboard
-        if (p.paymentStatus === 'PAID' && p.ideaTitle) {
+        // If already paid, redirect to dashboard
+        if (p.paymentStatus === 'PAID') {
           router.push('/competition/dashboard');
+          return;
+        }
+
+        // If participationMode already set, restore it
+        if (p.participationMode) {
+          setParticipationMode(p.participationMode);
+        }
+
+        // If Event Access mode but unpaid, jump to event access payment step
+        if (p.participationMode === 'EVENT_ACCESS') {
+          setStep(4);
+          setPageLoading(false);
           return;
         }
 
@@ -233,10 +247,105 @@ export default function IdeaSubmissionPage() {
   const totalFee = baseFee * teamSize;
 
   const goToStep = (s: number) => {
+    if (s === 1 && !participationMode) return;
     if (s === 2 && !validateStep1()) return;
     if (s === 3 && !validateStep2()) return;
     setStep(s);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleModeSelect = async (mode: string) => {
+    setParticipationMode(mode);
+    setError('');
+
+    if (mode === 'EVENT_ACCESS') {
+      // Save mode to DB and go to event access payment step
+      try {
+        await fetch('/api/competition/event-access', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ participationMode: mode }),
+        });
+      } catch { /* mode will be set on payment anyway */ }
+      setStep(4);
+    } else {
+      setStep(1);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleEventAccessPay = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/competition/event-access', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ participationMode: 'EVENT_ACCESS' }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || 'Failed to create order');
+        setLoading(false);
+        return;
+      }
+
+      const d = data.data;
+
+      const options = {
+        key: d.keyId,
+        amount: d.amount * 100,
+        currency: d.currency,
+        name: 'Vishvakarma Hub',
+        description: `${d.competitionName} — Event Access Pass`,
+        order_id: d.orderId,
+        prefill: d.prefill,
+        handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+          const verifyRes = await fetch('/api/competition/event-access', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              participantId: d.participantId,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            setSuccess(true);
+          } else {
+            setError('Payment verification failed. Please contact support.');
+          }
+          setLoading(false);
+        },
+        modal: {
+          ondismiss: () => {
+            setError('Payment was cancelled. You can try again.');
+            setLoading(false);
+          },
+        },
+        theme: { color: '#6366f1' },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch {
+      setError('Something went wrong. Please try again.');
+      setLoading(false);
+    }
   };
 
   const handleSubmitAndPay = async () => {
@@ -338,10 +447,13 @@ export default function IdeaSubmissionPage() {
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">Registration Complete! 🎉</h1>
               <p className="text-muted mb-2">
-                Your idea has been submitted and payment is confirmed.
+                {participationMode === 'EVENT_ACCESS'
+                  ? 'Your event access pass is confirmed and payment is complete.'
+                  : 'Your idea has been submitted and payment is confirmed.'}
               </p>
               <p className="text-sm text-muted mb-6">
-                Amount paid: <span className="text-foreground font-bold">₹{totalFee}</span> for {teamSize} {teamSize > 1 ? 'members' : 'member'}
+                Amount paid: <span className="text-foreground font-bold">₹{participationMode === 'EVENT_ACCESS' ? baseFee : totalFee}</span>
+                {participationMode !== 'EVENT_ACCESS' && <> for {teamSize} {teamSize > 1 ? 'members' : 'member'}</>}
               </p>
               <div className="flex gap-3 justify-center">
                 <Link href="/competition/dashboard">
@@ -370,11 +482,20 @@ export default function IdeaSubmissionPage() {
           </Link>
 
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Submit Your Idea</h1>
-            <p className="text-muted">Fill out your startup idea, add team members, and complete payment</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              {step === 0 ? 'Choose Participation Mode' : step === 4 ? 'Event Access Payment' : 'Submit Your Idea'}
+            </h1>
+            <p className="text-muted">
+              {step === 0
+                ? 'Select how you want to participate in the competition'
+                : step === 4
+                  ? 'Complete payment to get your event access pass'
+                  : 'Fill out your startup idea, add team members, and complete payment'}
+            </p>
           </div>
 
-          {/* Step indicator */}
+          {/* Step indicator — only for idea submission flow */}
+          {participationMode === 'IDEA_SUBMISSION' && step >= 1 && step <= 3 && (
           <div className="flex items-center justify-center gap-0 mb-8">
             {[
               { num: 1, label: 'Idea Details', icon: LightBulbIcon },
@@ -407,6 +528,7 @@ export default function IdeaSubmissionPage() {
               </div>
             ))}
           </div>
+          )}
 
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-red-400/10 text-red-400 border border-red-400/20 text-sm">
@@ -415,6 +537,147 @@ export default function IdeaSubmissionPage() {
           )}
 
           <AnimatePresence mode="wait">
+            {/* Step 0: Choose Participation Mode */}
+            {step === 0 && (
+              <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Idea Submission Card */}
+                  <button
+                    type="button"
+                    onClick={() => handleModeSelect('IDEA_SUBMISSION')}
+                    className="text-left group"
+                  >
+                    <Card className="p-6 md:p-8 h-full border-2 border-transparent hover:border-purple transition-all duration-300 cursor-pointer group-focus:border-purple">
+                      <div className="w-14 h-14 bg-purple/10 rounded-2xl flex items-center justify-center mb-5">
+                        <LightBulbIcon className="w-7 h-7 text-purple" />
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground mb-2">Idea Submission</h3>
+                      <p className="text-muted text-sm mb-4">
+                        Submit your startup idea, form a team, and compete for prizes. Includes full event access.
+                      </p>
+                      <ul className="space-y-2 text-sm text-muted">
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Submit &amp; pitch your startup idea
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Compete for prizes &amp; recognition
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Add team members
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Full event access included
+                        </li>
+                      </ul>
+                      <div className="mt-5 pt-4 border-t border-border">
+                        <p className="text-sm text-muted">Starting from</p>
+                        <p className="text-2xl font-bold text-foreground">₹{participantType === 'STUDENT' ? studentFee : founderFee}<span className="text-sm font-normal text-muted"> / member</span></p>
+                      </div>
+                    </Card>
+                  </button>
+
+                  {/* Event Access Card */}
+                  <button
+                    type="button"
+                    onClick={() => handleModeSelect('EVENT_ACCESS')}
+                    className="text-left group"
+                  >
+                    <Card className="p-6 md:p-8 h-full border-2 border-transparent hover:border-amber-400 transition-all duration-300 cursor-pointer group-focus:border-amber-400">
+                      <div className="w-14 h-14 bg-amber-400/10 rounded-2xl flex items-center justify-center mb-5">
+                        <TicketIcon className="w-7 h-7 text-amber-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground mb-2">Event Access</h3>
+                      <p className="text-muted text-sm mb-4">
+                        Get your event access pass to attend sessions, workshops, and networking events.
+                      </p>
+                      <ul className="space-y-2 text-sm text-muted">
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Attend all sessions &amp; workshops
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Network with founders &amp; mentors
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Access to all event activities
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          Quick &amp; easy registration
+                        </li>
+                      </ul>
+                      <div className="mt-5 pt-4 border-t border-border">
+                        <p className="text-sm text-muted">Fixed price</p>
+                        <p className="text-2xl font-bold text-foreground">₹{participantType === 'STUDENT' ? studentFee : founderFee}<span className="text-sm font-normal text-muted"> / person</span></p>
+                      </div>
+                    </Card>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 4: Event Access Payment */}
+            {step === 4 && (
+              <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                <Card className="p-6 md:p-8 max-w-lg mx-auto">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-amber-400/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <TicketIcon className="w-8 h-8 text-amber-400" />
+                    </div>
+                    <h2 className="text-xl font-bold text-foreground mb-1">Event Access Pass</h2>
+                    <p className="text-muted text-sm">Complete payment to confirm your event access</p>
+                  </div>
+
+                  <div className="bg-card-hover rounded-xl p-5 mb-6 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted">Participant Type</span>
+                      <span className="text-foreground font-medium capitalize">{participantType?.toLowerCase()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted">Access Type</span>
+                      <span className="text-foreground font-medium">Event Access Pass</span>
+                    </div>
+                    <div className="border-t border-border pt-3 flex justify-between">
+                      <span className="text-foreground font-semibold">Total Amount</span>
+                      <span className="text-2xl font-bold text-purple">₹{baseFee}</span>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleEventAccessPay}
+                    disabled={loading}
+                    className="w-full"
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Processing...
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <CurrencyRupeeIcon className="w-5 h-5" />
+                        Pay ₹{baseFee}
+                      </div>
+                    )}
+                  </Button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setStep(0); setParticipationMode(''); }}
+                    className="w-full mt-3 text-sm text-muted hover:text-foreground transition-colors text-center"
+                  >
+                    ← Change participation mode
+                  </button>
+                </Card>
+              </motion.div>
+            )}
+
             {/* Step 1: Idea Details */}
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
