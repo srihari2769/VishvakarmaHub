@@ -134,6 +134,7 @@ interface CompetitionData {
   votingEnd: string;
   finalsDate: string;
   pageContent: Record<string, unknown> | null;
+  showSponsorPrices: boolean;
   entries: CompetitionEntryItem[];
   judges: CompetitionJudgeItem[];
   sponsors: CompetitionSponsorItem[];
@@ -1914,6 +1915,7 @@ export default function AdminPage() {
                             boothPrice: competitionData.boothPrice,
                             boothDescription: competitionData.boothDescription || '',
                             manualRegistrations: competitionData.manualRegistrations || 0,
+                            showSponsorPrices: competitionData.showSponsorPrices ? 1 : 0,
                             registrationStart: competitionData.registrationStart?.slice(0, 10) || '',
                             registrationEnd: competitionData.registrationEnd?.slice(0, 10) || '',
                             screeningEnd: competitionData.screeningEnd?.slice(0, 10) || '',
@@ -1974,6 +1976,19 @@ export default function AdminPage() {
                           <input type="number" min="0" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.manualRegistrations ?? 0} onChange={(e) => setCompForm({ ...compForm, manualRegistrations: parseInt(e.target.value) || 0 })} />
                           <p className="text-xs text-muted mt-1">Added to actual registration count on the public page</p>
                         </div>
+                        <div className="flex items-center justify-between md:col-span-2 bg-background border border-border rounded-lg px-4 py-3">
+                          <div>
+                            <label className="block text-sm font-medium text-foreground">Show Sponsor Prices</label>
+                            <p className="text-xs text-muted mt-0.5">Display sponsor tier prices on the public competition page</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setCompForm({ ...compForm, showSponsorPrices: compForm.showSponsorPrices ? 0 : 1 })}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${compForm.showSponsorPrices ? 'bg-green-500' : 'bg-gray-600'}`}
+                          >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${compForm.showSponsorPrices ? 'translate-x-6' : 'translate-x-1'}`} />
+                          </button>
+                        </div>
                         <div>
                           <label className="block text-xs text-muted mb-1">Registration Start</label>
                           <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.registrationStart || ''} onChange={(e) => setCompForm({ ...compForm, registrationStart: e.target.value })} />
@@ -2024,6 +2039,10 @@ export default function AdminPage() {
                         <div>
                           <span className="text-muted">Manual Registrations:</span>
                           <p className="text-foreground font-medium">{competitionData.manualRegistrations || 0}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Sponsor Prices:</span>
+                          <p className={`font-medium ${competitionData.showSponsorPrices ? 'text-green-500' : 'text-red-500'}`}>{competitionData.showSponsorPrices ? 'Visible' : 'Hidden'}</p>
                         </div>
                         <div>
                           <span className="text-muted">Registration:</span>

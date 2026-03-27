@@ -75,6 +75,7 @@ interface CompetitionData {
   finalsDate: string;
   isActive: boolean;
   pageContent: Record<string, unknown> | null;
+  showSponsorPrices: boolean;
   entries: CompetitionEntryData[];
   judges: JudgeData[];
   sponsors: SponsorData[];
@@ -975,10 +976,12 @@ export default function CompetitionPage() {
                       ))}
                     </div>
                   </div>
+                  {competition?.showSponsorPrices !== false && (
                   <div className="text-center md:text-right flex-shrink-0">
                     <p className="text-4xl font-display font-bold text-cyan-400">₹{(competition?.boothPrice || 5000).toLocaleString('en-IN')}</p>
                     <p className="text-sm text-white/30">per booth</p>
                   </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1089,7 +1092,7 @@ export default function CompetitionPage() {
                     <h3 className="text-xl font-display font-bold text-white">Title Sponsor</h3>
                     <Badge variant="warning">Most Premium</Badge>
                   </div>
-                  <p className="text-2xl font-display font-bold text-amber-400 mb-4">{pcs('titleSponsorPrice', '₹7,50,000')}</p>
+                  {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-amber-400 mb-4">{pcs('titleSponsorPrice', '₹7,50,000')}</p>}
                   <div className="grid sm:grid-cols-2 gap-2 text-sm text-white/50">
                     {pcList('titleSponsorBenefits', 'Event named \u201cpowered by [Sponsor]\u201d, Exclusive category rights — no competitors in your industry, Logo on stage backdrop & all banners, 5–10 min keynote speech + closing ceremony address, Dedicated hiring zone at venue, Jury panel seat in finals, Premium branding across website & all media (press\u002C reels\u002C banners), Media coverage & press release mention, Premium startup exhibition booth, Direct access to top startups & talent pipeline').map((b, i) => (
                       <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-amber-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1110,7 +1113,7 @@ export default function CompetitionPage() {
                   <h3 className="text-lg font-display font-bold text-white">Presenting Sponsor</h3>
                   <Badge variant="danger">Premium</Badge>
                 </div>
-                <p className="text-2xl font-display font-bold text-rose-400 mb-4">{pcs('presentingSponsorPrice', '₹5,00,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-rose-400 mb-4">{pcs('presentingSponsorPrice', '₹5,00,000')}</p>}
                 <div className="space-y-2 text-sm text-white/50">
                   {pcList('presentingSponsorBenefits', 'Co-host branding — not just a logo\u002C full event co-presentation, Sponsored challenge track (e.g.\u002C \u201cAI Challenge powered by [You]\u201d), Logo on stage backdrop & event banners, 5 min keynote slot, Premium branding on website & social media, Media coverage & press mention, VIP booth at startup exhibition, Networking access with top founders').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-rose-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1127,7 +1130,7 @@ export default function CompetitionPage() {
                   <h3 className="text-lg font-display font-bold text-white">Diamond Sponsor</h3>
                   <Badge variant="info">Elite</Badge>
                 </div>
-                <p className="text-2xl font-display font-bold text-sky-400 mb-4">{pcs('diamondSponsorPrice', '₹3,50,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-sky-400 mb-4">{pcs('diamondSponsorPrice', '₹3,50,000')}</p>}
                 <div className="space-y-2 text-sm text-white/50">
                   {pcList('diamondSponsorBenefits', 'Access to live startup pitching sessions, Investor roundtable invite with top founders, Lead capture system (QR code / digital cards), Logo on event banners and stage, Featured website section with company profile, Social media promotion across all channels, Premium exhibition booth, VIP networking access, Award ceremony mention & brand visibility').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-sky-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1147,7 +1150,7 @@ export default function CompetitionPage() {
                   <h3 className="text-lg font-display font-bold text-white">Platinum Sponsor</h3>
                   <Badge variant="info">Popular</Badge>
                 </div>
-                <p className="text-2xl font-display font-bold text-purple mb-4">{pcs('platinumSponsorPrice', '₹1,00,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-purple mb-4">{pcs('platinumSponsorPrice', '₹1,00,000')}</p>}
                 <div className="space-y-2 text-sm text-white/50">
                   {pcList('platinumSponsorBenefits', 'Logo on event banners, Featured website placement, Social media promotion, Booth at startup exhibition, VIP networking access').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-purple flex-shrink-0" /><span>{b}</span></div>
@@ -1161,7 +1164,7 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-400 to-yellow-500" />
                 <StarIcon className="w-10 h-10 text-orange-400 mb-3" />
                 <h3 className="text-lg font-display font-bold text-white mb-1">Gold Sponsor</h3>
-                <p className="text-2xl font-display font-bold text-orange-400 mb-4">{pcs('goldSponsorPrice', '₹50,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-orange-400 mb-4">{pcs('goldSponsorPrice', '₹50,000')}</p>}
                 <div className="space-y-2 text-sm text-white/50">
                   {pcList('goldSponsorBenefits', 'Logo on website, Social media promotion, Startup booth, Event mention during ceremony').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-orange-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1178,7 +1181,7 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-gray-300 to-gray-400" />
                 <StarIcon className="w-8 h-8 text-gray-300 mb-2" />
                 <h3 className="text-base font-display font-bold text-white mb-1">Silver Sponsor</h3>
-                <p className="text-xl font-display font-bold text-gray-300 mb-3">{pcs('silverSponsorPrice', '₹35,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-xl font-display font-bold text-gray-300 mb-3">{pcs('silverSponsorPrice', '₹35,000')}</p>}
                 <div className="space-y-1.5 text-sm text-white/50">
                   {pcList('silverSponsorBenefits', 'Logo on sponsor section, Event promotion mention, Networking access').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-gray-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1192,7 +1195,7 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 to-cyan-400" />
                 <RocketLaunchIcon className="w-8 h-8 text-blue-400 mb-2" />
                 <h3 className="text-base font-display font-bold text-white mb-1">Startup Partner</h3>
-                <p className="text-xl font-display font-bold text-blue-400 mb-3">{pcs('startupPartnerPrice', '₹25,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-xl font-display font-bold text-blue-400 mb-3">{pcs('startupPartnerPrice', '₹25,000')}</p>}
                 <div className="space-y-1.5 text-sm text-white/50">
                   {pcList('startupPartnerBenefits', 'Logo on competition page, Social media mention, Access to startup database').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-blue-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1206,7 +1209,7 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-green-400 to-emerald-400" />
                 <LightBulbIcon className="w-8 h-8 text-green-400 mb-2" />
                 <h3 className="text-base font-display font-bold text-white mb-1">Innovation Partner</h3>
-                <p className="text-xl font-display font-bold text-green-400 mb-3">{pcs('innovationPartnerPrice', '₹15,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-xl font-display font-bold text-green-400 mb-3">{pcs('innovationPartnerPrice', '₹15,000')}</p>}
                 <div className="space-y-1.5 text-sm text-white/50">
                   {pcList('innovationPartnerBenefits', 'Logo on event website, Social media posts mention').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1220,7 +1223,7 @@ export default function CompetitionPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-pink-400 to-rose-400" />
                 <HeartIcon className="w-8 h-8 text-pink-400 mb-2" />
                 <h3 className="text-base font-display font-bold text-white mb-1">Community Partner</h3>
-                <p className="text-xl font-display font-bold text-pink-400 mb-3">{pcs('communityPartnerPrice', '₹10,000')}</p>
+                {competition?.showSponsorPrices !== false && <p className="text-xl font-display font-bold text-pink-400 mb-3">{pcs('communityPartnerPrice', '₹10,000')}</p>}
                 <div className="space-y-1.5 text-sm text-white/50">
                   {pcList('communityPartnerBenefits', 'Brand mention, Website listing').map((b, i) => (
                     <div key={i} className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-pink-400 flex-shrink-0" /><span>{b}</span></div>
@@ -1247,7 +1250,7 @@ export default function CompetitionPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-lg font-display font-bold text-white">Innovation Track Sponsor</h3>
                   </div>
-                  <p className="text-2xl font-display font-bold text-violet-400 mb-1">{pcs('trackSponsorPrice', '₹2,00,000 – ₹5,00,000')}</p>
+                  {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-violet-400 mb-1">{pcs('trackSponsorPrice', '₹2,00,000 – ₹5,00,000')}</p>}
                   <p className="text-xs text-white/30 mb-4">AI Track · Robotics Track · FinTech Track · HealthTech Track</p>
                   <div className="space-y-2 text-sm text-white/50">
                     {pcList('trackSponsorBenefits', 'Naming rights for your chosen track, Direct access to niche startup talent, Judging rights in track finals, Track winner announced as \u201c[Your Brand] Award\u201d, Dedicated branding in track area, Featured company profile on track page').map((b, i) => (
@@ -1266,7 +1269,7 @@ export default function CompetitionPage() {
                     <h3 className="text-lg font-display font-bold text-white">Hiring Partner</h3>
                     <Badge variant="success">HR Budgets</Badge>
                   </div>
-                  <p className="text-2xl font-display font-bold text-emerald-400 mb-1">{pcs('hiringPartnerPrice', '₹3,00,000+')}</p>
+                  {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-emerald-400 mb-1">{pcs('hiringPartnerPrice', '₹3,00,000+')}</p>}
                   <p className="text-xs text-white/30 mb-4">Perfect for companies looking to recruit top talent</p>
                   <div className="space-y-2 text-sm text-white/50">
                     {pcList('hiringPartnerBenefits', 'Full resume database access of all participants, On-spot interview booth at venue, Branded as Official Hiring Partner, Job board placement on event website, Priority access to winning teams, Talent pipeline for internships & full-time roles').map((b, i) => (
@@ -1285,7 +1288,7 @@ export default function CompetitionPage() {
                     <h3 className="text-lg font-display font-bold text-white">Digital Reach Sponsor</h3>
                     <Badge variant="danger">Marketing</Badge>
                   </div>
-                  <p className="text-2xl font-display font-bold text-pink-400 mb-1">{pcs('digitalReachPrice', '₹1,00,000 – ₹3,00,000')}</p>
+                  {competition?.showSponsorPrices !== false && <p className="text-2xl font-display font-bold text-pink-400 mb-1">{pcs('digitalReachPrice', '₹1,00,000 – ₹3,00,000')}</p>}
                   <p className="text-xs text-white/30 mb-4">Maximize digital visibility across all platforms</p>
                   <div className="space-y-2 text-sm text-white/50">
                     {pcList('digitalReachBenefits', 'Logo & branding in all Instagram reels & stories, YouTube coverage with brand integration, Influencer integration & co-created content, Branded hashtag campaign, Post-event highlight reel with sponsor branding, Social media analytics report shared post-event').map((b, i) => (
@@ -1310,7 +1313,7 @@ export default function CompetitionPage() {
                     <MicrophoneIcon className="w-6 h-6 text-cyan-400" />
                   </div>
                   <h4 className="font-display font-bold text-white mb-1">🎤 {pcs('stageSponsorTitle', 'Stage Sponsor')}</h4>
-                  <p className="text-lg font-display font-bold text-cyan-400 mb-2">{pcs('stageSponsorPrice', '₹40,000')}</p>
+                  {competition?.showSponsorPrices !== false && <p className="text-lg font-display font-bold text-cyan-400 mb-2">{pcs('stageSponsorPrice', '₹40,000')}</p>}
                   <p className="text-sm text-white/40">{pcs('stageSponsorDesc', 'Branding on main stage backdrop')}</p>
                 </div>
               </div>
@@ -1321,7 +1324,7 @@ export default function CompetitionPage() {
                     <VideoCameraIcon className="w-6 h-6 text-red-400" />
                   </div>
                   <h4 className="font-display font-bold text-white mb-1">🎥 {pcs('mediaSponsorTitle', 'Media Sponsor')}</h4>
-                  <p className="text-lg font-display font-bold text-red-400 mb-2">{pcs('mediaSponsorPrice', '₹30,000')}</p>
+                  {competition?.showSponsorPrices !== false && <p className="text-lg font-display font-bold text-red-400 mb-2">{pcs('mediaSponsorPrice', '₹30,000')}</p>}
                   <p className="text-sm text-white/40">{pcs('mediaSponsorDesc', 'Logo in all videos and livestream')}</p>
                 </div>
               </div>
@@ -1332,7 +1335,7 @@ export default function CompetitionPage() {
                     <TrophyIcon className="w-6 h-6 text-amber-400" />
                   </div>
                   <h4 className="font-display font-bold text-white mb-1">🏆 {pcs('awardSponsorTitle', 'Award Sponsor')}</h4>
-                  <p className="text-lg font-display font-bold text-amber-400 mb-2">{pcs('awardSponsorPrice', '₹20,000')}</p>
+                  {competition?.showSponsorPrices !== false && <p className="text-lg font-display font-bold text-amber-400 mb-2">{pcs('awardSponsorPrice', '₹20,000')}</p>}
                   <p className="text-sm text-white/40">{pcs('awardSponsorDesc', 'Sponsor name on winner trophies')}</p>
                 </div>
               </div>

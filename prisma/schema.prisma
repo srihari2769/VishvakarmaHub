@@ -464,6 +464,9 @@ model Competition {
   // Editable page content (JSON blob for all static text on the competition page)
   pageContent       Json?
 
+  // Toggle to show/hide sponsor prices on the public competition page
+  showSponsorPrices Boolean          @default(true)
+
   isActive        Boolean           @default(true)
   entries         CompetitionEntry[]
   judges          CompetitionJudge[]
