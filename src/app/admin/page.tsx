@@ -141,7 +141,37 @@ interface CompetitionData {
   campusPartners: CampusPartnerItem[];
   citizenPasses: CitizenPassItem[];
   participants: CompetitionParticipantItem[];
-  _count: { entries: number; citizenPasses: number; participants: number };
+  freeEntries: FreeEntryItem[];
+  _count: { entries: number; citizenPasses: number; participants: number; freeEntries: number };
+}
+
+interface FreeEntryReferralItem {
+  id: string;
+  paymentVerified: boolean;
+  createdAt: string;
+  referredUser: { firstName: string; lastName: string; email: string };
+}
+
+interface FreeEntryItem {
+  id: string;
+  phone: string;
+  participantType: string;
+  college: string | null;
+  company: string | null;
+  city: string;
+  state: string;
+  videoUrl: string | null;
+  videoPlatform: string | null;
+  videoDescription: string | null;
+  referralCode: string;
+  referralCount: number;
+  videoStatus: string;
+  adminNotes: string | null;
+  status: string;
+  freeEntryGranted: boolean;
+  createdAt: string;
+  user: { firstName: string; lastName: string; email: string };
+  referrals: FreeEntryReferralItem[];
 }
 
 interface CompetitionJudgeItem {
@@ -240,7 +270,8 @@ export default function AdminPage() {
   const [compEditMode, setCompEditMode] = useState(false);
   const [compForm, setCompForm] = useState<Record<string, string | number>>({});
   const [compSaving, setCompSaving] = useState(false);
-  const [compSubTab, setCompSubTab] = useState<'entries' | 'participants' | 'details' | 'sponsors' | 'campus-partners' | 'judges' | 'citizen-passes' | 'page-content'>('entries');
+  const [compSubTab, setCompSubTab] = useState<'entries' | 'participants' | 'details' | 'sponsors' | 'campus-partners' | 'judges' | 'citizen-passes' | 'free-entries' | 'page-content'>('entries');
+  const [freeEntryNotes, setFreeEntryNotes] = useState<Record<string, string>>({});
   const [participantStatusLoading, setParticipantStatusLoading] = useState<string | null>(null);
   const [selectedParticipant, setSelectedParticipant] = useState<CompetitionParticipantItem | null>(null);
   const [sponsorForm, setSponsorForm] = useState({ tier: 'TITLE', sponsorName: '', price: '', benefits: '', logo: '' });
@@ -1567,7 +1598,7 @@ export default function AdminPage() {
 
                 {/* Sub-tabs */}
                 <div className="flex gap-1 bg-card rounded-lg p-1 flex-wrap">
-                  {(['entries', 'participants', 'details', 'sponsors', 'campus-partners', 'judges', 'citizen-passes', 'page-content'] as const).map((st) => (
+                  {(['entries', 'participants', 'details', 'sponsors', 'campus-partners', 'judges', 'citizen-passes', 'free-entries', 'page-content'] as const).map((st) => (
                     <button
                       key={st}
                       onClick={() => { setCompSubTab(st); if (st === 'page-content') initPageContentForm(); }}
@@ -1575,7 +1606,7 @@ export default function AdminPage() {
                         compSubTab === st ? 'bg-blue text-white' : 'text-muted hover:text-foreground'
                       }`}
                     >
-                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st === 'campus-partners' ? 'Campus Partners' : st === 'participants' ? `Participants (${competitionData?.participants?.length || 0})` : st}
+                      {st === 'page-content' ? 'Page Content' : st === 'citizen-passes' ? `Passes (${competitionData?.citizenPasses?.length || 0})` : st === 'campus-partners' ? 'Campus Partners' : st === 'participants' ? `Participants (${competitionData?.participants?.length || 0})` : st === 'free-entries' ? `Free Entry (${competitionData?.freeEntries?.length || 0})` : st}
                     </button>
                   ))}
                 </div>
@@ -2361,6 +2392,163 @@ export default function AdminPage() {
                         </div>
                       );
                     })()}
+                  </div>
+                )}
+
+                {/* Free Entries Sub-tab */}
+                {compSubTab === 'free-entries' && (
+                  <div className="space-y-4">
+                    {/* Summary */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="p-4 text-center">
+                        <p className="text-2xl font-bold text-foreground">{competitionData?.freeEntries?.length || 0}</p>
+                        <p className="text-xs text-muted">Total Applications</p>
+                      </Card>
+                      <Card className="p-4 text-center">
+                        <p className="text-2xl font-bold text-amber-400">{competitionData?.freeEntries?.filter((f) => f.videoStatus === 'PENDING' && f.videoUrl).length || 0}</p>
+                        <p className="text-xs text-muted">Pending Review</p>
+                      </Card>
+                      <Card className="p-4 text-center">
+                        <p className="text-2xl font-bold text-green-400">{competitionData?.freeEntries?.filter((f) => f.freeEntryGranted).length || 0}</p>
+                        <p className="text-xs text-muted">Granted</p>
+                      </Card>
+                      <Card className="p-4 text-center">
+                        <p className="text-2xl font-bold text-red-400">{competitionData?.freeEntries?.filter((f) => f.status === 'REJECTED').length || 0}</p>
+                        <p className="text-xs text-muted">Rejected</p>
+                      </Card>
+                    </div>
+
+                    {/* Free Entry Cards */}
+                    {competitionData?.freeEntries?.map((fe) => {
+                      const verifiedCount = fe.referrals.filter((r) => r.paymentVerified).length;
+                      return (
+                        <Card key={fe.id} className="p-5">
+                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                            <div className="flex-1 space-y-2">
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <h4 className="font-bold text-foreground">{fe.user.firstName} {fe.user.lastName}</h4>
+                                <Badge variant={fe.freeEntryGranted ? 'success' : fe.status === 'REJECTED' ? 'danger' : fe.status === 'VIDEO_SUBMITTED' || fe.status === 'UNDER_REVIEW' ? 'warning' : 'info'}>
+                                  {fe.freeEntryGranted ? 'Granted ✓' : fe.status}
+                                </Badge>
+                                <Badge variant={fe.participantType === 'STUDENT' ? 'info' : 'default'}>
+                                  {fe.participantType}
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-muted space-y-1">
+                                <p>{fe.user.email} | {fe.phone}</p>
+                                <p>{fe.city}, {fe.state}{fe.college ? ` | ${fe.college}` : ''}{fe.company ? ` | ${fe.company}` : ''}</p>
+                                <p className="font-medium">Referral Code: <span className="text-foreground">{fe.referralCode}</span></p>
+                                <p className="font-medium">Referrals: <span className={verifiedCount >= 5 ? 'text-green-400' : 'text-amber-400'}>{verifiedCount}/5 verified</span> ({fe.referrals.length} total)</p>
+                              </div>
+
+                              {/* Video Info */}
+                              {fe.videoUrl ? (
+                                <div className="mt-2 p-3 rounded-lg bg-card border border-border text-sm space-y-1">
+                                  <p className="text-muted">Video: <a href={fe.videoUrl} target="_blank" rel="noopener noreferrer" className="text-blue hover:underline">{fe.videoUrl}</a></p>
+                                  <p className="text-muted">Platform: <span className="text-foreground">{fe.videoPlatform}</span></p>
+                                  {fe.videoDescription && <p className="text-muted">Description: {fe.videoDescription}</p>}
+                                  <p className="text-muted">Video Status: <Badge variant={fe.videoStatus === 'APPROVED' ? 'success' : fe.videoStatus === 'REJECTED' ? 'danger' : 'warning'}>{fe.videoStatus}</Badge></p>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-amber-400 italic mt-2">No video submitted yet</p>
+                              )}
+
+                              {/* Referrals List */}
+                              {fe.referrals.length > 0 && (
+                                <div className="mt-2">
+                                  <p className="text-xs text-muted font-semibold uppercase mb-1">Referrals</p>
+                                  <div className="space-y-1">
+                                    {fe.referrals.map((r) => (
+                                      <div key={r.id} className="flex items-center justify-between text-xs p-2 rounded bg-card border border-border">
+                                        <span className="text-foreground">{r.referredUser.firstName} {r.referredUser.lastName} ({r.referredUser.email})</span>
+                                        <Badge variant={r.paymentVerified ? 'success' : 'warning'} className="text-xs">{r.paymentVerified ? 'Paid' : 'Unpaid'}</Badge>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Admin Notes */}
+                              {fe.adminNotes && (
+                                <p className="text-xs text-muted mt-2">Admin notes: <span className="italic">{fe.adminNotes}</span></p>
+                              )}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-col gap-2 flex-shrink-0">
+                              {/* Notes input */}
+                              <input
+                                type="text"
+                                placeholder="Admin notes..."
+                                value={freeEntryNotes[fe.id] || ''}
+                                onChange={(e) => setFreeEntryNotes((prev) => ({ ...prev, [fe.id]: e.target.value }))}
+                                className="px-3 py-1.5 rounded-lg text-xs border border-border bg-card text-foreground w-48"
+                              />
+
+                              {fe.videoUrl && fe.videoStatus === 'PENDING' && (
+                                <>
+                                  <Button size="sm" onClick={async () => {
+                                    const t = localStorage.getItem('token');
+                                    await fetch('/api/admin', {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+                                      body: JSON.stringify({ action: 'approve-free-entry-video', freeEntryId: fe.id, adminNotes: freeEntryNotes[fe.id] || '' }),
+                                    });
+                                    fetchCompetitionEntries();
+                                  }}>
+                                    Approve Video
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="text-red-400 border-red-400/30" onClick={async () => {
+                                    const t = localStorage.getItem('token');
+                                    await fetch('/api/admin', {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+                                      body: JSON.stringify({ action: 'reject-free-entry-video', freeEntryId: fe.id, adminNotes: freeEntryNotes[fe.id] || '' }),
+                                    });
+                                    fetchCompetitionEntries();
+                                  }}>
+                                    Reject Video
+                                  </Button>
+                                </>
+                              )}
+
+                              {!fe.freeEntryGranted && fe.videoStatus === 'APPROVED' && (
+                                <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={async () => {
+                                  const t = localStorage.getItem('token');
+                                  await fetch('/api/admin', {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+                                    body: JSON.stringify({ action: 'grant-free-entry', freeEntryId: fe.id }),
+                                  });
+                                  fetchCompetitionEntries();
+                                }}>
+                                  Grant Free Entry
+                                </Button>
+                              )}
+
+                              <Button size="sm" variant="ghost" className="text-red-400" onClick={async () => {
+                                if (!confirm('Delete this free entry application?')) return;
+                                const t = localStorage.getItem('token');
+                                await fetch('/api/admin', {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+                                  body: JSON.stringify({ action: 'delete-free-entry', freeEntryId: fe.id }),
+                                });
+                                fetchCompetitionEntries();
+                              }}>
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })}
+
+                    {(!competitionData?.freeEntries || competitionData.freeEntries.length === 0) && (
+                      <Card className="p-8 text-center">
+                        <p className="text-muted">No free entry applications yet.</p>
+                      </Card>
+                    )}
                   </div>
                 )}
 

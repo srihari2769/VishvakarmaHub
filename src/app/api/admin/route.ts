@@ -166,7 +166,18 @@ export async function GET(request: NextRequest) {
               },
               orderBy: { createdAt: 'desc' },
             },
-            _count: { select: { entries: true, citizenPasses: true, participants: true } },
+            freeEntries: {
+              include: {
+                user: { select: { firstName: true, lastName: true, email: true } },
+                referrals: {
+                  include: {
+                    referredUser: { select: { firstName: true, lastName: true, email: true } },
+                  },
+                },
+              },
+              orderBy: { createdAt: 'desc' },
+            },
+            _count: { select: { entries: true, citizenPasses: true, participants: true, freeEntries: true } },
           },
         });
         return successResponse(competition);
@@ -454,6 +465,64 @@ export async function PATCH(request: NextRequest) {
         if (!delPId) return errorResponse('Participant ID required', 400);
         await prisma.competitionParticipant.delete({ where: { id: delPId } });
         return successResponse({ message: 'Participant deleted' });
+      }
+
+      case 'approve-free-entry-video': {
+        const { freeEntryId: approveFeId, adminNotes: approveNotes } = body;
+        if (!approveFeId) return errorResponse('Free entry ID required', 400);
+        const fe = await prisma.freeEntry.findUnique({ where: { id: approveFeId } });
+        if (!fe) return errorResponse('Free entry not found', 404);
+        const verifiedCount = await prisma.freeEntryReferral.count({ where: { freeEntryId: approveFeId, paymentVerified: true } });
+        const updated = await prisma.freeEntry.update({
+          where: { id: approveFeId },
+          data: {
+            videoStatus: 'APPROVED',
+            adminNotes: approveNotes || null,
+            approvedAt: new Date(),
+            approvedBy: payload.userId,
+            status: verifiedCount >= 5 ? 'APPROVED' : 'UNDER_REVIEW',
+            freeEntryGranted: verifiedCount >= 5,
+          },
+        });
+        return successResponse(updated);
+      }
+
+      case 'reject-free-entry-video': {
+        const { freeEntryId: rejectFeId, adminNotes: rejectNotes } = body;
+        if (!rejectFeId) return errorResponse('Free entry ID required', 400);
+        await prisma.freeEntry.update({
+          where: { id: rejectFeId },
+          data: {
+            videoStatus: 'REJECTED',
+            adminNotes: rejectNotes || null,
+            status: 'REJECTED',
+            freeEntryGranted: false,
+          },
+        });
+        return successResponse({ message: 'Video rejected' });
+      }
+
+      case 'grant-free-entry': {
+        const { freeEntryId: grantFeId } = body;
+        if (!grantFeId) return errorResponse('Free entry ID required', 400);
+        await prisma.freeEntry.update({
+          where: { id: grantFeId },
+          data: {
+            status: 'APPROVED',
+            freeEntryGranted: true,
+            approvedAt: new Date(),
+            approvedBy: payload.userId,
+          },
+        });
+        return successResponse({ message: 'Free entry granted' });
+      }
+
+      case 'delete-free-entry': {
+        const { freeEntryId: delFeId } = body;
+        if (!delFeId) return errorResponse('Free entry ID required', 400);
+        await prisma.freeEntryReferral.deleteMany({ where: { freeEntryId: delFeId } });
+        await prisma.freeEntry.delete({ where: { id: delFeId } });
+        return successResponse({ message: 'Free entry deleted' });
       }
 
       default:

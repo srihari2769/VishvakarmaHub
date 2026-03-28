@@ -132,6 +132,8 @@ model User {
   competitionEntries CompetitionEntry[]
   competitionVotes  CompetitionVote[]
   competitionParticipants CompetitionParticipant[]
+  freeEntries     FreeEntry[]
+  freeEntryReferrals FreeEntryReferral[] @relation("FreeEntryReferredUser")
 
   @@index([email])
   @@index([referralCode])
@@ -474,6 +476,7 @@ model Competition {
   campusPartners  CampusPartner[]
   citizenPasses   CitizenPass[]
   participants    CompetitionParticipant[]
+  freeEntries     FreeEntry[]
 
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
@@ -550,6 +553,77 @@ model CompetitionSponsor {
   createdAt       DateTime @default(now())
 
   @@map("competition_sponsors")
+}
+
+model FreeEntry {
+  id              String   @id @default(cuid())
+
+  // Auth link
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  competitionId   String
+  competition     Competition @relation(fields: [competitionId], references: [id])
+
+  // Profile
+  phone           String
+  city            String
+  state           String
+  college         String?
+  company         String?
+  designation     String?
+  participantType String            // STUDENT or PROFESSIONAL
+
+  // Video submission
+  videoUrl        String?           // Social media video link
+  videoPlatform   String?           // INSTAGRAM, YOUTUBE, TWITTER, LINKEDIN, FACEBOOK
+  videoDescription String?  @db.Text
+
+  // Referral tracking
+  referralCode    String   @unique  // Unique code for this free entry user
+  referralCount   Int      @default(0) // Count of paid referrals (min 5 required)
+
+  // Admin review
+  videoStatus     String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  adminNotes      String?  @db.Text
+  approvedAt      DateTime?
+  approvedBy      String?
+
+  // Free entry status
+  status          String   @default("REGISTERED") // REGISTERED, VIDEO_SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED
+  freeEntryGranted Boolean @default(false) // True when both video approved + 5 referrals done
+
+  referrals       FreeEntryReferral[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, competitionId])
+  @@index([competitionId])
+  @@index([referralCode])
+  @@index([status])
+  @@map("free_entries")
+}
+
+model FreeEntryReferral {
+  id              String   @id @default(cuid())
+
+  freeEntryId     String
+  freeEntry       FreeEntry @relation(fields: [freeEntryId], references: [id])
+
+  // The referred user who registered and paid
+  referredUserId  String
+  referredUser    User     @relation("FreeEntryReferredUser", fields: [referredUserId], references: [id])
+
+  // Payment verification
+  participantId   String?  // Links to CompetitionParticipant who paid
+  paymentVerified Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+
+  @@unique([freeEntryId, referredUserId])
+  @@index([freeEntryId])
+  @@map("free_entry_referrals")
 }
 
 model CampusPartner {
