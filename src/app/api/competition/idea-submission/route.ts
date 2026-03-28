@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
       ideaTitle, ideaDescription, ideaCategory, problemStatement,
       solution, targetAudience, uniqueness, productStage,
       pitchDeck, demoVideo, teamName, teamSize, teamMembers,
+      wantsBooth,
     } = body;
 
     // Validate required idea fields
@@ -67,7 +68,8 @@ export async function POST(request: NextRequest) {
     const baseFee = participant.participantType === 'STUDENT'
       ? competition.studentFee
       : competition.founderFee;
-    const totalFee = baseFee * parsedTeamSize;
+    const boothFee = wantsBooth ? (competition.boothPrice || 5000) : 0;
+    const totalFee = baseFee * parsedTeamSize + boothFee;
 
     // Update participant with idea data (PENDING payment)
     const updated = await prisma.competitionParticipant.update({
@@ -87,6 +89,8 @@ export async function POST(request: NextRequest) {
         teamSize: parsedTeamSize,
         teamMembers: parsedTeamSize > 1 ? teamMembers : null,
         totalFee,
+        wantsBooth: !!wantsBooth,
+        boothFee: wantsBooth ? boothFee : null,
         status: 'IDEA_SUBMITTED',
         participationMode: 'IDEA_SUBMISSION',
       },

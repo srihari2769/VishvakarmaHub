@@ -73,6 +73,8 @@ export default function IdeaSubmissionPage() {
   const [studentFee, setStudentFee] = useState(199);
   const [founderFee, setFounderFee] = useState(499);
   const [existingIdea, setExistingIdea] = useState(false);
+  const [wantsBooth, setWantsBooth] = useState(false);
+  const [boothPrice, setBoothPrice] = useState(5000);
 
   // Idea form
   const [idea, setIdea] = useState({
@@ -121,6 +123,8 @@ export default function IdeaSubmissionPage() {
         setParticipantType(p.participantType);
         setStudentFee(c.studentFee);
         setFounderFee(c.founderFee);
+        setBoothPrice(c.boothPrice || 5000);
+        if (p.wantsBooth) setWantsBooth(true);
         const fee = p.participantType === 'STUDENT' ? c.studentFee : c.founderFee;
         setBaseFee(fee);
 
@@ -258,7 +262,7 @@ export default function IdeaSubmissionPage() {
     setTeamSize(teamSize + 1);
   };
 
-  const totalFee = baseFee * teamSize;
+  const totalFee = baseFee * teamSize + (wantsBooth ? boothPrice : 0);
 
   const goToStep = (s: number) => {
     if (s === 1 && !participationMode) return;
@@ -379,6 +383,7 @@ export default function IdeaSubmissionPage() {
           teamName: teamSize > 1 ? teamName : null,
           teamSize,
           teamMembers: teamSize > 1 ? teamMembers : null,
+          wantsBooth,
         }),
       });
 
@@ -1030,6 +1035,46 @@ export default function IdeaSubmissionPage() {
                     </div>
                   </Card>
 
+                  {/* Exhibition Booth Add-on */}
+                  <Card className="p-6">
+                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-cyan-400"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" /></svg>
+                      Exhibition Booth (Optional)
+                    </h3>
+                    <p className="text-sm text-muted mb-4">Want to showcase your product at the Vishvakarma Innovation Expo? Add an exhibition booth to your registration.</p>
+                    <button
+                      type="button"
+                      onClick={() => setWantsBooth(!wantsBooth)}
+                      className={`w-full p-4 rounded-xl border-2 transition-all duration-300 text-left flex items-center justify-between ${
+                        wantsBooth
+                          ? 'border-cyan-400 bg-cyan-400/5'
+                          : 'border-border hover:border-cyan-400/40 bg-card'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                          wantsBooth ? 'bg-cyan-400 border-cyan-400' : 'border-muted'
+                        }`}>
+                          {wantsBooth && (
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">Add Exhibition Booth</p>
+                          <p className="text-xs text-muted">6×6 ft branded booth with table, chairs, power & Wi-Fi</p>
+                        </div>
+                      </div>
+                      <p className="text-lg font-bold text-cyan-400">₹{boothPrice.toLocaleString('en-IN')}</p>
+                    </button>
+                    {wantsBooth && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {['Product Demo Space', 'Branded Backdrop', 'Power & Wi-Fi', 'Visitor Footfall'].map((f) => (
+                          <span key={f} className="px-2 py-1 text-xs rounded-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/15">{f}</span>
+                        ))}
+                      </div>
+                    )}
+                  </Card>
+
                   {/* Payment Card */}
                   <Card className="p-6 border-purple/20">
                     <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
@@ -1047,6 +1092,12 @@ export default function IdeaSubmissionPage() {
                         <span className="text-muted">Team Size</span>
                         <span className="text-foreground">× {teamSize}</span>
                       </div>
+                      {wantsBooth && (
+                        <div className="flex justify-between py-2 border-b border-border">
+                          <span className="text-muted">Exhibition Booth</span>
+                          <span className="text-cyan-400">+ ₹{boothPrice.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between py-3 text-lg font-bold">
                         <span className="text-foreground">Total Amount</span>
                         <span className="text-green-400">₹{totalFee}</span>

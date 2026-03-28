@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     const competition = await prisma.competition.findFirst({
       where: { isActive: true },
-      select: { id: true, name: true, studentFee: true, founderFee: true, currentPhase: true, pageContent: true, finalsDate: true },
+      select: { id: true, name: true, studentFee: true, founderFee: true, currentPhase: true, pageContent: true, finalsDate: true, boothPrice: true },
     });
     if (!competition) return errorResponse('No active competition', 404);
 

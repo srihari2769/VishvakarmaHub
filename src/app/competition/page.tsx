@@ -976,12 +976,10 @@ export default function CompetitionPage() {
                       ))}
                     </div>
                   </div>
-                  {competition?.showSponsorPrices !== false && (
                   <div className="text-center md:text-right flex-shrink-0">
                     <p className="text-4xl font-display font-bold text-cyan-400">₹{(competition?.boothPrice || 5000).toLocaleString('en-IN')}</p>
                     <p className="text-sm text-white/30">per booth</p>
                   </div>
-                  )}
                 </div>
               </div>
             </div>

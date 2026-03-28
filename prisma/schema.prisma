@@ -523,6 +523,8 @@ model CompetitionParticipant {
 
   // Payment
   totalFee        Float?
+  boothFee        Float?
+  wantsBooth      Boolean  @default(false)
   paymentStatus   String   @default("PENDING")  // PENDING, PAID, FAILED
   razorpayOrderId String?
   razorpayPaymentId String?
