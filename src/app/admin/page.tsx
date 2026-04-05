@@ -29,6 +29,11 @@ import {
   AcademicCapIcon,
   UserGroupIcon,
   ArrowDownTrayIcon,
+  BoltIcon,
+  FireIcon,
+  PlayIcon,
+  LockClosedIcon,
+  LockOpenIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -90,7 +95,7 @@ interface ReportData {
   withdrawalStats: { status: string; count: number; amount: number }[];
 }
 
-type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'contacts' | 'reports' | 'competition' | 'settings';
+type Tab = 'overview' | 'pending' | 'startups' | 'users' | 'withdrawals' | 'contacts' | 'reports' | 'competition' | 'vsc' | 'settings';
 
 interface CompetitionEntryItem {
   id: string;
@@ -241,6 +246,77 @@ interface ContactSubmission {
   createdAt: string;
 }
 
+interface VSCRoundItem {
+  id: string;
+  roundNumber: number;
+  title: string;
+  description: string;
+  roundType: string;
+  timeLimit: number;
+  passingPercent: number;
+  isActive: boolean;
+  isLocked: boolean;
+  questionPool: { id: string; question: string; options?: string[]; correctAnswer?: string; points: number; category?: string }[] | null;
+  prompt: string | null;
+  scoringCriteria: { criterion: string; weight: number; maxScore: number }[] | null;
+  startsAt: string | null;
+  endsAt: string | null;
+}
+
+interface VSCParticipantItem {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  college: string | null;
+  city: string;
+  state: string;
+  currentRound: number;
+  isEliminated: boolean;
+  eliminatedAt: number | null;
+  totalScore: number;
+  rank: number | null;
+  entryFee: number;
+  attemptNumber: number;
+  paymentStatus: string;
+  referralCode: string;
+  referralsCount: number;
+  isBoosted: boolean;
+  createdAt: string;
+  user: { firstName: string; lastName: string; email: string };
+  attempts: { roundId: string; score: number; maxScore: number; passed: boolean; completedAt: string | null }[];
+  powerUps: { type: string; paymentStatus: string; isUsed: boolean }[];
+}
+
+interface VSCData {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  isActive: boolean;
+  entryFee: number;
+  secondChanceFee: number;
+  thirdChanceFee: number;
+  skipRoundPrice: number;
+  extraTimePrice: number;
+  revivePrice: number;
+  leaderboardBoostPrice: number;
+  manualRegistrations: number;
+  rounds: VSCRoundItem[];
+  participants: VSCParticipantItem[];
+  _count: { participants: number; rounds: number };
+}
+
+const ROUND_TYPES = [
+  { value: 'SPEED_IQ', label: 'Speed IQ Test' },
+  { value: 'DECISION_MAKING', label: 'Decision Making' },
+  { value: 'CREATIVITY', label: 'Creativity Challenge' },
+  { value: 'EXECUTION', label: 'Execution Simulation' },
+  { value: 'PRESSURE', label: 'Pressure Round' },
+  { value: 'SOCIAL_PROOF', label: 'Social Proof' },
+  { value: 'VIDEO_PITCH', label: 'Final Pitch' },
+];
+
 export default function AdminPage() {
   const router = useRouter();
   const { user, isAuthenticated, checkAuth, isLoading } = useAuthStore();
@@ -288,6 +364,20 @@ export default function AdminPage() {
   const [pageContentSaving, setPageContentSaving] = useState(false);
   const [passSearch, setPassSearch] = useState('');
 
+  // VSC State
+  const [vscData, setVscData] = useState<VSCData | null>(null);
+  const [vscSubTab, setVscSubTab] = useState<'details' | 'rounds' | 'participants' | 'questions'>('details');
+  const [vscEditMode, setVscEditMode] = useState(false);
+  const [vscForm, setVscForm] = useState<Record<string, string | number>>({});
+  const [vscSaving, setVscSaving] = useState(false);
+  const [vscCreating, setVscCreating] = useState(false);
+  const [vscRoundForm, setVscRoundForm] = useState({ roundNumber: '', title: '', description: '', roundType: 'SPEED_IQ', timeLimit: '600', passingPercent: '60', prompt: '' });
+  const [vscEditingRound, setVscEditingRound] = useState<string | null>(null);
+  const [vscEditRoundForm, setVscEditRoundForm] = useState<Record<string, string>>({});
+  const [vscSelectedRound, setVscSelectedRound] = useState<string | null>(null);
+  const [vscQuestionForm, setVscQuestionForm] = useState({ question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '', points: '10', category: '' });
+  const [vscParticipantSearch, setVscParticipantSearch] = useState('');
+
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
@@ -312,6 +402,7 @@ export default function AdminPage() {
       fetchAdmin('reports');
       fetchSiteSettings();
       fetchCompetitionEntries();
+      fetchVscData();
     }
   }, [isAuthenticated, user]);
 
@@ -373,6 +464,141 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success && data.data) setCompetitionData(data.data);
     } catch {}
+  };
+
+  // ─── VSC Functions ───
+
+  const fetchVscData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin?action=vsc-data', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setVscData(data.data);
+    } catch {}
+  };
+
+  const vscAction = async (actionName: string, payload: Record<string, unknown>) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/admin', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ action: actionName, ...payload }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Action failed');
+    return data;
+  };
+
+  const createVscChallenge = async () => {
+    setVscCreating(true);
+    try {
+      await vscAction('vsc-create-challenge', {
+        name: 'Vishvakarma Survival Challenge',
+        tagline: 'Survive 7 Rounds. Prove Your Worth.',
+        description: 'The ultimate elimination challenge for innovators and entrepreneurs.',
+      });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+    setVscCreating(false);
+  };
+
+  const saveVscChallenge = async () => {
+    if (!vscData) return;
+    setVscSaving(true);
+    try {
+      await vscAction('vsc-update-challenge', { challengeId: vscData.id, ...vscForm });
+      setVscEditMode(false);
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+    setVscSaving(false);
+  };
+
+  const addVscRound = async () => {
+    if (!vscData || !vscRoundForm.title || !vscRoundForm.roundNumber) return alert('Round number and title required');
+    setVscSaving(true);
+    try {
+      await vscAction('vsc-add-round', { challengeId: vscData.id, ...vscRoundForm });
+      setVscRoundForm({ roundNumber: '', title: '', description: '', roundType: 'SPEED_IQ', timeLimit: '600', passingPercent: '60', prompt: '' });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+    setVscSaving(false);
+  };
+
+  const updateVscRound = async (roundId: string, data: Record<string, unknown>) => {
+    setVscSaving(true);
+    try {
+      await vscAction('vsc-update-round', { roundId, ...data });
+      setVscEditingRound(null);
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+    setVscSaving(false);
+  };
+
+  const deleteVscRound = async (roundId: string, title: string) => {
+    if (!confirm(`Delete round "${title}"? All attempts will be deleted.`)) return;
+    try {
+      await vscAction('vsc-delete-round', { roundId });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+  };
+
+  const addQuestionToPool = async (roundId: string) => {
+    const round = vscData?.rounds.find(r => r.id === roundId);
+    if (!round) return;
+    if (!vscQuestionForm.question || !vscQuestionForm.correctAnswer) return alert('Question and correct answer required');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pool: any[] = Array.isArray(round.questionPool) ? [...round.questionPool] : [];
+    const newQ: Record<string, unknown> = {
+      id: `q_${Date.now()}`,
+      question: vscQuestionForm.question,
+      correctAnswer: vscQuestionForm.correctAnswer,
+      points: parseInt(vscQuestionForm.points) || 10,
+      category: vscQuestionForm.category || 'General',
+    };
+    if (vscQuestionForm.optionA) {
+      newQ.options = [vscQuestionForm.optionA, vscQuestionForm.optionB, vscQuestionForm.optionC, vscQuestionForm.optionD].filter(Boolean);
+    }
+    pool.push(newQ);
+    try {
+      await vscAction('vsc-update-round', { roundId, questionPool: pool });
+      setVscQuestionForm({ question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '', points: '10', category: '' });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+  };
+
+  const removeQuestionFromPool = async (roundId: string, questionId: string) => {
+    const round = vscData?.rounds.find(r => r.id === roundId);
+    if (!round || !Array.isArray(round.questionPool)) return;
+    const pool = round.questionPool.filter((q: { id: string }) => q.id !== questionId);
+    try {
+      await vscAction('vsc-update-round', { roundId, questionPool: pool });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+  };
+
+  const eliminateVscParticipant = async (participantId: string, roundNumber: number) => {
+    if (!confirm('Eliminate this participant?')) return;
+    try {
+      await vscAction('vsc-eliminate-participant', { participantId, roundNumber });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+  };
+
+  const reviveVscParticipant = async (participantId: string) => {
+    try {
+      await vscAction('vsc-revive-participant', { participantId });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
+  };
+
+  const deleteVscParticipant = async (participantId: string, name: string) => {
+    if (!confirm(`Delete participant "${name}"? This cannot be undone.`)) return;
+    try {
+      await vscAction('vsc-delete-participant', { participantId });
+      fetchVscData();
+    } catch (e) { alert((e as Error).message); }
   };
 
   const updateEntryStatus = async (entryId: string, status: string) => {
@@ -973,6 +1199,7 @@ export default function AdminPage() {
             { id: 'contacts' as Tab, label: `Contacts (${contacts.filter(c => !c.isRead).length})` },
             { id: 'reports' as Tab, label: 'Reports' },
             { id: 'competition' as Tab, label: `Competition (${competitionData?._count?.entries || 0})` },
+            { id: 'vsc' as Tab, label: `VSC (${vscData?._count?.participants || 0})` },
             { id: 'settings' as Tab, label: 'Settings' },
           ]).map((t) => (
             <button
@@ -3005,6 +3232,545 @@ export default function AdminPage() {
                   {seedingCompetition ? 'Creating...' : 'Create Competition'}
                 </Button>
               </Card>
+            )}
+          </motion.div>
+        )}
+
+        {/* VSC Tab */}
+        {tab === 'vsc' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            {!vscData ? (
+              <Card className="p-8 text-center">
+                <BoltIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                <p className="text-muted mb-4">No VSC Challenge created yet.</p>
+                <Button onClick={createVscChallenge} disabled={vscCreating} size="sm">
+                  {vscCreating ? 'Creating...' : 'Create VSC Challenge'}
+                </Button>
+              </Card>
+            ) : (
+              <>
+                {/* VSC Sub-tabs */}
+                <div className="flex gap-2 overflow-x-auto mb-2">
+                  {([
+                    { id: 'details' as const, label: 'Challenge Details', icon: Cog6ToothIcon },
+                    { id: 'rounds' as const, label: `Rounds (${vscData.rounds.length})`, icon: PlayIcon },
+                    { id: 'participants' as const, label: `Participants (${vscData._count.participants})`, icon: UsersIcon },
+                    { id: 'questions' as const, label: 'Question Pool', icon: AcademicCapIcon },
+                  ]).map(st => {
+                    const StIcon = st.icon;
+                    return (
+                      <button key={st.id} onClick={() => setVscSubTab(st.id)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${vscSubTab === st.id ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'text-muted hover:text-foreground hover:bg-card-hover'}`}>
+                        <StIcon className="w-4 h-4" />
+                        {st.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Challenge Details Sub-tab */}
+                {vscSubTab === 'details' && (
+                  <Card className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                          <FireIcon className="w-5 h-5 text-red-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground">{vscData.name}</h3>
+                          <p className="text-sm text-muted">{vscData.tagline}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {vscEditMode ? (
+                          <>
+                            <Button size="sm" onClick={saveVscChallenge} isLoading={vscSaving}>Save</Button>
+                            <Button size="sm" variant="ghost" onClick={() => setVscEditMode(false)}>Cancel</Button>
+                          </>
+                        ) : (
+                          <Button size="sm" variant="ghost" onClick={() => {
+                            setVscEditMode(true);
+                            setVscForm({
+                              name: vscData.name,
+                              tagline: vscData.tagline,
+                              description: vscData.description,
+                              entryFee: vscData.entryFee,
+                              secondChanceFee: vscData.secondChanceFee,
+                              thirdChanceFee: vscData.thirdChanceFee,
+                              skipRoundPrice: vscData.skipRoundPrice,
+                              extraTimePrice: vscData.extraTimePrice,
+                              revivePrice: vscData.revivePrice,
+                              leaderboardBoostPrice: vscData.leaderboardBoostPrice,
+                              manualRegistrations: vscData.manualRegistrations,
+                              isActive: vscData.isActive ? 1 : 0,
+                            });
+                          }}>
+                            <PencilSquareIcon className="w-4 h-4" /> Edit
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {vscEditMode ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs text-muted mb-1">Name</label>
+                            <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.name || '')} onChange={e => setVscForm({ ...vscForm, name: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-muted mb-1">Tagline</label>
+                            <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.tagline || '')} onChange={e => setVscForm({ ...vscForm, tagline: e.target.value })} />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Description</label>
+                          <textarea className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground h-20" value={String(vscForm.description || '')} onChange={e => setVscForm({ ...vscForm, description: e.target.value })} />
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <label className="text-xs text-muted">Active</label>
+                          <button onClick={() => setVscForm({ ...vscForm, isActive: vscForm.isActive === 1 ? 0 : 1 })} className={`w-10 h-6 rounded-full transition-colors ${vscForm.isActive === 1 ? 'bg-green-500' : 'bg-gray-600'}`}>
+                            <div className={`w-4 h-4 rounded-full bg-white transition-transform mx-1 ${vscForm.isActive === 1 ? 'translate-x-4' : ''}`} />
+                          </button>
+                        </div>
+                        <p className="text-xs text-muted font-semibold mt-2">Entry Fees (₹)</p>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-xs text-muted mb-1">1st Attempt</label>
+                            <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.entryFee || '')} onChange={e => setVscForm({ ...vscForm, entryFee: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-muted mb-1">2nd Chance</label>
+                            <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.secondChanceFee || '')} onChange={e => setVscForm({ ...vscForm, secondChanceFee: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-muted mb-1">3rd+ Attempt</label>
+                            <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.thirdChanceFee || '')} onChange={e => setVscForm({ ...vscForm, thirdChanceFee: e.target.value })} />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted font-semibold mt-2">Power-up Prices (₹)</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-xs text-muted mb-1">Skip Round</label>
+                            <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.skipRoundPrice || '')} onChange={e => setVscForm({ ...vscForm, skipRoundPrice: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-muted mb-1">Extra Time</label>
+                            <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.extraTimePrice || '')} onChange={e => setVscForm({ ...vscForm, extraTimePrice: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-muted mb-1">Revive</label>
+                            <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.revivePrice || '')} onChange={e => setVscForm({ ...vscForm, revivePrice: e.target.value })} />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-muted mb-1">Leaderboard Boost</label>
+                            <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={String(vscForm.leaderboardBoostPrice || '')} onChange={e => setVscForm({ ...vscForm, leaderboardBoostPrice: e.target.value })} />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Manual Registrations (added to count)</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground max-w-xs" value={String(vscForm.manualRegistrations || '')} onChange={e => setVscForm({ ...vscForm, manualRegistrations: e.target.value })} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="p-3 rounded-xl bg-card-hover">
+                            <p className="text-xs text-muted">Participants</p>
+                            <p className="text-xl font-bold text-foreground">{vscData._count.participants + vscData.manualRegistrations}</p>
+                          </div>
+                          <div className="p-3 rounded-xl bg-card-hover">
+                            <p className="text-xs text-muted">Rounds</p>
+                            <p className="text-xl font-bold text-foreground">{vscData.rounds.length}</p>
+                          </div>
+                          <div className="p-3 rounded-xl bg-card-hover">
+                            <p className="text-xs text-muted">Active</p>
+                            <p className="text-xl font-bold text-foreground">{vscData.participants.filter(p => !p.isEliminated && p.paymentStatus === 'PAID').length}</p>
+                          </div>
+                          <div className="p-3 rounded-xl bg-card-hover">
+                            <p className="text-xs text-muted">Revenue</p>
+                            <p className="text-xl font-bold text-foreground">{formatCurrency(vscData.participants.filter(p => p.paymentStatus === 'PAID').reduce((s, p) => s + p.entryFee, 0))}</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                          <div><span className="text-muted">Entry Fee:</span> <span className="text-foreground font-medium">₹{vscData.entryFee}</span></div>
+                          <div><span className="text-muted">2nd Chance:</span> <span className="text-foreground font-medium">₹{vscData.secondChanceFee}</span></div>
+                          <div><span className="text-muted">3rd+ Attempt:</span> <span className="text-foreground font-medium">₹{vscData.thirdChanceFee}</span></div>
+                          <div><span className="text-muted">Skip Round:</span> <span className="text-foreground font-medium">₹{vscData.skipRoundPrice}</span></div>
+                          <div><span className="text-muted">Extra Time:</span> <span className="text-foreground font-medium">₹{vscData.extraTimePrice}</span></div>
+                          <div><span className="text-muted">Revive:</span> <span className="text-foreground font-medium">₹{vscData.revivePrice}</span></div>
+                          <div><span className="text-muted">Leaderboard Boost:</span> <span className="text-foreground font-medium">₹{vscData.leaderboardBoostPrice}</span></div>
+                          <div><span className="text-muted">Status:</span> <Badge variant={vscData.isActive ? 'success' : 'danger'}>{vscData.isActive ? 'Active' : 'Inactive'}</Badge></div>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                )}
+
+                {/* Rounds Sub-tab */}
+                {vscSubTab === 'rounds' && (
+                  <div className="space-y-4">
+                    {/* Add Round Form */}
+                    <Card className="p-5">
+                      <h3 className="font-semibold text-foreground text-sm mb-3">Add New Round</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Round #</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscRoundForm.roundNumber} onChange={e => setVscRoundForm({ ...vscRoundForm, roundNumber: e.target.value })} placeholder="1" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscRoundForm.title} onChange={e => setVscRoundForm({ ...vscRoundForm, title: e.target.value })} placeholder="Speed IQ" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Type</label>
+                          <select className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscRoundForm.roundType} onChange={e => setVscRoundForm({ ...vscRoundForm, roundType: e.target.value })}>
+                            {ROUND_TYPES.map(rt => <option key={rt.value} value={rt.value}>{rt.label}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Time (sec)</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscRoundForm.timeLimit} onChange={e => setVscRoundForm({ ...vscRoundForm, timeLimit: e.target.value })} />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Passing %</label>
+                          <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscRoundForm.passingPercent} onChange={e => setVscRoundForm({ ...vscRoundForm, passingPercent: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Description</label>
+                          <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscRoundForm.description} onChange={e => setVscRoundForm({ ...vscRoundForm, description: e.target.value })} placeholder="Round description" />
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="block text-xs text-muted mb-1">Prompt (for creative/pitch rounds)</label>
+                        <textarea className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground h-16" value={vscRoundForm.prompt} onChange={e => setVscRoundForm({ ...vscRoundForm, prompt: e.target.value })} placeholder="Optional task prompt..." />
+                      </div>
+                      <Button size="sm" onClick={addVscRound} isLoading={vscSaving}>Add Round</Button>
+                    </Card>
+
+                    {/* Existing Rounds */}
+                    {vscData.rounds.map(round => (
+                      <Card key={round.id} className="p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${round.isActive ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                              R{round.roundNumber}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-foreground text-sm">{round.title}</h4>
+                              <p className="text-xs text-muted">{ROUND_TYPES.find(rt => rt.value === round.roundType)?.label || round.roundType} &middot; {round.timeLimit}s &middot; {round.passingPercent}% pass &middot; {Array.isArray(round.questionPool) ? round.questionPool.length : 0} questions</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={round.isActive ? 'success' : 'default'}>{round.isActive ? 'Active' : 'Inactive'}</Badge>
+                            <Badge variant={round.isLocked ? 'warning' : 'info'}>{round.isLocked ? 'Locked' : 'Open'}</Badge>
+                            <Button size="sm" variant="ghost" onClick={() => updateVscRound(round.id, { isActive: !round.isActive })}>
+                              {round.isActive ? <XCircleIcon className="w-4 h-4" /> : <CheckCircleIcon className="w-4 h-4" />}
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => updateVscRound(round.id, { isLocked: !round.isLocked })}>
+                              {round.isLocked ? <LockOpenIcon className="w-4 h-4" /> : <LockClosedIcon className="w-4 h-4" />}
+                            </Button>
+                            {vscEditingRound === round.id ? (
+                              <>
+                                <Button size="sm" onClick={() => updateVscRound(round.id, vscEditRoundForm)} isLoading={vscSaving}>Save</Button>
+                                <Button size="sm" variant="ghost" onClick={() => setVscEditingRound(null)}>Cancel</Button>
+                              </>
+                            ) : (
+                              <Button size="sm" variant="ghost" onClick={() => {
+                                setVscEditingRound(round.id);
+                                setVscEditRoundForm({
+                                  title: round.title,
+                                  description: round.description,
+                                  roundType: round.roundType,
+                                  timeLimit: String(round.timeLimit),
+                                  passingPercent: String(round.passingPercent),
+                                  prompt: round.prompt || '',
+                                });
+                              }}>
+                                <PencilSquareIcon className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <Button size="sm" variant="ghost" onClick={() => deleteVscRound(round.id, round.title)}>
+                              <TrashIcon className="w-4 h-4 text-red-400" />
+                            </Button>
+                          </div>
+                        </div>
+                        {vscEditingRound === round.id && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 p-3 bg-card-hover rounded-xl">
+                            <div>
+                              <label className="block text-xs text-muted mb-1">Title</label>
+                              <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscEditRoundForm.title || ''} onChange={e => setVscEditRoundForm({ ...vscEditRoundForm, title: e.target.value })} />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-muted mb-1">Type</label>
+                              <select className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscEditRoundForm.roundType || ''} onChange={e => setVscEditRoundForm({ ...vscEditRoundForm, roundType: e.target.value })}>
+                                {ROUND_TYPES.map(rt => <option key={rt.value} value={rt.value}>{rt.label}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs text-muted mb-1">Time (sec)</label>
+                              <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscEditRoundForm.timeLimit || ''} onChange={e => setVscEditRoundForm({ ...vscEditRoundForm, timeLimit: e.target.value })} />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-muted mb-1">Passing %</label>
+                              <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscEditRoundForm.passingPercent || ''} onChange={e => setVscEditRoundForm({ ...vscEditRoundForm, passingPercent: e.target.value })} />
+                            </div>
+                            <div className="col-span-2 md:col-span-4">
+                              <label className="block text-xs text-muted mb-1">Prompt</label>
+                              <textarea className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground h-16" value={vscEditRoundForm.prompt || ''} onChange={e => setVscEditRoundForm({ ...vscEditRoundForm, prompt: e.target.value })} />
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    ))}
+
+                    {vscData.rounds.length === 0 && (
+                      <Card className="p-6 text-center">
+                        <p className="text-muted text-sm">No rounds created yet. Add your first round above.</p>
+                      </Card>
+                    )}
+                  </div>
+                )}
+
+                {/* Participants Sub-tab */}
+                {vscSubTab === 'participants' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="relative flex-1 max-w-md">
+                        <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                        <input className="w-full bg-background border border-border rounded-xl pl-9 pr-3 py-2 text-sm text-foreground" placeholder="Search by name, email, phone..." value={vscParticipantSearch} onChange={e => setVscParticipantSearch(e.target.value)} />
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => {
+                        const rows = vscData.participants.map(p => [p.name, p.email, p.phone, p.college || '', p.city, p.state, `R${p.currentRound}`, p.totalScore, p.isEliminated ? 'Eliminated' : 'Active', p.paymentStatus, p.referralCode, p.referralsCount, p.attemptNumber].join(','));
+                        const csv = 'Name,Email,Phone,College,City,State,Round,Score,Status,Payment,Referral,Referrals,Attempt\n' + rows.join('\n');
+                        const blob = new Blob([csv], { type: 'text/csv' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a'); a.href = url; a.download = 'vsc-participants.csv'; a.click();
+                      }}>
+                        <ArrowDownTrayIcon className="w-4 h-4" /> Export CSV
+                      </Button>
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                      <div className="p-3 rounded-xl bg-card-hover text-center">
+                        <p className="text-lg font-bold text-foreground">{vscData.participants.filter(p => p.paymentStatus === 'PAID').length}</p>
+                        <p className="text-xs text-muted">Paid</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-card-hover text-center">
+                        <p className="text-lg font-bold text-green-400">{vscData.participants.filter(p => !p.isEliminated && p.paymentStatus === 'PAID').length}</p>
+                        <p className="text-xs text-muted">Active</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-card-hover text-center">
+                        <p className="text-lg font-bold text-red-400">{vscData.participants.filter(p => p.isEliminated).length}</p>
+                        <p className="text-xs text-muted">Eliminated</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-card-hover text-center">
+                        <p className="text-lg font-bold text-yellow-400">{vscData.participants.filter(p => p.paymentStatus === 'PENDING').length}</p>
+                        <p className="text-xs text-muted">Pending Pay</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-card-hover text-center">
+                        <p className="text-lg font-bold text-blue-400">{vscData.participants.reduce((s, p) => s + p.referralsCount, 0)}</p>
+                        <p className="text-xs text-muted">Total Referrals</p>
+                      </div>
+                    </div>
+
+                    {/* Participants Table */}
+                    <Card className="overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-card-hover">
+                            <tr>
+                              <th className="text-left p-3 text-muted font-medium">Name</th>
+                              <th className="text-left p-3 text-muted font-medium">Contact</th>
+                              <th className="text-center p-3 text-muted font-medium">Round</th>
+                              <th className="text-center p-3 text-muted font-medium">Score</th>
+                              <th className="text-center p-3 text-muted font-medium">Status</th>
+                              <th className="text-center p-3 text-muted font-medium">Payment</th>
+                              <th className="text-center p-3 text-muted font-medium">Refs</th>
+                              <th className="text-right p-3 text-muted font-medium">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {vscData.participants
+                              .filter(p => {
+                                if (!vscParticipantSearch) return true;
+                                const q = vscParticipantSearch.toLowerCase();
+                                return p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q) || p.phone.includes(q) || (p.college && p.college.toLowerCase().includes(q));
+                              })
+                              .map(p => (
+                                <tr key={p.id} className="border-t border-border hover:bg-card-hover/50">
+                                  <td className="p-3">
+                                    <p className="font-medium text-foreground">{p.name}</p>
+                                    <p className="text-xs text-muted">{p.college || p.city} &middot; Attempt #{p.attemptNumber}</p>
+                                  </td>
+                                  <td className="p-3">
+                                    <p className="text-foreground">{p.email}</p>
+                                    <p className="text-xs text-muted">{p.phone}</p>
+                                  </td>
+                                  <td className="text-center p-3">
+                                    <span className="font-bold text-foreground">R{p.currentRound}</span>
+                                  </td>
+                                  <td className="text-center p-3">
+                                    <span className="font-bold text-foreground">{p.totalScore}</span>
+                                  </td>
+                                  <td className="text-center p-3">
+                                    <Badge variant={p.isEliminated ? 'danger' : 'success'}>
+                                      {p.isEliminated ? `Elim R${p.eliminatedAt || '?'}` : 'Active'}
+                                    </Badge>
+                                    {p.isBoosted && <Badge variant="info" className="ml-1">Boosted</Badge>}
+                                  </td>
+                                  <td className="text-center p-3">
+                                    <Badge variant={p.paymentStatus === 'PAID' ? 'success' : 'warning'}>{p.paymentStatus}</Badge>
+                                  </td>
+                                  <td className="text-center p-3">{p.referralsCount}</td>
+                                  <td className="text-right p-3">
+                                    <div className="flex items-center justify-end gap-1">
+                                      {p.isEliminated ? (
+                                        <Button size="sm" variant="ghost" onClick={() => reviveVscParticipant(p.id)} title="Revive">
+                                          <CheckCircleIcon className="w-4 h-4 text-green-400" />
+                                        </Button>
+                                      ) : (
+                                        <Button size="sm" variant="ghost" onClick={() => eliminateVscParticipant(p.id, p.currentRound)} title="Eliminate">
+                                          <XCircleIcon className="w-4 h-4 text-red-400" />
+                                        </Button>
+                                      )}
+                                      <Button size="sm" variant="ghost" onClick={() => deleteVscParticipant(p.id, p.name)} title="Delete">
+                                        <TrashIcon className="w-4 h-4 text-red-400" />
+                                      </Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                        {vscData.participants.length === 0 && (
+                          <p className="text-center text-muted py-8 text-sm">No participants yet.</p>
+                        )}
+                      </div>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Questions Sub-tab */}
+                {vscSubTab === 'questions' && (
+                  <div className="space-y-4">
+                    {/* Select Round */}
+                    <Card className="p-5">
+                      <h3 className="font-semibold text-foreground text-sm mb-3">Select Round to Manage Questions</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {vscData.rounds.map(r => (
+                          <button key={r.id} onClick={() => setVscSelectedRound(r.id)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${vscSelectedRound === r.id ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'text-muted hover:text-foreground bg-card-hover'}`}>
+                            R{r.roundNumber}: {r.title} ({Array.isArray(r.questionPool) ? r.questionPool.length : 0}q)
+                          </button>
+                        ))}
+                      </div>
+                    </Card>
+
+                    {vscSelectedRound && (() => {
+                      const round = vscData.rounds.find(r => r.id === vscSelectedRound);
+                      if (!round) return null;
+                      const isQuizType = ['SPEED_IQ', 'DECISION_MAKING', 'PRESSURE'].includes(round.roundType);
+
+                      return (
+                        <>
+                          {/* Add Question Form */}
+                          <Card className="p-5">
+                            <h3 className="font-semibold text-foreground text-sm mb-3">
+                              Add Question to R{round.roundNumber}: {round.title}
+                              <span className="text-muted font-normal ml-2">({ROUND_TYPES.find(rt => rt.value === round.roundType)?.label})</span>
+                            </h3>
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-xs text-muted mb-1">Question</label>
+                                <textarea className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground h-16" value={vscQuestionForm.question} onChange={e => setVscQuestionForm({ ...vscQuestionForm, question: e.target.value })} placeholder="Enter question text..." />
+                              </div>
+                              {isQuizType && (
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-xs text-muted mb-1">Option A</label>
+                                    <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscQuestionForm.optionA} onChange={e => setVscQuestionForm({ ...vscQuestionForm, optionA: e.target.value })} />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-muted mb-1">Option B</label>
+                                    <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscQuestionForm.optionB} onChange={e => setVscQuestionForm({ ...vscQuestionForm, optionB: e.target.value })} />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-muted mb-1">Option C</label>
+                                    <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscQuestionForm.optionC} onChange={e => setVscQuestionForm({ ...vscQuestionForm, optionC: e.target.value })} />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-muted mb-1">Option D</label>
+                                    <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscQuestionForm.optionD} onChange={e => setVscQuestionForm({ ...vscQuestionForm, optionD: e.target.value })} />
+                                  </div>
+                                </div>
+                              )}
+                              <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                  <label className="block text-xs text-muted mb-1">{isQuizType ? 'Correct Answer' : 'Expected Answer Hint'}</label>
+                                  <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscQuestionForm.correctAnswer} onChange={e => setVscQuestionForm({ ...vscQuestionForm, correctAnswer: e.target.value })} placeholder={isQuizType ? 'e.g. Option A text' : 'Evaluation criteria'} />
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-muted mb-1">Points</label>
+                                  <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscQuestionForm.points} onChange={e => setVscQuestionForm({ ...vscQuestionForm, points: e.target.value })} />
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-muted mb-1">Category</label>
+                                  <input className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={vscQuestionForm.category} onChange={e => setVscQuestionForm({ ...vscQuestionForm, category: e.target.value })} placeholder="General" />
+                                </div>
+                              </div>
+                              <Button size="sm" onClick={() => addQuestionToPool(round.id)}>Add Question</Button>
+                            </div>
+                          </Card>
+
+                          {/* Existing Questions */}
+                          <Card className="p-5">
+                            <h3 className="font-semibold text-foreground text-sm mb-3">
+                              Questions ({Array.isArray(round.questionPool) ? round.questionPool.length : 0})
+                            </h3>
+                            {Array.isArray(round.questionPool) && round.questionPool.length > 0 ? (
+                              <div className="space-y-2">
+                                {(round.questionPool as { id: string; question: string; options?: string[]; correctAnswer?: string; points: number; category?: string }[]).map((q, idx) => (
+                                  <div key={q.id} className="flex items-start justify-between p-3 rounded-xl bg-card-hover gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm text-foreground font-medium">
+                                        <span className="text-muted mr-2">Q{idx + 1}.</span>
+                                        {q.question}
+                                      </p>
+                                      {q.options && q.options.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-1">
+                                          {q.options.map((opt, oi) => (
+                                            <span key={oi} className={`text-xs px-2 py-0.5 rounded ${opt === q.correctAnswer ? 'bg-green-500/10 text-green-400 font-medium' : 'bg-white/5 text-muted'}`}>
+                                              {String.fromCharCode(65 + oi)}. {opt}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      )}
+                                      <p className="text-xs text-muted mt-1">{q.points} pts &middot; {q.category || 'General'}{q.correctAnswer && !q.options ? ` · Answer: ${q.correctAnswer}` : ''}</p>
+                                    </div>
+                                    <Button size="sm" variant="ghost" onClick={() => removeQuestionFromPool(round.id, q.id)}>
+                                      <TrashIcon className="w-4 h-4 text-red-400" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-muted text-sm text-center py-4">No questions in this round&apos;s pool yet.</p>
+                            )}
+                          </Card>
+                        </>
+                      );
+                    })()}
+
+                    {!vscSelectedRound && (
+                      <Card className="p-6 text-center">
+                        <p className="text-muted text-sm">Select a round above to manage its question pool.</p>
+                      </Card>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </motion.div>
         )}

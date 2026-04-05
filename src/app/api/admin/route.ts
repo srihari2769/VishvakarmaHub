@@ -183,6 +183,25 @@ export async function GET(request: NextRequest) {
         return successResponse(competition);
       }
 
+      case 'vsc-data': {
+        const vscChallenge = await prisma.vSCChallenge.findFirst({
+          where: { isActive: true },
+          include: {
+            rounds: { orderBy: { roundNumber: 'asc' } },
+            participants: {
+              include: {
+                user: { select: { firstName: true, lastName: true, email: true } },
+                attempts: { select: { roundId: true, score: true, maxScore: true, passed: true, completedAt: true } },
+                powerUps: { select: { type: true, paymentStatus: true, isUsed: true } },
+              },
+              orderBy: { createdAt: 'desc' },
+            },
+            _count: { select: { participants: true, rounds: true } },
+          },
+        });
+        return successResponse(vscChallenge);
+      }
+
       default:
         return errorResponse('Invalid action parameter', 400);
     }
@@ -523,6 +542,127 @@ export async function PATCH(request: NextRequest) {
         await prisma.freeEntryReferral.deleteMany({ where: { freeEntryId: delFeId } });
         await prisma.freeEntry.delete({ where: { id: delFeId } });
         return successResponse({ message: 'Free entry deleted' });
+      }
+
+      // ─── VSC Actions ───
+
+      case 'vsc-create-challenge': {
+        const { name, tagline, description, entryFee, secondChanceFee, thirdChanceFee, skipRoundPrice, extraTimePrice, revivePrice, leaderboardBoostPrice } = body;
+        if (!name || !tagline || !description) return errorResponse('Name, tagline, description required', 400);
+        const challenge = await prisma.vSCChallenge.create({
+          data: {
+            name, tagline, description,
+            entryFee: parseFloat(entryFee) || 99,
+            secondChanceFee: parseFloat(secondChanceFee) || 49,
+            thirdChanceFee: parseFloat(thirdChanceFee) || 19,
+            skipRoundPrice: parseFloat(skipRoundPrice) || 199,
+            extraTimePrice: parseFloat(extraTimePrice) || 29,
+            revivePrice: parseFloat(revivePrice) || 59,
+            leaderboardBoostPrice: parseFloat(leaderboardBoostPrice) || 39,
+          },
+        });
+        return successResponse(challenge);
+      }
+
+      case 'vsc-update-challenge': {
+        const { challengeId: ucId, ...updateFields } = body;
+        if (!ucId) return errorResponse('Challenge ID required', 400);
+        const numericFields = ['entryFee', 'secondChanceFee', 'thirdChanceFee', 'skipRoundPrice', 'extraTimePrice', 'revivePrice', 'leaderboardBoostPrice', 'manualRegistrations'];
+        const data: Record<string, unknown> = {};
+        for (const [key, val] of Object.entries(updateFields)) {
+          if (key === 'action') continue;
+          if (numericFields.includes(key)) data[key] = parseFloat(val as string) || 0;
+          else if (key === 'isActive') data[key] = val === true || val === 'true';
+          else data[key] = val;
+        }
+        const updated = await prisma.vSCChallenge.update({ where: { id: ucId }, data });
+        return successResponse(updated);
+      }
+
+      case 'vsc-add-round': {
+        const { challengeId: arCid, roundNumber: arNum, title: arTitle, description: arDesc, roundType: arType, timeLimit: arTime, passingPercent: arPass, prompt: arPrompt } = body;
+        if (!arCid || !arNum || !arTitle || !arType) return errorResponse('Challenge ID, roundNumber, title, roundType required', 400);
+        const round = await prisma.vSCRound.create({
+          data: {
+            challengeId: arCid,
+            roundNumber: parseInt(arNum),
+            title: arTitle,
+            description: arDesc || '',
+            roundType: arType,
+            timeLimit: parseInt(arTime) || 600,
+            passingPercent: parseFloat(arPass) || 60,
+            prompt: arPrompt || null,
+          },
+        });
+        return successResponse(round);
+      }
+
+      case 'vsc-update-round': {
+        const { roundId: urId, questionPool: urQp, scoringCriteria: urSc, ...urFields } = body;
+        if (!urId) return errorResponse('Round ID required', 400);
+        const numRoundFields = ['roundNumber', 'timeLimit'];
+        const floatRoundFields = ['passingPercent'];
+        const boolRoundFields = ['isActive', 'isLocked'];
+        const urData: Record<string, unknown> = {};
+        for (const [key, val] of Object.entries(urFields)) {
+          if (key === 'action') continue;
+          if (numRoundFields.includes(key)) urData[key] = parseInt(val as string) || 0;
+          else if (floatRoundFields.includes(key)) urData[key] = parseFloat(val as string) || 0;
+          else if (boolRoundFields.includes(key)) urData[key] = val === true || val === 'true';
+          else if (key === 'startsAt' || key === 'endsAt') urData[key] = val ? new Date(val as string) : null;
+          else urData[key] = val;
+        }
+        if (urQp !== undefined) urData.questionPool = urQp;
+        if (urSc !== undefined) urData.scoringCriteria = urSc;
+        const updatedRound = await prisma.vSCRound.update({ where: { id: urId }, data: urData });
+        return successResponse(updatedRound);
+      }
+
+      case 'vsc-delete-round': {
+        const { roundId: drId } = body;
+        if (!drId) return errorResponse('Round ID required', 400);
+        await prisma.vSCRoundAttempt.deleteMany({ where: { roundId: drId } });
+        await prisma.vSCRound.delete({ where: { id: drId } });
+        return successResponse({ message: 'Round deleted' });
+      }
+
+      case 'vsc-eliminate-participant': {
+        const { participantId: epId, roundNumber: epRound } = body;
+        if (!epId) return errorResponse('Participant ID required', 400);
+        await prisma.vSCParticipant.update({
+          where: { id: epId },
+          data: { isEliminated: true, eliminatedAt: parseInt(epRound) || null },
+        });
+        return successResponse({ message: 'Participant eliminated' });
+      }
+
+      case 'vsc-revive-participant': {
+        const { participantId: rpId } = body;
+        if (!rpId) return errorResponse('Participant ID required', 400);
+        await prisma.vSCParticipant.update({
+          where: { id: rpId },
+          data: { isEliminated: false, eliminatedAt: null },
+        });
+        return successResponse({ message: 'Participant revived' });
+      }
+
+      case 'vsc-delete-participant': {
+        const { participantId: dpId } = body;
+        if (!dpId) return errorResponse('Participant ID required', 400);
+        await prisma.vSCPowerUp.deleteMany({ where: { participantId: dpId } });
+        await prisma.vSCRoundAttempt.deleteMany({ where: { participantId: dpId } });
+        await prisma.vSCParticipant.delete({ where: { id: dpId } });
+        return successResponse({ message: 'Participant deleted' });
+      }
+
+      case 'vsc-update-participant-score': {
+        const { participantId: usId, totalScore: usScore, currentRound: usCr } = body;
+        if (!usId) return errorResponse('Participant ID required', 400);
+        const scoreData: Record<string, unknown> = {};
+        if (usScore !== undefined) scoreData.totalScore = parseFloat(usScore);
+        if (usCr !== undefined) scoreData.currentRound = parseInt(usCr);
+        await prisma.vSCParticipant.update({ where: { id: usId }, data: scoreData });
+        return successResponse({ message: 'Participant updated' });
       }
 
       default:
