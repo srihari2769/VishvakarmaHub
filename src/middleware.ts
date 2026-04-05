@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const ALLOWED_PATHS = [
   '/coming-soon',
   '/competition',
+  '/vsc',
   '/admin',
   '/api',
   '/_next',
