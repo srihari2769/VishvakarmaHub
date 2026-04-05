@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useAuthStore } from '@/store/authStore';
 import {
   BoltIcon,
   TrophyIcon,
@@ -78,7 +77,6 @@ const defaultRounds = [
 export default function VSCPage() {
   const [challenge, setChallenge] = useState<ChallengeData | null>(null);
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     fetch('/api/vsc')
@@ -124,7 +122,7 @@ export default function VSCPage() {
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-12">
-              <Link href={isAuthenticated ? '/vsc/register' : '/login?redirect=/vsc/register'}>
+              <Link href="/vsc/register">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -336,7 +334,7 @@ export default function VSCPage() {
                 <p className="text-sm text-white/40">{tier.desc}</p>
                 {tier.highlight && (
                   <div className="mt-4">
-                    <Link href={isAuthenticated ? '/vsc/register' : '/login?redirect=/vsc/register'}>
+                    <Link href="/vsc/register">
                       <button className="px-6 py-2 bg-gradient-to-r from-red-600 to-orange-500 rounded-lg text-white font-bold text-sm shadow-lg shadow-red-500/20 hover:shadow-red-500/30 transition-all">
                         Register Now
                       </button>
@@ -388,7 +386,7 @@ export default function VSCPage() {
             <p className="text-white/40 text-lg mb-8 max-w-lg mx-auto">
               7 rounds. Thousands enter. Only the sharpest mind wins. Your journey starts at just ₹99.
             </p>
-            <Link href={isAuthenticated ? '/vsc/register' : '/login?redirect=/vsc/register'}>
+            <Link href="/vsc/register">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

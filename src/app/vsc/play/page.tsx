@@ -115,7 +115,7 @@ function VSCPlayContent() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login?redirect=/vsc/play?round=' + roundNumber);
+      router.push('/vsc/login');
       return;
     }
     fetchRound();

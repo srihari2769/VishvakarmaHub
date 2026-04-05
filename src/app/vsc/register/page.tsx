@@ -11,6 +11,8 @@ import {
   FireIcon,
   CheckCircleIcon,
   ShareIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 
 declare global {
@@ -42,17 +44,22 @@ export default function VSCRegisterPage() {
 function VSCRegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, user, token } = useAuthStore();
+  const { isAuthenticated, user, token, setUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [entryFee, setEntryFee] = useState(99);
   const [attemptInfo, setAttemptInfo] = useState<{ attempt: number; fee: number } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [currentToken, setCurrentToken] = useState<string | null>(token);
   const [form, setForm] = useState({
-    name: '',
-    phone: '',
+    firstName: '',
+    lastName: '',
     email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
     college: '',
     city: '',
     state: '',
@@ -65,27 +72,32 @@ function VSCRegisterContent() {
     if (ref) setReferralCode(ref);
   }, [searchParams]);
 
-  // Pre-fill user data
+  // Pre-fill user data if already logged in
   useEffect(() => {
     if (user) {
       setForm(prev => ({
         ...prev,
-        name: (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : prev.name,
+        firstName: user.firstName || prev.firstName,
+        lastName: user.lastName || prev.lastName,
         email: user.email || prev.email,
       }));
     }
   }, [user]);
 
-  // Fetch current attempt info
+  // Keep currentToken in sync
   useEffect(() => {
-    if (!token) return;
-    fetch('/api/vsc', { headers: { Authorization: `Bearer ${token}` } })
+    setCurrentToken(token);
+  }, [token]);
+
+  // Fetch current attempt info if already logged in
+  useEffect(() => {
+    if (!currentToken) return;
+    fetch('/api/vsc')
       .then(r => r.json())
       .then(d => {
         if (d.success && d.data) {
           const challenge = d.data;
-          // We'll check attempt count from the participant endpoint
-          fetch('/api/vsc/participant', { headers: { Authorization: `Bearer ${token}` } })
+          fetch('/api/vsc/participant', { headers: { Authorization: `Bearer ${currentToken}` } })
             .then(r => r.json())
             .then(pd => {
               if (pd.success && pd.data?.participant) {
@@ -103,14 +115,7 @@ function VSCRegisterContent() {
         }
       })
       .catch(() => {});
-  }, [token]);
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login?redirect=/vsc/register');
-    }
-  }, [isAuthenticated, router]);
+  }, [currentToken]);
 
   const updateField = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -120,7 +125,16 @@ function VSCRegisterContent() {
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!form.name.trim()) newErrors.name = 'Name is required';
+    if (!isAuthenticated) {
+      if (!form.firstName.trim()) newErrors.firstName = 'First name is required';
+      if (!form.lastName.trim()) newErrors.lastName = 'Last name is required';
+      if (!form.password) newErrors.password = 'Password is required';
+      else if (form.password.length < 8) newErrors.password = 'Min 8 characters';
+      else if (!/[A-Z]/.test(form.password)) newErrors.password = 'Need an uppercase letter';
+      else if (!/[a-z]/.test(form.password)) newErrors.password = 'Need a lowercase letter';
+      else if (!/[0-9]/.test(form.password)) newErrors.password = 'Need a number';
+      if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    }
     if (!form.email.trim()) newErrors.email = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = 'Invalid email';
     if (!form.phone.trim()) newErrors.phone = 'Phone number is required';
@@ -137,15 +151,56 @@ function VSCRegisterContent() {
     setLoading(true);
     setError('');
 
+    let authToken = currentToken;
+
     try {
+      // Step 1: If not logged in, create account first
+      if (!isAuthenticated) {
+        const regRes = await fetch('/api/vsc/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: form.firstName,
+            lastName: form.lastName,
+            email: form.email,
+            password: form.password,
+            phone: form.phone,
+            college: form.college || undefined,
+            city: form.city,
+            state: form.state,
+          }),
+        });
+
+        const regData = await regRes.json();
+        if (!regData.success) {
+          setError(regData.error || 'Account creation failed');
+          setLoading(false);
+          return;
+        }
+
+        setUser(regData.data.user, regData.data.token);
+        authToken = regData.data.token;
+        setCurrentToken(authToken);
+      }
+
+      // Step 2: Register for VSC and create Razorpay order
+      const name = isAuthenticated
+        ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || form.firstName + ' ' + form.lastName
+        : `${form.firstName} ${form.lastName}`;
+
       const res = await fetch('/api/vsc', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          ...form,
+          name,
+          phone: form.phone,
+          email: form.email,
+          college: form.college || undefined,
+          city: form.city,
+          state: form.state,
           referralBy: referralCode || undefined,
         }),
       });
@@ -159,7 +214,7 @@ function VSCRegisterContent() {
 
       const d = data.data;
 
-      // Open Razorpay checkout
+      // Step 3: Open Razorpay checkout
       const options = {
         key: d.keyId,
         amount: d.amount * 100,
@@ -177,7 +232,7 @@ function VSCRegisterContent() {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${authToken}`,
             },
             body: JSON.stringify({
               participantId: d.participant.id,
@@ -212,8 +267,6 @@ function VSCRegisterContent() {
       setLoading(false);
     }
   };
-
-  if (!isAuthenticated) return null;
 
   // Success state
   if (success) {
@@ -295,13 +348,27 @@ function VSCRegisterContent() {
 
           <Card className="p-6 md:p-8 bg-white/[0.02] border-white/10">
             <form onSubmit={handleRegisterAndPay} className="space-y-5">
-              <Input
-                label="Full Name"
-                value={form.name}
-                onChange={(e) => updateField('name', e.target.value)}
-                error={errors.name}
-                placeholder="Your full name"
-              />
+              {/* Account fields — only for new users */}
+              {!isAuthenticated && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="First Name"
+                      value={form.firstName}
+                      onChange={(e) => updateField('firstName', e.target.value)}
+                      error={errors.firstName}
+                      placeholder="First name"
+                    />
+                    <Input
+                      label="Last Name"
+                      value={form.lastName}
+                      onChange={(e) => updateField('lastName', e.target.value)}
+                      error={errors.lastName}
+                      placeholder="Last name"
+                    />
+                  </div>
+                </>
+              )}
 
               <Input
                 label="Email Address"
@@ -310,7 +377,46 @@ function VSCRegisterContent() {
                 onChange={(e) => updateField('email', e.target.value)}
                 error={errors.email}
                 placeholder="your@email.com"
+                disabled={isAuthenticated}
               />
+
+              {/* Password fields — only for new users */}
+              {!isAuthenticated && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-1">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={form.password}
+                        onChange={(e) => updateField('password', e.target.value)}
+                        placeholder="Min 8 chars, uppercase, lowercase, number"
+                        className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/50 pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                      >
+                        {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-1">Confirm Password</label>
+                    <input
+                      type="password"
+                      value={form.confirmPassword}
+                      onChange={(e) => updateField('confirmPassword', e.target.value)}
+                      placeholder="Repeat your password"
+                      className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    />
+                    {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
+                  </div>
+                </>
+              )}
 
               <Input
                 label="Phone Number"
@@ -382,6 +488,13 @@ function VSCRegisterContent() {
 
               <p className="text-xs text-center text-white/20">
                 By registering, you agree to the challenge rules. No refunds after payment.
+              </p>
+
+              <p className="text-center text-sm text-white/40">
+                Already have an account?{' '}
+                <Link href="/vsc/login" className="text-red-400 hover:underline font-medium">
+                  Login here
+                </Link>
               </p>
             </form>
           </Card>

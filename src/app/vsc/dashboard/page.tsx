@@ -128,7 +128,7 @@ export default function VSCDashboardPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login?redirect=/vsc/dashboard');
+      router.push('/vsc/login');
       return;
     }
     fetchDashboard();
