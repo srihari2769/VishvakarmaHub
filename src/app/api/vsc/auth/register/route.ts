@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
-import { hashPassword, generateToken, generateVerificationToken } from '@/lib/auth';
+import { hashPassword, comparePassword, generateToken, generateVerificationToken } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/lib/utils';
 import { validateEmail, validatePassword } from '@/lib/validations';
 
@@ -32,9 +32,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, firstName: true, lastName: true, password: true, role: true, avatar: true },
+    });
 
     if (existingUser) {
+      // User already has an account (e.g. from competition) — verify password and return token
+      const passwordMatch = await comparePassword(password, existingUser.password);
+      if (!passwordMatch) {
+        return errorResponse('An account with this email already exists. Please use the correct password or use VSC Login.', 409);
+      }
+
       // Check if already registered for an active VSC challenge
       const challenge = await prisma.vSCChallenge.findFirst({ where: { isActive: true } });
       if (challenge) {
@@ -45,7 +54,20 @@ export async function POST(request: NextRequest) {
           return errorResponse('You are already registered for this challenge. Please login instead.', 409);
         }
       }
-      return errorResponse('An account with this email already exists. Please use VSC Login.', 409);
+
+      // Password matches — return existing user with token so they can proceed to VSC registration
+      const { password: _, ...userWithoutPassword } = existingUser;
+      const existingToken = generateToken({
+        userId: existingUser.id,
+        email: existingUser.email,
+        role: existingUser.role,
+      });
+
+      return successResponse({
+        user: userWithoutPassword,
+        token: existingToken,
+        existingAccount: true,
+      }, 200);
     }
 
     const hashedPassword = await hashPassword(password);
