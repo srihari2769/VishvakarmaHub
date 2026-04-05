@@ -1948,6 +1948,7 @@ export default function AdminPage() {
                             boothDescription: competitionData.boothDescription || '',
                             manualRegistrations: competitionData.manualRegistrations || 0,
                             showSponsorPrices: competitionData.showSponsorPrices ? 1 : 0,
+                            showFinalDate: competitionData.showFinalDate ? 1 : 0,
                             registrationStart: competitionData.registrationStart?.slice(0, 10) || '',
                             registrationEnd: competitionData.registrationEnd?.slice(0, 10) || '',
                             screeningEnd: competitionData.screeningEnd?.slice(0, 10) || '',
