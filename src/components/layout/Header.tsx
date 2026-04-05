@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
   { href: '/competition', label: 'Competition' },
+  { href: '/vsc', label: 'Challenge' },
   { href: '/co-founders', label: 'Co-Founders' },
   { href: '/categories', label: 'Categories' },
   { href: '/how-it-works', label: 'How It Works' },

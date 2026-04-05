@@ -134,6 +134,9 @@ model User {
   competitionParticipants CompetitionParticipant[]
   freeEntries     FreeEntry[]
   freeEntryReferrals FreeEntryReferral[] @relation("FreeEntryReferredUser")
+  vscParticipants VSCParticipant[]
+  vscAttempts     VSCRoundAttempt[]
+  vscPowerUps     VSCPowerUp[]
 
   @@index([email])
   @@index([referralCode])
@@ -743,4 +746,196 @@ model CitizenPass {
   @@index([competitionId])
   @@index([passNumber])
   @@map("citizen_passes")
+}
+
+// ==================== VISHVAKARMA SURVIVAL CHALLENGE (VSC) ====================
+
+model VSCChallenge {
+  id              String   @id @default(cuid())
+  name            String
+  tagline         String
+  description     String   @db.Text
+  isActive        Boolean  @default(true)
+  
+  // Fees
+  entryFee        Float    @default(99)
+  secondChanceFee Float    @default(49)
+  thirdChanceFee  Float    @default(19)
+  
+  // Power-up prices
+  skipRoundPrice  Float    @default(199)
+  extraTimePrice  Float    @default(29)
+  revivePrice     Float    @default(59)
+  leaderboardBoostPrice Float @default(39)
+
+  // Manual registration count
+  manualRegistrations Int  @default(0)
+
+  rounds          VSCRound[]
+  participants    VSCParticipant[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("vsc_challenges")
+}
+
+model VSCRound {
+  id              String   @id @default(cuid())
+  challengeId     String
+  challenge       VSCChallenge @relation(fields: [challengeId], references: [id])
+
+  roundNumber     Int
+  title           String
+  description     String   @db.Text
+  roundType       String            // SPEED_IQ, DECISION_MAKING, CREATIVITY, EXECUTION, PRESSURE, SOCIAL_PROOF, VIDEO_PITCH
+
+  // Round settings
+  timeLimit       Int      @default(600)  // seconds
+  passingPercent  Float    @default(60)   // top X% qualify
+  isActive        Boolean  @default(false)
+  isLocked        Boolean  @default(true) // locked until admin opens
+  
+  // Question pool (JSON — each user gets randomized subset)
+  questionPool    Json?    // [{id, question, options, correctAnswer, points, category}]
+  
+  // For creativity/execution/pitch rounds
+  prompt          String?  @db.Text       // The task prompt
+  scoringCriteria Json?                    // [{criterion, weight, maxScore}]
+
+  attempts        VSCRoundAttempt[]
+
+  startsAt        DateTime?
+  endsAt          DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([challengeId, roundNumber])
+  @@index([challengeId])
+  @@map("vsc_rounds")
+}
+
+model VSCParticipant {
+  id              String   @id @default(cuid())
+
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  challengeId     String
+  challenge       VSCChallenge @relation(fields: [challengeId], references: [id])
+
+  // Profile
+  name            String
+  phone           String
+  email           String
+  college         String?
+  city            String
+  state           String
+
+  // Status
+  currentRound    Int      @default(1)
+  isEliminated    Boolean  @default(false)
+  eliminatedAt    Int?                     // Round number they were eliminated at
+  totalScore      Float    @default(0)
+  rank            Int?
+
+  // Payment
+  entryFee        Float
+  attemptNumber   Int      @default(1)     // 1=first, 2=second chance, 3+=third
+  paymentStatus   String   @default("PENDING")
+  razorpayOrderId String?
+  razorpayPaymentId String?
+
+  // Referral
+  referralCode    String   @unique
+  referralsCount  Int      @default(0)
+
+  // Leaderboard boost
+  isBoosted       Boolean  @default(false)
+
+  attempts        VSCRoundAttempt[]
+  powerUps        VSCPowerUp[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, challengeId, attemptNumber])
+  @@index([challengeId])
+  @@index([referralCode])
+  @@index([isEliminated, totalScore])
+  @@map("vsc_participants")
+}
+
+model VSCRoundAttempt {
+  id              String   @id @default(cuid())
+
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  participantId   String
+  participant     VSCParticipant @relation(fields: [participantId], references: [id])
+
+  roundId         String
+  round           VSCRound @relation(fields: [roundId], references: [id])
+
+  // Questions assigned to this user (randomized subset from pool)
+  assignedQuestions Json?   // [{questionId, ...}]
+
+  // Answers
+  answers         Json?    // [{questionId, answer, isCorrect, points}]
+  
+  // For text submissions (creativity, execution, pitch)
+  submission      String?  @db.Text
+  videoUrl        String?
+  
+  // Scoring
+  score           Float    @default(0)
+  maxScore        Float    @default(0)
+  percentage      Float    @default(0)
+  timeTaken       Int?                     // seconds
+  
+  // Result
+  passed          Boolean  @default(false)
+  rank            Int?                     // rank within this round
+
+  // Power-ups used
+  usedExtraTime   Boolean  @default(false)
+  usedSkipRound   Boolean  @default(false)
+
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+
+  @@unique([participantId, roundId])
+  @@index([roundId])
+  @@index([participantId])
+  @@map("vsc_round_attempts")
+}
+
+model VSCPowerUp {
+  id              String   @id @default(cuid())
+
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  participantId   String
+  participant     VSCParticipant @relation(fields: [participantId], references: [id])
+
+  type            String              // SKIP_ROUND, EXTRA_TIME, REVIVE, LEADERBOARD_BOOST
+  price           Float
+  
+  // Payment
+  paymentStatus   String   @default("PENDING")
+  razorpayOrderId String?
+  razorpayPaymentId String?
+
+  // Usage
+  isUsed          Boolean  @default(false)
+  usedAtRound     Int?
+  usedAt          DateTime?
+
+  createdAt       DateTime @default(now())
+
+  @@index([participantId])
+  @@map("vsc_power_ups")
 }
