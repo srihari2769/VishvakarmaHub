@@ -469,6 +469,9 @@ model Competition {
   // Toggle to show/hide sponsor prices on the public competition page
   showSponsorPrices Boolean          @default(true)
 
+  // Toggle to show/hide finals date on the public competition page
+  showFinalDate     Boolean          @default(true)
+
   isActive        Boolean           @default(true)
   entries         CompetitionEntry[]
   judges          CompetitionJudge[]

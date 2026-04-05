@@ -76,6 +76,7 @@ interface CompetitionData {
   isActive: boolean;
   pageContent: Record<string, unknown> | null;
   showSponsorPrices: boolean;
+  showFinalDate: boolean;
   entries: CompetitionEntryData[];
   judges: JudgeData[];
   sponsors: SponsorData[];
@@ -838,7 +839,7 @@ export default function CompetitionPage() {
                       <h3 className="text-lg font-display font-bold text-white">Phase 4 — Final Pitch Round</h3>
                       {phase === 'FINALS' && <Badge variant="info">ACTIVE</Badge>}
                     </div>
-                    <p className="text-xs text-white/30 mb-3">Top 20 startups present online{competition && ` (${formatDate(competition.finalsDate)})`}</p>
+                    <p className="text-xs text-white/30 mb-3">Top 20 startups present online{competition && (competition.showFinalDate ? ` (${formatDate(competition.finalsDate)})` : ' (Final date will be announced soon)')}</p>
                     <p className="text-sm text-white/50 mb-2">5-minute pitch to a panel of judges:</p>
                     <div className="flex flex-wrap gap-2">
                       {['Founders', 'Investors', 'Industry Experts'].map((j) => (
@@ -1566,9 +1567,9 @@ export default function CompetitionPage() {
               { label: 'Registration Closes', date: competition.registrationEnd, phase: 'REGISTRATION', icon: '⏰', desc: 'Last chance to register — don\'t miss out!' },
               { label: 'Screening Complete', date: competition.screeningEnd, phase: 'SCREENING', icon: '🔍', desc: 'Expert jury reviews all submissions' },
               { label: 'Public Voting Ends', date: competition.votingEnd, phase: 'VOTING', icon: '🗳️', desc: 'Community votes for the best startups' },
-              { label: 'Grand Finale', date: competition.finalsDate, phase: 'FINALS', icon: '🏆', desc: 'Live pitch day in Tirupati — winners announced!' },
+              { label: 'Grand Finale', date: competition.showFinalDate ? competition.finalsDate : '', phase: 'FINALS', icon: '🏆', desc: 'Live pitch day in Tirupati — winners announced!' },
             ].map((item, i) => {
-              const isPast = new Date(item.date) < new Date();
+              const isPast = item.date ? new Date(item.date) < new Date() : false;
               const isCurrent = item.phase === competition.currentPhase;
               const isLeft = i % 2 === 0;
               return (
@@ -1600,7 +1601,7 @@ export default function CompetitionPage() {
                       <p className={`text-sm font-display font-bold uppercase tracking-wider mb-1 ${
                         isCurrent ? 'text-amber-400' : isPast ? 'text-green-400' : 'text-white/30'
                       }`}>{item.label}</p>
-                      <p className="text-lg font-bold text-white">{formatDate(item.date)}</p>
+                      <p className="text-lg font-bold text-white">{item.date ? formatDate(item.date) : 'To be announced soon'}</p>
                       <p className="text-xs text-white/40 mt-1">{item.desc}</p>
                       {isCurrent && (
                         <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-amber-400/20 text-amber-400 border border-amber-400/30 animate-pulse">
@@ -1646,7 +1647,7 @@ export default function CompetitionPage() {
                   </div>
                   <div className="pb-6 pt-1">
                     <p className={`font-display font-bold text-sm uppercase tracking-wider ${isCurrent ? 'text-amber-400' : isPast ? 'text-green-400' : 'text-white/30'}`}>{item.label}</p>
-                    <p className="text-base font-semibold text-white">{formatDate(item.date)}</p>
+                    <p className="text-base font-semibold text-white">{item.date ? formatDate(item.date) : 'To be announced soon'}</p>
                     <p className="text-xs text-white/40 mt-0.5">{item.desc}</p>
                     {isCurrent && (
                       <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-amber-400/20 text-amber-400 border border-amber-400/30 animate-pulse">

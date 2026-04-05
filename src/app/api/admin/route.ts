@@ -302,13 +302,13 @@ export async function PATCH(request: NextRequest) {
       case 'update-competition': {
         const { competitionId: compId, ...updateData } = body;
         if (!compId) return errorResponse('Competition ID required', 400);
-        const allowedFields = ['name', 'tagline', 'description', 'currentPhase', 'studentFee', 'founderFee', 'boothPrice', 'boothDescription', 'registrationStart', 'registrationEnd', 'screeningEnd', 'votingEnd', 'finalsDate', 'pageContent', 'manualRegistrations', 'showSponsorPrices'];
+        const allowedFields = ['name', 'tagline', 'description', 'currentPhase', 'studentFee', 'founderFee', 'boothPrice', 'boothDescription', 'registrationStart', 'registrationEnd', 'screeningEnd', 'votingEnd', 'finalsDate', 'pageContent', 'manualRegistrations', 'showSponsorPrices', 'showFinalDate'];
         const filtered: Record<string, unknown> = {};
         for (const key of allowedFields) {
           if (updateData[key] !== undefined) {
             if (['registrationStart', 'registrationEnd', 'screeningEnd', 'votingEnd', 'finalsDate'].includes(key)) {
               filtered[key] = new Date(updateData[key] as string);
-            } else if (key === 'showSponsorPrices') {
+            } else if (key === 'showSponsorPrices' || key === 'showFinalDate') {
               filtered[key] = !!updateData[key];
             } else {
               filtered[key] = updateData[key];

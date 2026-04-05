@@ -135,6 +135,7 @@ interface CompetitionData {
   finalsDate: string;
   pageContent: Record<string, unknown> | null;
   showSponsorPrices: boolean;
+  showFinalDate: boolean;
   entries: CompetitionEntryItem[];
   judges: CompetitionJudgeItem[];
   sponsors: CompetitionSponsorItem[];
@@ -2020,6 +2021,19 @@ export default function AdminPage() {
                             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${compForm.showSponsorPrices ? 'translate-x-6' : 'translate-x-1'}`} />
                           </button>
                         </div>
+                        <div className="flex items-center justify-between md:col-span-2 bg-background border border-border rounded-lg px-4 py-3">
+                          <div>
+                            <label className="block text-sm font-medium text-foreground">Show Final Date</label>
+                            <p className="text-xs text-muted mt-0.5">When disabled, shows &quot;Final date will be announced soon&quot; on the competition page</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setCompForm({ ...compForm, showFinalDate: compForm.showFinalDate ? 0 : 1 })}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${compForm.showFinalDate ? 'bg-green-500' : 'bg-gray-600'}`}
+                          >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${compForm.showFinalDate ? 'translate-x-6' : 'translate-x-1'}`} />
+                          </button>
+                        </div>
                         <div>
                           <label className="block text-xs text-muted mb-1">Registration Start</label>
                           <input type="date" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground" value={compForm.registrationStart || ''} onChange={(e) => setCompForm({ ...compForm, registrationStart: e.target.value })} />
@@ -2074,6 +2088,10 @@ export default function AdminPage() {
                         <div>
                           <span className="text-muted">Sponsor Prices:</span>
                           <p className={`font-medium ${competitionData.showSponsorPrices ? 'text-green-500' : 'text-red-500'}`}>{competitionData.showSponsorPrices ? 'Visible' : 'Hidden'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted">Final Date:</span>
+                          <p className={`font-medium ${competitionData.showFinalDate ? 'text-green-500' : 'text-red-500'}`}>{competitionData.showFinalDate ? 'Visible' : 'Hidden ("Announced Soon")'}</p>
                         </div>
                         <div>
                           <span className="text-muted">Registration:</span>
