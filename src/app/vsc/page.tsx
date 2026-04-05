@@ -159,13 +159,14 @@ export default function VSCPage() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center pt-2">
-            <div className="w-1 h-2 rounded-full bg-white/40" />
-          </div>
-        </div>
       </section>
+
+      {/* Scroll indicator */}
+      <div className="flex justify-center -mt-2 mb-8 animate-bounce">
+        <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center pt-2">
+          <div className="w-1 h-2 rounded-full bg-white/40" />
+        </div>
+      </div>
 
       {/* ===== HOW IT WORKS ===== */}
       <section className="py-24 px-4 relative">
