@@ -17,7 +17,7 @@ const navLinks = [
   { href: '/how-it-works', label: 'How It Works' },
 ];
 
-const comingSoonAllowed = ['/', '/competition'];
+const comingSoonAllowed = ['/', '/competition', '/vsc'];
 
 export default function Header() {
   const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
