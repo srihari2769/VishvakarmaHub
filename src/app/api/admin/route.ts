@@ -1081,7 +1081,39 @@ export async function DELETE(request: NextRequest) {
         // 6. Delete user's withdrawals (any remaining)
         await prisma.withdrawal.deleteMany({ where: { userId } });
 
-        // 7. Delete the user
+        // 7. Delete competition-related data
+        await prisma.cofounderApplication.deleteMany({ where: { applicantId: userId } });
+        await prisma.competitionVote.deleteMany({ where: { userId } });
+        await prisma.competitionEntry.deleteMany({ where: { userId } });
+        await prisma.competitionParticipant.deleteMany({ where: { userId } });
+        await prisma.freeEntryReferral.deleteMany({ where: { referredUserId: userId } });
+        await prisma.freeEntry.deleteMany({ where: { userId } });
+
+        // 8. Delete VSC-related data
+        const vscParticipants = await prisma.vSCParticipant.findMany({ where: { userId }, select: { id: true } });
+        const participantIds = vscParticipants.map(p => p.id);
+        if (participantIds.length > 0) {
+          await prisma.vSCPerformanceReport.deleteMany({ where: { participantId: { in: participantIds } } });
+          await prisma.vSCCertificate.deleteMany({ where: { participantId: { in: participantIds } } });
+          await prisma.vSCRoundAttempt.deleteMany({ where: { participantId: { in: participantIds } } });
+          await prisma.vSCPowerUp.deleteMany({ where: { participantId: { in: participantIds } } });
+          await prisma.vSCTeamMember.deleteMany({ where: { userId } });
+          await prisma.vSCParticipant.deleteMany({ where: { userId } });
+        }
+        await prisma.vSCRoundAttempt.deleteMany({ where: { userId } });
+        await prisma.vSCPowerUp.deleteMany({ where: { userId } });
+        await prisma.vSCCertificate.deleteMany({ where: { userId } });
+        const dailyStreaks = await prisma.vSCDailyStreak.findMany({ where: { userId }, select: { id: true } });
+        if (dailyStreaks.length > 0) {
+          await prisma.vSCDailyAttempt.deleteMany({ where: { streakId: { in: dailyStreaks.map(s => s.id) } } });
+          await prisma.vSCDailyStreak.deleteMany({ where: { userId } });
+        }
+        await prisma.vSCSubscription.deleteMany({ where: { userId } });
+        await prisma.vSCTournamentEntry.deleteMany({ where: { userId } });
+        await prisma.vSCTeamMember.deleteMany({ where: { userId } });
+        await prisma.vSCPerformanceReport.deleteMany({ where: { userId } });
+
+        // 9. Delete the user
         await prisma.user.delete({ where: { id: userId } });
 
         return successResponse({ message: 'User deleted successfully' });
