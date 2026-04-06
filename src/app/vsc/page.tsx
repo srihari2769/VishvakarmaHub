@@ -39,6 +39,14 @@ interface ChallengeData {
   extraTimePrice: number;
   revivePrice: number;
   leaderboardBoostPrice: number;
+  practiceWeeklyPrice: number;
+  practiceMonthlyPrice: number;
+  vipMonthlyPrice: number;
+  tournamentEntryFee: number;
+  teamEntryFee: number;
+  reportPrice: number;
+  premiumCertPrice: number;
+  hintPrice: number;
   manualRegistrations: number;
   rounds: RoundData[];
   _count: { participants: number };
@@ -342,6 +350,170 @@ export default function VSCPage() {
                     </Link>
                   </div>
                 )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== DAILY STREAK CHALLENGE ===== */}
+      <section className="py-24 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/[0.02] to-transparent" />
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black mb-4">Daily <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">Streak</span> Challenge</h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-green-500 mx-auto rounded-full mb-4" />
+            <p className="text-white/40 max-w-xl mx-auto">Play every day. Build streaks. Earn free power-ups and climb the ranks.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: '🔥', days: '3 Days', reward: '+5 Bonus Points', desc: 'Start building momentum' },
+              { icon: '⏱️', days: '7 Days', reward: 'Free Extra Time', desc: 'Earn a power-up worth ₹29' },
+              { icon: '📊', days: '14 Days', reward: 'Leaderboard Boost', desc: 'Free profile highlight worth ₹39' },
+              { icon: '💀', days: '30 Days', reward: 'Free Revive Card', desc: 'A second life worth ₹59' },
+            ].map((m, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="p-6 rounded-2xl bg-white/[0.02] border border-emerald-500/10 hover:border-emerald-500/30 transition-all text-center group"
+              >
+                <div className="text-4xl mb-3">{m.icon}</div>
+                <div className="text-xs font-bold uppercase tracking-widest text-emerald-400/60 mb-1">{m.days}</div>
+                <h3 className="text-lg font-bold text-white mb-1">{m.reward}</h3>
+                <p className="text-sm text-white/30">{m.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+          <p className="text-center text-sm text-white/25 mt-6">FREE — 5 new questions every day. No subscription required.</p>
+        </div>
+      </section>
+
+      {/* ===== PRACTICE ARENA + VIP PASS ===== */}
+      <section className="py-24 px-4 relative">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black mb-4">Practice Arena & <span className="bg-gradient-to-r from-violet-400 to-purple-500 bg-clip-text text-transparent">VIP Pass</span></h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-violet-500 to-purple-500 mx-auto rounded-full mb-4" />
+            <p className="text-white/40 max-w-xl mx-auto">Unlimited practice. Premium perks. Stay ahead of the competition.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { title: 'Practice Weekly', price: challenge?.practiceWeeklyPrice || 29, duration: '7 days', features: ['Unlimited practice rounds', '3 question categories', 'Instant grading & feedback'], color: 'border-blue-500/20 hover:border-blue-500/40', badge: '' },
+              { title: 'VIP Season Pass', price: challenge?.vipMonthlyPrice || 199, duration: '30 days', features: ['Everything in Practice', 'Free hints (₹9 each normally)', 'Free performance reports', 'Priority judge review', 'VIP badge on leaderboard', 'Exclusive VIP tournaments'], color: 'border-amber-500/30 bg-amber-500/5 shadow-lg shadow-amber-500/5', badge: 'BEST VALUE' },
+              { title: 'Practice Monthly', price: challenge?.practiceMonthlyPrice || 79, duration: '30 days', features: ['Unlimited practice rounds', '3 question categories', 'Instant grading & feedback', 'Save 25% vs weekly'], color: 'border-purple-500/20 hover:border-purple-500/40', badge: 'POPULAR' },
+            ].map((p, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className={`relative p-6 rounded-2xl bg-white/[0.02] border transition-all ${p.color}`}
+              >
+                {p.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    {p.badge}
+                  </div>
+                )}
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-white mb-1">{p.title}</h3>
+                  <div className="text-3xl font-black bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">₹{p.price}</div>
+                  <div className="text-xs text-white/30 mt-1">/ {p.duration}</div>
+                </div>
+                <ul className="space-y-2 mb-6">
+                  {p.features.map((f, fi) => (
+                    <li key={fi} className="text-sm text-white/40 flex items-start gap-2">
+                      <span className="text-emerald-400 mt-0.5">✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== WEEKLY TOURNAMENTS ===== */}
+      <section className="py-24 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/[0.02] to-transparent" />
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black mb-4">Weekly <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Tournaments</span></h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-blue-500 mx-auto rounded-full mb-4" />
+            <p className="text-white/40 max-w-xl mx-auto">Compete in timed mini-competitions. Entry fee: ₹49. Real prizes. Real glory.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { icon: '🎯', title: 'Enter', desc: 'Pay ₹49 entry fee and join the tournament pool', step: '01' },
+              { icon: '⚡', title: 'Compete', desc: 'Answer questions within the time limit. Speed + accuracy = your score', step: '02' },
+              { icon: '🏆', title: 'Win Cash', desc: 'Top performers split the prize pool. ₹500+ in prizes every week', step: '03' },
+            ].map((s, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="relative p-6 rounded-2xl bg-white/[0.02] border border-cyan-500/10 hover:border-cyan-500/30 transition-all text-center"
+              >
+                <div className="absolute top-4 right-4 text-5xl font-black text-white/[0.03]">{s.step}</div>
+                <div className="text-4xl mb-3">{s.icon}</div>
+                <h3 className="text-lg font-bold text-white mb-1">{s.title}</h3>
+                <p className="text-sm text-white/40">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== TEAM BATTLES ===== */}
+      <section className="py-24 px-4 relative">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <h2 className="text-3xl sm:text-5xl font-black mb-4">Clan <span className="bg-gradient-to-r from-pink-400 to-rose-500 bg-clip-text text-transparent">Battles</span></h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-rose-500 mx-auto rounded-full mb-4" />
+            <p className="text-white/40 max-w-xl mx-auto">Form a team of 3. Compete together. Share the glory.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+              className="p-6 rounded-2xl bg-white/[0.02] border border-pink-500/10"
+            >
+              <div className="text-3xl mb-3">👥</div>
+              <h3 className="text-lg font-bold text-white mb-2">Create a Team</h3>
+              <p className="text-sm text-white/40 mb-4">Captain pays ₹{challenge?.teamEntryFee || 249}. Get a unique team code. Invite 2 friends.</p>
+              <div className="text-xs text-white/25">3 members max per team</div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+              className="p-6 rounded-2xl bg-white/[0.02] border border-pink-500/10"
+            >
+              <div className="text-3xl mb-3">⚔️</div>
+              <h3 className="text-lg font-bold text-white mb-2">Battle Together</h3>
+              <p className="text-sm text-white/40 mb-4">Individual scores combined. Top teams win collective rewards and bragging rights.</p>
+              <div className="text-xs text-white/25">Team leaderboard rankings</div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== MORE FEATURES GRID ===== */}
+      <section className="py-24 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent" />
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black mb-4">More Ways to <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Level Up</span></h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-amber-500 to-orange-500 mx-auto rounded-full mb-4" />
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: '💡', title: 'In-Round Hints', price: '₹9/hint', desc: 'Stuck on a question? Buy a hint to eliminate 2 wrong answers. Max 3 per round. VIP members get hints free!', color: 'border-yellow-500/10 hover:border-yellow-500/30' },
+              { icon: '📊', title: 'Performance Report', price: '₹99', desc: 'Get a detailed AI analysis of your strengths, weaknesses, accuracy trends, and personalized improvement tips.', color: 'border-indigo-500/10 hover:border-indigo-500/30' },
+              { icon: '🎓', title: 'Premium Certificate', price: '₹149', desc: 'Upgrade to a premium verified certificate with unique verification hash. Perfect for your LinkedIn.', color: 'border-green-500/10 hover:border-green-500/30' },
+              { icon: '🤝', title: 'Challenge a Friend', price: 'FREE', desc: 'Share your score & challenge friends via WhatsApp or social media. Spread the competition!', color: 'border-teal-500/10 hover:border-teal-500/30' },
+              { icon: '🌟', title: 'Talent Board', price: 'FREE', desc: 'Opt in to showcase your performance publicly. Top performers get noticed by recruiters & investors.', color: 'border-violet-500/10 hover:border-violet-500/30' },
+              { icon: '🔍', title: 'Recruiter Access', price: '₹2,999/mo', desc: 'Companies can browse top VSC performers. Get discovered for your innovation skills.', color: 'border-rose-500/10 hover:border-rose-500/30' },
+            ].map((f, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}
+                className={`p-6 rounded-2xl bg-white/[0.02] border transition-all ${f.color}`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <span className="text-3xl">{f.icon}</span>
+                  <span className="text-xs font-bold text-amber-400/60 bg-amber-400/10 px-2 py-0.5 rounded-full">{f.price}</span>
+                </div>
+                <h3 className="text-lg font-bold text-white mb-1">{f.title}</h3>
+                <p className="text-sm text-white/35 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </div>

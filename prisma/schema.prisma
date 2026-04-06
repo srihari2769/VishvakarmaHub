@@ -138,6 +138,11 @@ model User {
   vscAttempts     VSCRoundAttempt[]
   vscPowerUps     VSCPowerUp[]
   vscCertificates VSCCertificate[]
+  vscDailyStreaks  VSCDailyStreak[]
+  vscSubscriptions VSCSubscription[]
+  vscTournamentEntries VSCTournamentEntry[]
+  vscTeamMemberships VSCTeamMember[]
+  vscPerformanceReports VSCPerformanceReport[]
 
   @@index([email])
   @@index([referralCode])
@@ -768,6 +773,16 @@ model VSCChallenge {
   extraTimePrice  Float    @default(29)
   revivePrice     Float    @default(59)
   leaderboardBoostPrice Float @default(39)
+  hintPrice       Float    @default(9)
+
+  // Subscription prices
+  practiceWeeklyPrice  Float @default(29)
+  practiceMonthlyPrice Float @default(79)
+  vipMonthlyPrice      Float @default(199)
+  tournamentEntryFee   Float @default(49)
+  teamEntryFee         Float @default(249)
+  reportPrice          Float @default(99)
+  premiumCertPrice     Float @default(149)
 
   // Manual registration count
   manualRegistrations Int  @default(0)
@@ -775,6 +790,10 @@ model VSCChallenge {
   rounds          VSCRound[]
   participants    VSCParticipant[]
   certificates    VSCCertificate[]
+  dailyStreaks    VSCDailyStreak[]
+  subscriptions  VSCSubscription[]
+  tournaments    VSCTournament[]
+  teams          VSCTeam[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -854,10 +873,13 @@ model VSCParticipant {
 
   // Leaderboard boost
   isBoosted       Boolean  @default(false)
+  showOnTalentBoard Boolean @default(false)
 
   attempts        VSCRoundAttempt[]
   powerUps        VSCPowerUp[]
   certificates    VSCCertificate[]
+  performanceReports VSCPerformanceReport[]
+  teamMemberships VSCTeamMember[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -904,6 +926,7 @@ model VSCRoundAttempt {
   // Power-ups used
   usedExtraTime   Boolean  @default(false)
   usedSkipRound   Boolean  @default(false)
+  hintsUsed       Int      @default(0)     // number of hints purchased for this attempt
 
   // Admin review (for text/video rounds)
   reviewStatus    String   @default("PENDING") // PENDING, REVIEWED
@@ -968,9 +991,159 @@ model VSCCertificate {
   totalScore      Float
   roundsCompleted Int
   certificateUrl  String?
+  isPremium       Boolean  @default(false)
+  premiumPaymentId String?
+  verificationHash String?
   issuedAt        DateTime @default(now())
 
   @@unique([participantId, challengeId])
   @@index([userId])
   @@map("vsc_certificates")
+}
+
+// ==================== VSC ENGAGEMENT MODELS ====================
+
+model VSCDailyStreak {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId   String
+  challenge     VSCChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  lastPlayedAt  DateTime?
+  totalPoints   Int      @default(0)
+  freeRewardsEarned Int  @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  attempts      VSCDailyAttempt[]
+
+  @@unique([userId, challengeId])
+  @@map("vsc_daily_streaks")
+}
+
+model VSCDailyAttempt {
+  id          String   @id @default(cuid())
+  streakId    String
+  streak      VSCDailyStreak @relation(fields: [streakId], references: [id], onDelete: Cascade)
+  date        String   // YYYY-MM-DD
+  score       Int      @default(0)
+  maxScore    Int      @default(50)
+  questions   Json?
+  answers     Json?
+  completedAt DateTime @default(now())
+
+  @@unique([streakId, date])
+  @@map("vsc_daily_attempts")
+}
+
+model VSCSubscription {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId   String
+  challenge     VSCChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  plan          String   // PRACTICE_WEEKLY, PRACTICE_MONTHLY, VIP_MONTHLY
+  price         Float
+  startsAt      DateTime @default(now())
+  expiresAt     DateTime
+  razorpayPaymentId String?
+  razorpayOrderId   String?
+  paymentStatus String   @default("PENDING")
+  isActive      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([userId, plan])
+  @@map("vsc_subscriptions")
+}
+
+model VSCTournament {
+  id            String   @id @default(cuid())
+  challengeId   String
+  challenge     VSCChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?  @db.Text
+  entryFee      Float    @default(49)
+  prizePool     Float    @default(500)
+  prizes        Json?    // [{rank, amount, label}]
+  startsAt      DateTime
+  endsAt        DateTime
+  questionPool  Json?
+  timeLimit     Int      @default(600)
+  maxParticipants Int?
+  isActive      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  entries       VSCTournamentEntry[]
+
+  @@map("vsc_tournaments")
+}
+
+model VSCTournamentEntry {
+  id            String   @id @default(cuid())
+  tournamentId  String
+  tournament    VSCTournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score         Int      @default(0)
+  maxScore      Int      @default(0)
+  timeTaken     Int?
+  answers       Json?
+  razorpayPaymentId String?
+  razorpayOrderId   String?
+  paymentStatus String   @default("PENDING")
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  @@unique([tournamentId, userId])
+  @@map("vsc_tournament_entries")
+}
+
+model VSCTeam {
+  id            String   @id @default(cuid())
+  challengeId   String
+  challenge     VSCChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  name          String
+  code          String   @unique
+  captainId     String
+  entryFee      Float    @default(249)
+  razorpayPaymentId String?
+  paymentStatus String   @default("PENDING")
+  totalScore    Float    @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  members       VSCTeamMember[]
+
+  @@index([challengeId])
+  @@map("vsc_teams")
+}
+
+model VSCTeamMember {
+  id            String   @id @default(cuid())
+  teamId        String
+  team          VSCTeam  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participantId String?
+  participant   VSCParticipant? @relation(fields: [participantId], references: [id])
+  role          String   @default("MEMBER") // CAPTAIN, MEMBER
+  joinedAt      DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@map("vsc_team_members")
+}
+
+model VSCPerformanceReport {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   VSCParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  reportData    Json
+  price         Float    @default(99)
+  razorpayPaymentId String?
+  paymentStatus String   @default("PENDING")
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@map("vsc_performance_reports")
 }

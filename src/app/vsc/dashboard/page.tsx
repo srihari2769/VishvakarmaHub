@@ -630,6 +630,31 @@ export default function VSCDashboardPage() {
                 </div>
               </Card>
             )}
+
+            {/* Quick Links — New Features */}
+            <Card className="p-6 bg-white/[0.02] border-white/5">
+              <h2 className="text-sm font-bold text-white/50 uppercase tracking-wider mb-3">Explore More</h2>
+              <div className="space-y-2">
+                {[
+                  { href: '/vsc/daily', icon: '🔥', label: 'Daily Streak', desc: 'Play 5 questions daily', color: 'text-emerald-400' },
+                  { href: '/vsc/practice', icon: '🎯', label: 'Practice Arena', desc: 'Unlimited practice', color: 'text-purple-400' },
+                  { href: '/vsc/tournament', icon: '🏆', label: 'Tournaments', desc: 'Weekly competitions', color: 'text-cyan-400' },
+                  { href: '/vsc/teams', icon: '👥', label: 'Clan Battles', desc: 'Team of 3', color: 'text-pink-400' },
+                  { href: '/vsc/talent-board', icon: '🌟', label: 'Talent Board', desc: 'Get discovered', color: 'text-violet-400' },
+                ].map((link, i) => (
+                  <Link key={i} href={link.href}>
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.01] border border-white/5 hover:border-white/10 hover:bg-white/[0.03] transition-all cursor-pointer">
+                      <span className="text-xl">{link.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-sm font-semibold ${link.color}`}>{link.label}</div>
+                        <div className="text-xs text-white/25">{link.desc}</div>
+                      </div>
+                      <ChevronRightIcon className="w-4 h-4 text-white/10" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </Card>
           </div>
         </div>
       </div>
