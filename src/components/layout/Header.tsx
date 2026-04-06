@@ -20,7 +20,7 @@ const navLinks = [
 const comingSoonAllowed = ['/', '/competition', '/vsc'];
 
 export default function Header() {
-  const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
+  const { user, isAuthenticated, logout, checkAuth, loginContext } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isComingSoon, setIsComingSoon] = useState(false);
@@ -55,10 +55,20 @@ export default function Header() {
 
   const getDashboardLink = () => {
     if (!user) return '/dashboard';
-    switch (user.role) {
-      case 'ADMIN': return '/admin';
-      case 'FOUNDER': return '/startup-dashboard';
-      default: return '/dashboard';
+    if (user.role === 'ADMIN') return '/admin';
+    switch (loginContext) {
+      case 'vsc': return '/vsc/dashboard';
+      case 'vic': return '/competition/dashboard';
+      default:
+        return user.role === 'FOUNDER' ? '/startup-dashboard' : '/dashboard';
+    }
+  };
+
+  const getLoginLink = () => {
+    switch (loginContext) {
+      case 'vsc': return '/vsc/login';
+      case 'vic': return '/competition/login';
+      default: return '/login';
     }
   };
 
@@ -110,7 +120,7 @@ export default function Header() {
             {isComingSoon ? (
               isAuthenticated ? (
                 <>
-                  <Link href="/competition/dashboard">
+                  <Link href={getDashboardLink()}>
                     <Button variant="ghost" size="sm">Dashboard</Button>
                   </Link>
                   <button onClick={logout} className="text-sm text-muted hover:text-danger transition-colors">
@@ -208,7 +218,7 @@ export default function Header() {
                 {isComingSoon ? (
                   isAuthenticated ? (
                     <>
-                      <Link href="/competition/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Link href={getDashboardLink()} onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" className="w-full" size="sm">Dashboard</Button>
                       </Link>
                       <button

@@ -178,7 +178,7 @@ function VSCRegisterContent() {
           return;
         }
 
-        setUser(regData.data.user, regData.data.token);
+        setUser(regData.data.user, regData.data.token, 'vsc');
         authToken = regData.data.token;
         setCurrentToken(authToken);
       }

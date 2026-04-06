@@ -44,7 +44,7 @@ export default function CompetitionLoginPage() {
         return;
       }
 
-      setUser(data.data.user, data.data.token);
+      setUser(data.data.user, data.data.token, 'vic');
 
       if (data.data.hasCompetitionProfile) {
         router.push('/competition/dashboard');

@@ -96,7 +96,7 @@ export default function CompetitionRegisterPage() {
         return;
       }
 
-      setUser(data.data.user, data.data.token);
+      setUser(data.data.user, data.data.token, 'vic');
       router.push('/competition/idea-submission');
     } catch {
       setError('Network error. Please try again.');

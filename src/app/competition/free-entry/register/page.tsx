@@ -110,7 +110,7 @@ function FreeEntryRegisterForm() {
         return;
       }
 
-      setUser(data.data.user, data.data.token);
+      setUser(data.data.user, data.data.token, 'vic');
       router.push('/competition/free-entry/dashboard');
     } catch {
       setError('Network error. Please try again.');

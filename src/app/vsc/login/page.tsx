@@ -44,7 +44,7 @@ export default function VSCLoginPage() {
         return;
       }
 
-      setUser(data.data.user, data.data.token);
+      setUser(data.data.user, data.data.token, 'vsc');
 
       if (data.data.hasVSCProfile) {
         router.push('/vsc/dashboard');

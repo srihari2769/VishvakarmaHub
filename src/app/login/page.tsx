@@ -46,7 +46,7 @@ export default function LoginPage() {
         return;
       }
 
-      setUser(data.data.user, data.data.token);
+      setUser(data.data.user, data.data.token, 'hub');
 
       switch (data.data.user.role) {
         case 'ADMIN':
