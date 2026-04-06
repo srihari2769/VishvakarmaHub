@@ -35,6 +35,15 @@ export async function GET(request: NextRequest) {
     if (!round) return errorResponse('Round not found', 404);
     if (!round.isActive || round.isLocked) return errorResponse('Round is not active', 403);
 
+    // Round scheduling enforcement
+    const now = new Date();
+    if (round.startsAt && now < new Date(round.startsAt)) {
+      return errorResponse(`Round hasn't started yet. Opens at ${new Date(round.startsAt).toLocaleString('en-IN')}`, 403);
+    }
+    if (round.endsAt && now > new Date(round.endsAt)) {
+      return errorResponse('This round has ended', 403);
+    }
+
     const participant = await prisma.vSCParticipant.findFirst({
       where: { userId: decoded.userId, challengeId: challenge.id, paymentStatus: 'PAID', isEliminated: false },
       orderBy: { attemptNumber: 'desc' },
@@ -151,6 +160,12 @@ export async function POST(request: NextRequest) {
     if (attempt.completedAt) return errorResponse('Already submitted', 400);
 
     const round = attempt.round;
+
+    // Enforce round scheduling on submissions
+    const now = new Date();
+    if (round.endsAt && now > new Date(round.endsAt)) {
+      return errorResponse('This round has ended. Submissions are no longer accepted.', 403);
+    }
 
     let score = 0;
     let maxScore = attempt.maxScore;

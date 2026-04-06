@@ -34,6 +34,9 @@ import {
   PlayIcon,
   LockClosedIcon,
   LockOpenIcon,
+  ClockIcon,
+  BellIcon,
+  DocumentCheckIcon,
 } from '@heroicons/react/24/outline';
 
 interface PendingStartup {
@@ -366,7 +369,7 @@ export default function AdminPage() {
 
   // VSC State
   const [vscData, setVscData] = useState<VSCData | null>(null);
-  const [vscSubTab, setVscSubTab] = useState<'details' | 'rounds' | 'participants' | 'questions'>('details');
+  const [vscSubTab, setVscSubTab] = useState<'details' | 'rounds' | 'participants' | 'questions' | 'reviews' | 'analytics' | 'notifications' | 'certificates'>('details');
   const [vscEditMode, setVscEditMode] = useState(false);
   const [vscForm, setVscForm] = useState<Record<string, string | number>>({});
   const [vscSaving, setVscSaving] = useState(false);
@@ -377,6 +380,13 @@ export default function AdminPage() {
   const [vscSelectedRound, setVscSelectedRound] = useState<string | null>(null);
   const [vscQuestionForm, setVscQuestionForm] = useState({ question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '', points: '10', category: '' });
   const [vscParticipantSearch, setVscParticipantSearch] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [vscPendingReviews, setVscPendingReviews] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [vscAnalytics, setVscAnalytics] = useState<any>(null);
+  const [vscReviewForm, setVscReviewForm] = useState<Record<string, string>>({});
+  const [vscNotifForm, setVscNotifForm] = useState({ title: '', message: '', scope: 'all' });
+  const [vscNotifSending, setVscNotifSending] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -405,6 +415,21 @@ export default function AdminPage() {
       fetchVscData();
     }
   }, [isAuthenticated, user]);
+
+  // Auto-load VSC reviews/analytics when sub-tab switches
+  useEffect(() => {
+    if (tab !== 'vsc' || !isAuthenticated) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    if (vscSubTab === 'reviews' && vscPendingReviews.length === 0) {
+      fetch(`/api/admin?action=vsc-pending-reviews`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json()).then(d => { if (d.success) setVscPendingReviews(d.data); });
+    }
+    if (vscSubTab === 'analytics' && !vscAnalytics) {
+      fetch(`/api/admin?action=vsc-analytics`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json()).then(d => { if (d.success) setVscAnalytics(d.data); });
+    }
+  }, [tab, vscSubTab, isAuthenticated]);
 
   const fetchSiteSettings = async () => {
     try {
@@ -3256,6 +3281,10 @@ export default function AdminPage() {
                     { id: 'rounds' as const, label: `Rounds (${vscData.rounds.length})`, icon: PlayIcon },
                     { id: 'participants' as const, label: `Participants (${vscData._count.participants})`, icon: UsersIcon },
                     { id: 'questions' as const, label: 'Question Pool', icon: AcademicCapIcon },
+                    { id: 'reviews' as const, label: 'Judge Panel', icon: DocumentCheckIcon },
+                    { id: 'analytics' as const, label: 'Analytics', icon: ChartBarIcon },
+                    { id: 'notifications' as const, label: 'Notifications', icon: BellIcon },
+                    { id: 'certificates' as const, label: 'Certificates', icon: TrophyIcon },
                   ]).map(st => {
                     const StIcon = st.icon;
                     return (
@@ -3768,6 +3797,444 @@ export default function AdminPage() {
                         <p className="text-muted text-sm">Select a round above to manage its question pool.</p>
                       </Card>
                     )}
+                  </div>
+                )}
+
+                {/* Judge Panel Sub-tab */}
+                {vscSubTab === 'reviews' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-foreground">Pending Reviews</h3>
+                      <Button size="sm" variant="ghost" onClick={async () => {
+                        const token = localStorage.getItem('token');
+                        const res = await fetch(`/api/admin?action=vsc-pending-reviews`, { headers: { Authorization: `Bearer ${token}` } });
+                        const data = await res.json();
+                        if (data.success) setVscPendingReviews(data.data);
+                      }}>
+                        Refresh
+                      </Button>
+                    </div>
+                    {vscPendingReviews.length === 0 ? (
+                      <Card className="p-8 text-center">
+                        <DocumentCheckIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                        <p className="text-muted">No pending reviews. Click Refresh to load.</p>
+                      </Card>
+                    ) : (
+                      vscPendingReviews.map((review) => (
+                        <Card key={review.id} className="p-5">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <p className="font-semibold text-foreground">{review.participant?.user?.firstName} {review.participant?.user?.lastName}</p>
+                              <p className="text-xs text-muted">{review.participant?.user?.email}</p>
+                            </div>
+                            <Badge variant={review.round?.roundType === 'VIDEO_PITCH' ? 'info' : 'default'}>
+                              Round {review.round?.roundNumber} &middot; {review.round?.roundType}
+                            </Badge>
+                          </div>
+
+                          {review.submission && (
+                            <div className="mb-3 p-3 bg-card-hover rounded-xl">
+                              <p className="text-xs text-muted mb-1 font-medium">Text Submission</p>
+                              <p className="text-sm text-foreground whitespace-pre-wrap">{review.submission}</p>
+                            </div>
+                          )}
+                          {review.videoUrl && (
+                            <div className="mb-3 p-3 bg-card-hover rounded-xl">
+                              <p className="text-xs text-muted mb-1 font-medium">Video Submission</p>
+                              <a href={review.videoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline break-all">{review.videoUrl}</a>
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap gap-3 items-end mt-3">
+                            <div>
+                              <label className="block text-xs text-muted mb-1">Score (0-100)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm w-24"
+                                value={vscReviewForm[`score-${review.id}`] || ''}
+                                onChange={(e) => setVscReviewForm(prev => ({ ...prev, [`score-${review.id}`]: e.target.value }))}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-[200px]">
+                              <label className="block text-xs text-muted mb-1">Feedback</label>
+                              <input
+                                type="text"
+                                className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm w-full"
+                                placeholder="Admin feedback..."
+                                value={vscReviewForm[`feedback-${review.id}`] || ''}
+                                onChange={(e) => setVscReviewForm(prev => ({ ...prev, [`feedback-${review.id}`]: e.target.value }))}
+                              />
+                            </div>
+                            <Button size="sm" onClick={async () => {
+                              const token = localStorage.getItem('token');
+                              const score = parseFloat(vscReviewForm[`score-${review.id}`]);
+                              if (isNaN(score) || score < 0 || score > 100) { alert('Score must be 0-100'); return; }
+                              const res = await fetch('/api/admin', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({
+                                  action: 'vsc-review-submission',
+                                  attemptId: review.id,
+                                  adminScore: score,
+                                  adminFeedback: vscReviewForm[`feedback-${review.id}`] || '',
+                                  passed: score >= (review.round?.passingPercent || 60),
+                                }),
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                setVscPendingReviews(prev => prev.filter(r => r.id !== review.id));
+                                alert('Review submitted!');
+                              } else { alert(data.error || 'Failed'); }
+                            }}>
+                              <CheckCircleIcon className="w-4 h-4 mr-1" /> Submit Review
+                            </Button>
+                            <Button size="sm" variant="danger" onClick={async () => {
+                              const token = localStorage.getItem('token');
+                              const res = await fetch('/api/admin', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({
+                                  action: 'vsc-review-submission',
+                                  attemptId: review.id,
+                                  adminScore: 0,
+                                  adminFeedback: vscReviewForm[`feedback-${review.id}`] || 'Rejected by admin',
+                                  passed: false,
+                                }),
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                setVscPendingReviews(prev => prev.filter(r => r.id !== review.id));
+                                alert('Submission rejected');
+                              } else { alert(data.error || 'Failed'); }
+                            }}>
+                              <XCircleIcon className="w-4 h-4 mr-1" /> Reject
+                            </Button>
+                          </div>
+                        </Card>
+                      ))
+                    )}
+
+                    {/* Finalize Quiz Rounds */}
+                    <Card className="p-5 border-dashed">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <BoltIcon className="w-5 h-5 text-yellow-400" /> Finalize Quiz Round
+                      </h4>
+                      <p className="text-xs text-muted mb-3">Auto-grade all pending quiz attempts for a round. Participants above the passing score advance; others are eliminated.</p>
+                      <div className="flex flex-wrap gap-2">
+                        {vscData.rounds.filter((r: { roundType: string }) => ['SPEED_IQ', 'PUZZLE_LOGIC'].includes(r.roundType)).map((r: { id: string; roundNumber: number; title: string }) => (
+                          <Button key={r.id} size="sm" variant="ghost" onClick={async () => {
+                            if (!confirm(`Finalize Round ${r.roundNumber} (${r.title})? This will advance/eliminate all participants.`)) return;
+                            const token = localStorage.getItem('token');
+                            const res = await fetch('/api/admin', {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                              body: JSON.stringify({ action: 'vsc-finalize-round', roundId: r.id }),
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                              alert(`Round finalized! Advanced: ${data.data.advanced}, Eliminated: ${data.data.eliminated}`);
+                              fetchVscData();
+                            } else { alert(data.error || 'Failed'); }
+                          }}>
+                            Round {r.roundNumber}: {r.title}
+                          </Button>
+                        ))}
+                      </div>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Analytics Sub-tab */}
+                {vscSubTab === 'analytics' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-foreground">VSC Analytics</h3>
+                      <Button size="sm" variant="ghost" onClick={async () => {
+                        const token = localStorage.getItem('token');
+                        const res = await fetch(`/api/admin?action=vsc-analytics`, { headers: { Authorization: `Bearer ${token}` } });
+                        const data = await res.json();
+                        if (data.success) setVscAnalytics(data.data);
+                      }}>
+                        Refresh
+                      </Button>
+                    </div>
+                    {!vscAnalytics ? (
+                      <Card className="p-8 text-center">
+                        <ChartBarIcon className="w-12 h-12 mx-auto text-muted mb-3" />
+                        <p className="text-muted">Click Refresh to load analytics data.</p>
+                      </Card>
+                    ) : (
+                      <>
+                        {/* Revenue Stats */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {[
+                            { label: 'Total Revenue', value: formatCurrency(vscAnalytics.totalRevenue), color: 'text-green-400' },
+                            { label: 'Entry Revenue', value: formatCurrency(vscAnalytics.entryRevenue), color: 'text-blue-400' },
+                            { label: 'Power-Up Revenue', value: formatCurrency(vscAnalytics.powerUpRevenue), color: 'text-purple' },
+                            { label: 'Paid Participants', value: vscAnalytics.paidParticipants, color: 'text-orange' },
+                          ].map((stat, i) => (
+                            <Card key={i} className="p-4 text-center">
+                              <p className="text-xs text-muted mb-1">{stat.label}</p>
+                              <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
+                            </Card>
+                          ))}
+                        </div>
+
+                        {/* Participant Stats */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {[
+                            { label: 'Total Registered', value: vscAnalytics.totalParticipants },
+                            { label: 'Active', value: vscAnalytics.activeCount },
+                            { label: 'Eliminated', value: vscAnalytics.eliminatedCount },
+                            { label: 'Pending Reviews', value: vscAnalytics.pendingReviews },
+                          ].map((stat, i) => (
+                            <Card key={i} className="p-4 text-center">
+                              <p className="text-xs text-muted mb-1">{stat.label}</p>
+                              <p className="text-xl font-bold text-foreground">{stat.value}</p>
+                            </Card>
+                          ))}
+                        </div>
+
+                        {/* Round Performance */}
+                        <Card className="p-5">
+                          <h4 className="font-semibold text-foreground mb-3">Round Performance</h4>
+                          <div className="space-y-3">
+                            {vscAnalytics.roundStats?.map((rs: { roundNumber: number; title: string; attempted: number; passed: number; failed: number; pendingReview: number }, i: number) => {
+                              const total = rs.attempted || 1;
+                              const passRate = Math.round((rs.passed / total) * 100);
+                              return (
+                                <div key={i} className="flex items-center gap-3">
+                                  <span className="text-xs text-muted w-24 shrink-0">R{rs.roundNumber}: {rs.title}</span>
+                                  <div className="flex-1 h-4 bg-card-hover rounded-full overflow-hidden flex">
+                                    <div style={{ width: `${passRate}%` }} className="bg-green-500/60 h-full" />
+                                    <div style={{ width: `${100 - passRate}%` }} className="bg-red-500/30 h-full" />
+                                  </div>
+                                  <span className="text-xs text-muted w-32 text-right shrink-0">
+                                    {rs.passed}✓ {rs.failed}✗ {rs.pendingReview > 0 ? `${rs.pendingReview}⏳` : ''}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </Card>
+
+                        {/* Funnel */}
+                        <Card className="p-5">
+                          <h4 className="font-semibold text-foreground mb-3">Participant Funnel</h4>
+                          <div className="space-y-2">
+                            {vscAnalytics.funnelData?.map((step: { round: number; participants: number }, i: number) => {
+                              const maxP = vscAnalytics.funnelData[0]?.participants || 1;
+                              const pct = Math.round((step.participants / maxP) * 100);
+                              return (
+                                <div key={i} className="flex items-center gap-3">
+                                  <span className="text-xs text-muted w-20 shrink-0">Round {step.round}</span>
+                                  <div className="flex-1 h-6 bg-card-hover rounded-lg overflow-hidden">
+                                    <div style={{ width: `${pct}%` }} className="bg-gradient-to-r from-blue-500 to-purple h-full rounded-lg flex items-center justify-end pr-2">
+                                      <span className="text-[10px] text-white font-medium">{step.participants}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </Card>
+
+                        {/* Power-Up Breakdown */}
+                        <Card className="p-5">
+                          <h4 className="font-semibold text-foreground mb-3">Power-Up Breakdown</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {vscAnalytics.powerUpBreakdown?.map((p: { type: string; count: number; revenue: number }, i: number) => (
+                              <div key={i} className="p-3 bg-card-hover rounded-xl">
+                                <p className="text-xs text-muted">{p.type.replace(/_/g, ' ')}</p>
+                                <p className="text-sm font-semibold text-foreground">{p.count} sold</p>
+                                <p className="text-xs text-green-400">{formatCurrency(p.revenue)}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </Card>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Notifications Sub-tab */}
+                {vscSubTab === 'notifications' && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">Send VSC Notification</h3>
+                    <Card className="p-5">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Scope</label>
+                          <select
+                            className="bg-background border border-border rounded-lg px-3 py-2 text-sm w-full"
+                            value={vscNotifForm.scope}
+                            onChange={(e) => setVscNotifForm(prev => ({ ...prev, scope: e.target.value }))}
+                          >
+                            <option value="all">All Paid Participants</option>
+                            <option value="active">Active Participants Only</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Title</label>
+                          <input
+                            type="text"
+                            className="bg-background border border-border rounded-lg px-3 py-2 text-sm w-full"
+                            placeholder="Notification title..."
+                            value={vscNotifForm.title}
+                            onChange={(e) => setVscNotifForm(prev => ({ ...prev, title: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-muted mb-1">Message</label>
+                          <textarea
+                            className="bg-background border border-border rounded-lg px-3 py-2 text-sm w-full min-h-[100px]"
+                            placeholder="Notification message..."
+                            value={vscNotifForm.message}
+                            onChange={(e) => setVscNotifForm(prev => ({ ...prev, message: e.target.value }))}
+                          />
+                        </div>
+                        <Button
+                          size="sm"
+                          disabled={vscNotifSending || !vscNotifForm.title.trim() || !vscNotifForm.message.trim()}
+                          onClick={async () => {
+                            setVscNotifSending(true);
+                            try {
+                              const token = localStorage.getItem('token');
+                              const res = await fetch('/api/admin', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({
+                                  action: 'vsc-send-notification',
+                                  title: vscNotifForm.title,
+                                  message: vscNotifForm.message,
+                                  scope: vscNotifForm.scope,
+                                }),
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                alert(`Notification sent to ${data.data.count} participants!`);
+                                setVscNotifForm({ title: '', message: '', scope: 'all' });
+                              } else { alert(data.error || 'Failed'); }
+                            } catch { alert('Failed to send notification'); }
+                            setVscNotifSending(false);
+                          }}
+                        >
+                          <BellIcon className="w-4 h-4 mr-1" />
+                          {vscNotifSending ? 'Sending...' : 'Send Notification'}
+                        </Button>
+                      </div>
+                    </Card>
+
+                    {/* Round Scheduling */}
+                    <Card className="p-5">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <ClockIcon className="w-5 h-5 text-blue-400" /> Round Scheduling
+                      </h4>
+                      <p className="text-xs text-muted mb-4">Set start/end times for each round. Rounds will only accept submissions within the scheduled window.</p>
+                      <div className="space-y-3">
+                        {vscData.rounds.map((round: { id: string; roundNumber: number; title: string; isActive: boolean; isLocked: boolean; startsAt?: string | null; endsAt?: string | null }) => (
+                          <div key={round.id} className="flex flex-wrap items-center gap-3 p-3 bg-card-hover rounded-xl">
+                            <span className="text-sm font-medium text-foreground w-40 shrink-0">R{round.roundNumber}: {round.title}</span>
+                            <div className="flex items-center gap-2">
+                              <label className="text-xs text-muted">Start:</label>
+                              <input
+                                type="datetime-local"
+                                className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
+                                defaultValue={round.startsAt ? new Date(round.startsAt).toISOString().slice(0, 16) : ''}
+                                onChange={(e) => setVscEditRoundForm(prev => ({ ...prev, [`start-${round.id}`]: e.target.value }))}
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <label className="text-xs text-muted">End:</label>
+                              <input
+                                type="datetime-local"
+                                className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
+                                defaultValue={round.endsAt ? new Date(round.endsAt).toISOString().slice(0, 16) : ''}
+                                onChange={(e) => setVscEditRoundForm(prev => ({ ...prev, [`end-${round.id}`]: e.target.value }))}
+                              />
+                            </div>
+                            <Button size="sm" variant="ghost" onClick={async () => {
+                              const token = localStorage.getItem('token');
+                              const startVal = vscEditRoundForm[`start-${round.id}`];
+                              const endVal = vscEditRoundForm[`end-${round.id}`];
+                              const res = await fetch('/api/admin', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({
+                                  action: 'vsc-schedule-round',
+                                  roundId: round.id,
+                                  ...(startVal ? { startsAt: new Date(startVal).toISOString() } : {}),
+                                  ...(endVal ? { endsAt: new Date(endVal).toISOString() } : {}),
+                                }),
+                              });
+                              const data = await res.json();
+                              if (data.success) { alert('Schedule updated!'); fetchVscData(); } else { alert(data.error || 'Failed'); }
+                            }}>
+                              Save Schedule
+                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Badge variant={round.isActive ? 'success' : 'default'} className="text-[10px]">
+                                {round.isActive ? 'Active' : 'Inactive'}
+                              </Badge>
+                              {round.isLocked && <Badge variant="danger" className="text-[10px]">Locked</Badge>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Certificates Sub-tab */}
+                {vscSubTab === 'certificates' && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">Issue Certificates</h3>
+                    <Card className="p-5">
+                      <p className="text-xs text-muted mb-4">Issue certificates to participants based on their performance. Certificates are automatically linked to their profile.</p>
+                      <div className="space-y-3">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {vscData.participants?.filter((p: any) => p.hasPaid).map((p: any) => (
+                          <div key={p.id} className="flex items-center justify-between p-3 bg-card-hover rounded-xl">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-orange flex items-center justify-center text-white text-xs font-bold">
+                                {p.user?.firstName?.[0] || '?'}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{p.user?.firstName} {p.user?.lastName}</p>
+                                <p className="text-xs text-muted">Round {p.currentRound} &middot; Score: {p.totalScore} &middot; {p.isEliminated ? '❌ Eliminated' : '✅ Active'}</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              {['PARTICIPATION', 'FINALIST', 'WINNER', 'CHAMPION'].map(ctype => (
+                                <Button key={ctype} size="sm" variant="ghost" className="text-xs" onClick={async () => {
+                                  if (!confirm(`Issue ${ctype} certificate to ${p.user?.firstName}?`)) return;
+                                  const token = localStorage.getItem('token');
+                                  const res = await fetch('/api/admin', {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                    body: JSON.stringify({
+                                      action: 'vsc-issue-certificate',
+                                      participantId: p.id,
+                                      type: ctype,
+                                      rank: ctype === 'CHAMPION' ? 1 : ctype === 'WINNER' ? 2 : ctype === 'FINALIST' ? 3 : null,
+                                      totalScore: p.totalScore,
+                                      roundsCompleted: p.currentRound - 1,
+                                    }),
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) alert('Certificate issued!');
+                                  else alert(data.error || 'Failed');
+                                }}>
+                                  {ctype === 'PARTICIPATION' ? '📜' : ctype === 'FINALIST' ? '🥉' : ctype === 'WINNER' ? '🥈' : '🏆'} {ctype}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
                   </div>
                 )}
               </>

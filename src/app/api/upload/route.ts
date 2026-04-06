@@ -4,7 +4,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { verifyToken } from '@/lib/auth';
 import { errorResponse, getTokenFromRequest } from '@/lib/utils';
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 function getS3Client() {
   const region = process.env.AWS_REGION?.trim() || 'ap-south-1';
@@ -37,18 +37,23 @@ export async function POST(request: NextRequest) {
       return errorResponse('No file provided', 400);
     }
 
-    // Validate file size (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
-      return errorResponse('File size exceeds 10MB limit', 400);
+    const uploadType = formData.get('type') as string | null;
+    const isVideo = uploadType === 'video' || file.type.startsWith('video/');
+
+    // Validate file size (10MB for images/docs, 50MB for videos)
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return errorResponse(`File size exceeds ${isVideo ? '50MB' : '10MB'} limit`, 400);
     }
 
     // Validate file type
     const allowedTypes = [
       'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
       'application/pdf',
+      'video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo',
     ];
     if (!allowedTypes.includes(file.type)) {
-      return errorResponse('File type not allowed. Use images (JPEG, PNG, GIF, WebP, SVG) or PDF.', 400);
+      return errorResponse('File type not allowed. Use images (JPEG, PNG, GIF, WebP, SVG), PDF, or video (MP4, WebM, MOV, AVI).', 400);
     }
 
     // Try S3 first, fallback to Vercel Blob

@@ -60,6 +60,15 @@ interface Participant {
   isBoosted: boolean;
   attempts: Attempt[];
   powerUps: PowerUp[];
+  certificates?: {
+    id: string;
+    type: string;
+    rank: number | null;
+    totalScore: number;
+    roundsCompleted: number;
+    certificateUrl: string | null;
+    issuedAt: string;
+  }[];
   challenge: {
     id: string;
     name: string;
@@ -584,6 +593,43 @@ export default function VSCDashboardPage() {
                 ))}
               </div>
             </Card>
+
+            {/* Certificates */}
+            {participant.certificates && participant.certificates.length > 0 && (
+              <Card className="p-6 bg-white/[0.02] border-white/5">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                  🏅 Your Certificates
+                </h2>
+                <div className="space-y-3">
+                  {participant.certificates.map((cert: { id: string; type: string; rank: number | null; totalScore: number; roundsCompleted: number; certificateUrl: string | null; issuedAt: string }) => (
+                    <div key={cert.id} className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-500/20">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">
+                          {cert.type === 'CHAMPION' ? '🏆' : cert.type === 'WINNER' ? '🥈' : cert.type === 'FINALIST' ? '🥉' : '📜'}
+                        </span>
+                        <div>
+                          <p className="text-sm font-semibold text-white">{cert.type} Certificate</p>
+                          <p className="text-xs text-white/30">
+                            {cert.rank ? `Rank #${cert.rank} · ` : ''}Score: {cert.totalScore} · Rounds: {cert.roundsCompleted}
+                          </p>
+                          <p className="text-[10px] text-white/20">Issued {new Date(cert.issuedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                        </div>
+                      </div>
+                      {cert.certificateUrl && (
+                        <a
+                          href={cert.certificateUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-colors"
+                        >
+                          Download
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

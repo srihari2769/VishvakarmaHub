@@ -137,6 +137,7 @@ model User {
   vscParticipants VSCParticipant[]
   vscAttempts     VSCRoundAttempt[]
   vscPowerUps     VSCPowerUp[]
+  vscCertificates VSCCertificate[]
 
   @@index([email])
   @@index([referralCode])
@@ -773,6 +774,7 @@ model VSCChallenge {
 
   rounds          VSCRound[]
   participants    VSCParticipant[]
+  certificates    VSCCertificate[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -855,6 +857,7 @@ model VSCParticipant {
 
   attempts        VSCRoundAttempt[]
   powerUps        VSCPowerUp[]
+  certificates    VSCCertificate[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -902,6 +905,13 @@ model VSCRoundAttempt {
   usedExtraTime   Boolean  @default(false)
   usedSkipRound   Boolean  @default(false)
 
+  // Admin review (for text/video rounds)
+  reviewStatus    String   @default("PENDING") // PENDING, REVIEWED
+  adminScore      Float?
+  adminFeedback   String?  @db.Text
+  reviewedBy      String?
+  reviewedAt      DateTime?
+
   startedAt       DateTime?
   completedAt     DateTime?
   createdAt       DateTime @default(now())
@@ -909,6 +919,7 @@ model VSCRoundAttempt {
   @@unique([participantId, roundId])
   @@index([roundId])
   @@index([participantId])
+  @@index([reviewStatus])
   @@map("vsc_round_attempts")
 }
 
@@ -938,4 +949,28 @@ model VSCPowerUp {
 
   @@index([participantId])
   @@map("vsc_power_ups")
+}
+
+model VSCCertificate {
+  id              String   @id @default(cuid())
+
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  participantId   String
+  participant     VSCParticipant @relation(fields: [participantId], references: [id])
+
+  challengeId     String
+  challenge       VSCChallenge @relation(fields: [challengeId], references: [id])
+
+  type            String         // PARTICIPATION, FINALIST, WINNER, CHAMPION
+  rank            Int?
+  totalScore      Float
+  roundsCompleted Int
+  certificateUrl  String?
+  issuedAt        DateTime @default(now())
+
+  @@unique([participantId, challengeId])
+  @@index([userId])
+  @@map("vsc_certificates")
 }

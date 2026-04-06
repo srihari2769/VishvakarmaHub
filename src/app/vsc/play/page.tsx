@@ -86,6 +86,8 @@ function VSCPlayContent() {
   // Text submission state
   const [textSubmission, setTextSubmission] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [videoUploadProgress, setVideoUploadProgress] = useState('');
 
   // Timer
   const [timeLeft, setTimeLeft] = useState(0);
@@ -154,6 +156,44 @@ function VSCPlayContent() {
 
   const handleAnswerSelect = (questionId: string, answer: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
+  };
+
+  const handleVideoUpload = async (file: File) => {
+    if (file.size > 50 * 1024 * 1024) {
+      setError('Video must be under 50MB');
+      return;
+    }
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Only MP4, WebM, MOV and AVI videos are accepted');
+      return;
+    }
+    setVideoUploading(true);
+    setVideoUploadProgress('Uploading video...');
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'video');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        setVideoUrl(data.data.url);
+        setVideoUploadProgress('Video uploaded!');
+      } else {
+        setError(data.error || 'Upload failed');
+        setVideoUploadProgress('');
+      }
+    } catch {
+      setError('Video upload failed');
+      setVideoUploadProgress('');
+    } finally {
+      setVideoUploading(false);
+    }
   };
 
   const handleSubmit = async (autoSubmit = false) => {
@@ -513,6 +553,37 @@ function VSCPlayContent() {
 
               <div className="space-y-4">
                 <div>
+                  <label className="block text-sm font-medium text-white/50 mb-2">Upload Video (MP4, WebM, MOV — max 50MB)</label>
+                  <div className="flex items-center gap-3">
+                    <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${videoUploading ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10 hover:border-red-500/30 bg-white/[0.02]'}`}>
+                      <input
+                        type="file"
+                        accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
+                        className="hidden"
+                        disabled={videoUploading}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleVideoUpload(file);
+                        }}
+                      />
+                      {videoUploading ? (
+                        <span className="text-amber-300 text-sm">{videoUploadProgress}</span>
+                      ) : videoUploadProgress === 'Video uploaded!' ? (
+                        <span className="text-green-400 text-sm">✓ Video uploaded successfully</span>
+                      ) : (
+                        <span className="text-white/30 text-sm">Click to select video file</span>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-white/10" />
+                  <span className="text-white/20 text-xs">OR paste a link</span>
+                  <div className="flex-1 h-px bg-white/10" />
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-white/50 mb-2">Video URL (YouTube / Google Drive / Loom)</label>
                   <input
                     type="url"
@@ -538,7 +609,7 @@ function VSCPlayContent() {
 
             <Button
               onClick={() => handleSubmit(false)}
-              disabled={submitting || !videoUrl.trim()}
+              disabled={submitting || videoUploading || !videoUrl.trim()}
               className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold py-4 disabled:opacity-40"
             >
               {submitting ? 'Submitting...' : 'Submit Video Pitch'}

@@ -33,6 +33,9 @@ export async function GET(request: NextRequest) {
           orderBy: { round: { roundNumber: 'asc' } },
         },
         powerUps: true,
+        certificates: {
+          select: { id: true, type: true, rank: true, totalScore: true, roundsCompleted: true, certificateUrl: true, issuedAt: true },
+        },
       },
     });
 

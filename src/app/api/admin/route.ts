@@ -191,7 +191,7 @@ export async function GET(request: NextRequest) {
             participants: {
               include: {
                 user: { select: { firstName: true, lastName: true, email: true } },
-                attempts: { select: { roundId: true, score: true, maxScore: true, passed: true, completedAt: true } },
+                attempts: { select: { id: true, roundId: true, score: true, maxScore: true, passed: true, completedAt: true, submission: true, videoUrl: true, reviewStatus: true, adminScore: true, adminFeedback: true } },
                 powerUps: { select: { type: true, paymentStatus: true, isUsed: true } },
               },
               orderBy: { createdAt: 'desc' },
@@ -200,6 +200,103 @@ export async function GET(request: NextRequest) {
           },
         });
         return successResponse(vscChallenge);
+      }
+
+      case 'vsc-analytics': {
+        const challenge = await prisma.vSCChallenge.findFirst({ where: { isActive: true } });
+        if (!challenge) return successResponse(null);
+
+        const [totalParticipants, paidParticipants, eliminatedCount, totalAttempts, pendingReviews, powerUpsPurchased, powerUpsUsed] = await Promise.all([
+          prisma.vSCParticipant.count({ where: { challengeId: challenge.id } }),
+          prisma.vSCParticipant.count({ where: { challengeId: challenge.id, paymentStatus: 'PAID' } }),
+          prisma.vSCParticipant.count({ where: { challengeId: challenge.id, isEliminated: true, paymentStatus: 'PAID' } }),
+          prisma.vSCRoundAttempt.count({ where: { participant: { challengeId: challenge.id } } }),
+          prisma.vSCRoundAttempt.count({ where: { participant: { challengeId: challenge.id }, completedAt: { not: null }, reviewStatus: 'PENDING', round: { roundType: { in: ['CREATIVITY', 'EXECUTION', 'SOCIAL_PROOF', 'VIDEO_PITCH'] } } } }),
+          prisma.vSCPowerUp.count({ where: { participant: { challengeId: challenge.id }, paymentStatus: 'PAID' } }),
+          prisma.vSCPowerUp.count({ where: { participant: { challengeId: challenge.id }, paymentStatus: 'PAID', isUsed: true } }),
+        ]);
+
+        // Revenue calculation
+        const paidEntries = await prisma.vSCParticipant.findMany({
+          where: { challengeId: challenge.id, paymentStatus: 'PAID' },
+          select: { entryFee: true },
+        });
+        const entryRevenue = paidEntries.reduce((sum, p) => sum + p.entryFee, 0);
+
+        const paidPowerUps = await prisma.vSCPowerUp.findMany({
+          where: { participant: { challengeId: challenge.id }, paymentStatus: 'PAID' },
+          select: { price: true, type: true },
+        });
+        const powerUpRevenue = paidPowerUps.reduce((sum, p) => sum + p.price, 0);
+
+        // Per-round stats
+        const rounds = await prisma.vSCRound.findMany({
+          where: { challengeId: challenge.id },
+          orderBy: { roundNumber: 'asc' },
+          select: { id: true, roundNumber: true, title: true, roundType: true },
+        });
+
+        const roundStats = await Promise.all(rounds.map(async (r) => {
+          const [attempted, passed, failed, pending] = await Promise.all([
+            prisma.vSCRoundAttempt.count({ where: { roundId: r.id, completedAt: { not: null } } }),
+            prisma.vSCRoundAttempt.count({ where: { roundId: r.id, passed: true } }),
+            prisma.vSCRoundAttempt.count({ where: { roundId: r.id, completedAt: { not: null }, passed: false } }),
+            prisma.vSCRoundAttempt.count({ where: { roundId: r.id, completedAt: { not: null }, reviewStatus: 'PENDING', round: { roundType: { in: ['CREATIVITY', 'EXECUTION', 'SOCIAL_PROOF', 'VIDEO_PITCH'] } } } }),
+          ]);
+          return { ...r, attempted, passed, failed, pendingReview: pending };
+        }));
+
+        // Funnel: how many participants reached each round
+        const funnelData = await Promise.all(rounds.map(async (r) => {
+          const reached = await prisma.vSCParticipant.count({
+            where: { challengeId: challenge.id, paymentStatus: 'PAID', currentRound: { gte: r.roundNumber } },
+          });
+          return { round: r.roundNumber, title: r.title, reached };
+        }));
+
+        // Power-up breakdown
+        const powerUpBreakdown = ['SKIP_ROUND', 'EXTRA_TIME', 'REVIVE', 'LEADERBOARD_BOOST'].map(type => ({
+          type,
+          purchased: paidPowerUps.filter(p => p.type === type).length,
+          revenue: paidPowerUps.filter(p => p.type === type).reduce((s, p) => s + p.price, 0),
+        }));
+
+        return successResponse({
+          totalParticipants,
+          paidParticipants,
+          eliminatedCount,
+          activeCount: paidParticipants - eliminatedCount,
+          totalAttempts,
+          pendingReviews,
+          powerUpsPurchased,
+          powerUpsUsed,
+          entryRevenue,
+          powerUpRevenue,
+          totalRevenue: entryRevenue + powerUpRevenue,
+          roundStats,
+          funnelData,
+          powerUpBreakdown,
+        });
+      }
+
+      case 'vsc-pending-reviews': {
+        const challenge = await prisma.vSCChallenge.findFirst({ where: { isActive: true } });
+        if (!challenge) return successResponse([]);
+
+        const pendingAttempts = await prisma.vSCRoundAttempt.findMany({
+          where: {
+            participant: { challengeId: challenge.id },
+            completedAt: { not: null },
+            reviewStatus: 'PENDING',
+            round: { roundType: { in: ['CREATIVITY', 'EXECUTION', 'SOCIAL_PROOF', 'VIDEO_PITCH'] } },
+          },
+          include: {
+            participant: { select: { id: true, name: true, email: true, currentRound: true } },
+            round: { select: { id: true, roundNumber: true, title: true, roundType: true, prompt: true, scoringCriteria: true, passingPercent: true } },
+          },
+          orderBy: { completedAt: 'asc' },
+        });
+        return successResponse(pendingAttempts);
       }
 
       default:
@@ -663,6 +760,212 @@ export async function PATCH(request: NextRequest) {
         if (usCr !== undefined) scoreData.currentRound = parseInt(usCr);
         await prisma.vSCParticipant.update({ where: { id: usId }, data: scoreData });
         return successResponse({ message: 'Participant updated' });
+      }
+
+      // Admin review submission (text/video rounds)
+      case 'vsc-review-submission': {
+        const { attemptId: rsId, adminScore: rsScore, adminFeedback: rsFeedback, passed: rsPassed } = body;
+        if (!rsId) return errorResponse('Attempt ID required', 400);
+        if (rsScore === undefined) return errorResponse('Score is required', 400);
+
+        const attempt = await prisma.vSCRoundAttempt.findUnique({
+          where: { id: rsId },
+          include: { round: true, participant: true },
+        });
+        if (!attempt) return errorResponse('Attempt not found', 404);
+
+        const adminScoreVal = parseFloat(rsScore);
+        const maxScore = attempt.maxScore || 100;
+        const percentage = (adminScoreVal / maxScore) * 100;
+        const didPass = rsPassed === true || rsPassed === 'true';
+
+        // Update the attempt with admin review
+        await prisma.vSCRoundAttempt.update({
+          where: { id: rsId },
+          data: {
+            reviewStatus: 'REVIEWED',
+            adminScore: adminScoreVal,
+            adminFeedback: rsFeedback || null,
+            reviewedBy: payload.userId,
+            reviewedAt: new Date(),
+            score: adminScoreVal,
+            percentage,
+            passed: didPass,
+          },
+        });
+
+        // Update participant total score (add admin score)
+        await prisma.vSCParticipant.update({
+          where: { id: attempt.participantId },
+          data: {
+            totalScore: { increment: adminScoreVal },
+            ...(didPass ? { currentRound: attempt.round.roundNumber + 1 } : { isEliminated: true, eliminatedAt: attempt.round.roundNumber }),
+          },
+        });
+
+        return successResponse({ message: `Submission reviewed — ${didPass ? 'PASSED' : 'FAILED'}` });
+      }
+
+      // Bulk review: auto-pass all quiz rounds that meet threshold
+      case 'vsc-finalize-round': {
+        const { roundId: frId } = body;
+        if (!frId) return errorResponse('Round ID required', 400);
+
+        const round = await prisma.vSCRound.findUnique({ where: { id: frId } });
+        if (!round) return errorResponse('Round not found', 404);
+
+        // Get all completed attempts for this round
+        const attempts = await prisma.vSCRoundAttempt.findMany({
+          where: { roundId: frId, completedAt: { not: null } },
+          orderBy: { score: 'desc' },
+        });
+
+        if (attempts.length === 0) return errorResponse('No attempts to finalize', 400);
+
+        // Calculate cutoff based on passingPercent
+        const cutoffIndex = Math.ceil(attempts.length * (round.passingPercent / 100));
+        const cutoffScore = attempts[Math.min(cutoffIndex - 1, attempts.length - 1)]?.score ?? 0;
+
+        let passedCount = 0;
+        let failedCount = 0;
+
+        for (let i = 0; i < attempts.length; i++) {
+          const a = attempts[i];
+          const didPass = a.score >= cutoffScore && i < cutoffIndex;
+
+          await prisma.vSCRoundAttempt.update({
+            where: { id: a.id },
+            data: { passed: didPass, rank: i + 1, reviewStatus: 'REVIEWED', reviewedAt: new Date(), reviewedBy: payload.userId },
+          });
+
+          await prisma.vSCParticipant.update({
+            where: { id: a.participantId },
+            data: didPass
+              ? { currentRound: round.roundNumber + 1 }
+              : { isEliminated: true, eliminatedAt: round.roundNumber },
+          });
+
+          if (didPass) passedCount++;
+          else failedCount++;
+        }
+
+        return successResponse({ message: `Round finalized: ${passedCount} passed, ${failedCount} eliminated`, passedCount, failedCount, cutoffScore });
+      }
+
+      // Schedule round open/close
+      case 'vsc-schedule-round': {
+        const { roundId: srId, startsAt: srStart, endsAt: srEnd, isActive: srActive, isLocked: srLocked } = body;
+        if (!srId) return errorResponse('Round ID required', 400);
+        const scheduleData: Record<string, unknown> = {};
+        if (srStart !== undefined) scheduleData.startsAt = srStart ? new Date(srStart) : null;
+        if (srEnd !== undefined) scheduleData.endsAt = srEnd ? new Date(srEnd) : null;
+        if (srActive !== undefined) scheduleData.isActive = srActive === true || srActive === 'true';
+        if (srLocked !== undefined) scheduleData.isLocked = srLocked === true || srLocked === 'true';
+        await prisma.vSCRound.update({ where: { id: srId }, data: scheduleData });
+        return successResponse({ message: 'Round schedule updated' });
+      }
+
+      // Issue certificate
+      case 'vsc-issue-certificate': {
+        const { participantId: icId, type: icType } = body;
+        if (!icId || !icType) return errorResponse('Participant ID and type required', 400);
+
+        const participant = await prisma.vSCParticipant.findUnique({ where: { id: icId } });
+        if (!participant) return errorResponse('Participant not found', 404);
+
+        const cert = await prisma.vSCCertificate.upsert({
+          where: { participantId_challengeId: { participantId: icId, challengeId: participant.challengeId } },
+          update: { type: icType, rank: participant.rank, totalScore: participant.totalScore, roundsCompleted: participant.currentRound - 1 },
+          create: {
+            userId: participant.userId,
+            participantId: icId,
+            challengeId: participant.challengeId,
+            type: icType,
+            rank: participant.rank,
+            totalScore: participant.totalScore,
+            roundsCompleted: participant.currentRound - 1,
+          },
+        });
+
+        return successResponse(cert);
+      }
+
+      // Verify social proof for Round 6
+      case 'vsc-verify-social-proof': {
+        const { attemptId: vspId, score: vspScore, feedback: vspFeedback, passed: vspPassed } = body;
+        if (!vspId) return errorResponse('Attempt ID required', 400);
+
+        const spAttempt = await prisma.vSCRoundAttempt.findUnique({
+          where: { id: vspId },
+          include: { round: true, participant: true },
+        });
+        if (!spAttempt) return errorResponse('Attempt not found', 404);
+
+        const spDidPass = vspPassed === true || vspPassed === 'true';
+        const spScore = parseFloat(vspScore) || 0;
+
+        await prisma.vSCRoundAttempt.update({
+          where: { id: vspId },
+          data: {
+            reviewStatus: 'REVIEWED',
+            adminScore: spScore,
+            adminFeedback: vspFeedback || null,
+            reviewedBy: payload.userId,
+            reviewedAt: new Date(),
+            score: spScore,
+            percentage: (spScore / 100) * 100,
+            passed: spDidPass,
+          },
+        });
+
+        await prisma.vSCParticipant.update({
+          where: { id: spAttempt.participantId },
+          data: {
+            totalScore: { increment: spScore },
+            ...(spDidPass ? { currentRound: spAttempt.round.roundNumber + 1 } : { isEliminated: true, eliminatedAt: spAttempt.round.roundNumber }),
+          },
+        });
+
+        return successResponse({ message: `Social proof ${spDidPass ? 'verified' : 'rejected'}` });
+      }
+
+      // Send VSC notification
+      case 'vsc-send-notification': {
+        const { participantIds: snIds, title: snTitle, message: snMsg } = body;
+        if (!snTitle || !snMsg) return errorResponse('Title and message required', 400);
+
+        let targetIds: string[] = [];
+        if (snIds && Array.isArray(snIds)) {
+          // Specific participants
+          const participants = await prisma.vSCParticipant.findMany({
+            where: { id: { in: snIds } },
+            select: { userId: true },
+          });
+          targetIds = participants.map(p => p.userId);
+        } else {
+          // All paid participants
+          const challenge = await prisma.vSCChallenge.findFirst({ where: { isActive: true } });
+          if (challenge) {
+            const allParts = await prisma.vSCParticipant.findMany({
+              where: { challengeId: challenge.id, paymentStatus: 'PAID' },
+              select: { userId: true },
+            });
+            targetIds = allParts.map(p => p.userId);
+          }
+        }
+
+        if (targetIds.length === 0) return errorResponse('No recipients found', 400);
+
+        await prisma.notification.createMany({
+          data: targetIds.map(uid => ({
+            userId: uid,
+            type: 'SYSTEM' as const,
+            title: snTitle,
+            message: snMsg,
+          })),
+        });
+
+        return successResponse({ message: `Notification sent to ${targetIds.length} participants` });
       }
 
       default:
